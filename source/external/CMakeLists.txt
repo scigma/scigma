@@ -1,0 +1,8 @@
+add_subdirectory(zlib-1.2.8)
+add_subdirectory(lpng1610)
+add_subdirectory(tinythread)
+add_subdirectory(glew)
+add_subdirectory(glfw3)
+add_subdirectory(anttweakbar)
+add_subdirectory(odessa)
+add_subdirectory(lapack)

@@ -1,0 +1,7 @@
+enable_language(Fortran)
+add_library(numobjects OBJECT functionwrappers.cpp odessa.cpp stepper.cpp internalmapstepper.cpp internalodessastepper.cpp externalodessastepper.cpp internalpoincarestepper.cpp externalpoincarestepper.cpp mapmanifoldstepper.cpp newton.cpp eigen.cpp equationsystem.cpp function.cpp operator.cpp parser.cpp util.cpp segment.cpp pythonwrapper.cpp) 
+set_target_properties(numobjects PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+include_directories(../external/tinythread)
+include_directories(../external/glew)
+include_directories(../external/glfw3/include/GLFW)
+include_directories(../external/loki)

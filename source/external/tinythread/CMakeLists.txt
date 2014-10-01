@@ -1,0 +1,2 @@
+add_library(tinythread STATIC tinythread.cpp)
+set_target_properties(tinythread PROPERTIES POSITION_INDEPENDENT_CODE TRUE)

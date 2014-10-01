@@ -1,0 +1,62 @@
+c***********************************************************************
+c
+c     Date: Sun, 13 Nov 88 09:54:03 cst
+c     From: netlibd@antares.mcs.anl.gov (Netlib)
+c     Message-Id: <8811131554.AA18868@surfer.mcs.anl.gov>
+c     To: dcrane@icecream.Princeton.EDU
+c     Subject: send dasum from linpack
+c     Status: R
+c
+Caveat receptor.  (Jack) dongarra@anl-mcs.arpa, (Eric Grosse) research!ehg
+Careful! Anything free comes with no guarantee.
+c
+c     *** from netlib, Sun Nov 13 09:53:56 CST 1988 ***
+c
+c***********************************************************************
+
+
+
+
+
+
+      double precision function dasum(n,dx,incx)
+c
+c     takes the sum of the absolute values.
+c     jack dongarra, linpack, 3/11/78.
+c
+      double precision dx(1),dtemp
+      integer i,incx,m,mp1,n,nincx
+c
+      dasum = 0.0d0
+      dtemp = 0.0d0
+      if(n.le.0)return
+      if(incx.eq.1)go to 20
+c
+c        code for increment not equal to 1
+c
+      nincx = n*incx
+      do 10 i = 1,nincx,incx
+        dtemp = dtemp + dabs(dx(i))
+   10 continue
+      dasum = dtemp
+      return
+c
+c        code for increment equal to 1
+c
+c
+c        clean-up loop
+c
+   20 m = mod(n,6)
+      if( m .eq. 0 ) go to 40
+      do 30 i = 1,m
+        dtemp = dtemp + dabs(dx(i))
+   30 continue
+      if( n .lt. 6 ) go to 60
+   40 mp1 = m + 1
+      do 50 i = mp1,n,6
+        dtemp = dtemp + dabs(dx(i)) + dabs(dx(i + 1)) + dabs(dx(i + 2))
+     *  + dabs(dx(i + 3)) + dabs(dx(i + 4)) + dabs(dx(i + 5))
+   50 continue
+   60 dasum = dtemp
+      return
+      end
