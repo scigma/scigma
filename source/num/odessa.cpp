@@ -114,25 +114,25 @@ namespace scigma
 	      switch(istate_)
 		{
 		case -1:
-		  ss<<"ODESSA: no convergence after "<<iwork_[5]<<" steps";
+		  ss<<"ODESSA: no convergence after "<<iwork_[5]<<" steps\n";
 		  break;
 		case -2:
-		  ss<<"ODESSA: tolerance ("<<rwork_[13]<<") too small";
+		  ss<<"ODESSA: tolerance ("<<rwork_[13]<<") too small\n";
 		  break;
 		case -3:
-		  ss<<"ODESSA: illegal input detected";
+		  ss<<"ODESSA: illegal input detected\n";
 		  break;
 		case -4:
-		  ss<<"ODESSA: error tests fail, maybe singular";
+		  ss<<"ODESSA: error tests fail, maybe singular\n";
 		  break;
 		case -5:
-		  ss<<"ODESSA: Jacobian probably inaccurate";
+		  ss<<"ODESSA: Jacobian probably inaccurate\n";
 		  break;
 		case -6:
-		  ss<<"ODESSA: a component with zero absolute tolerance hit zero";
+		  ss<<"ODESSA: a component with zero absolute tolerance hit zero\n";
 		  break;
 		default:
-		  ss<<"ODESSA: this should not happen";
+		  ss<<"ODESSA: this should not happen\n";
 		}
 	      throw(ss.str());
 	    }

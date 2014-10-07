@@ -1,0 +1,13 @@
+reset
+daexp=da*exp(x2)
+x1'=-x1+daexp*(1-x1)
+x2'=-x2+b*daexp*(1-x1)-beta*(x2-tbar)
+tbar=0
+da=0.085
+b=22
+beta=3
+x x1
+y x2
+dt 0.01
+xrange 0 1
+yrange 0 7

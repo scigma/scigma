@@ -1,4 +1,4 @@
-Bug reports, comments and feature requests: *scigma.contact@gmail.com*
+*Bug reports, comments and feature requests: scigma.contact@gmail.com*
 
 SCIGMA 
 ======
@@ -21,8 +21,8 @@ SCIGMA is a Python package that allows you to
   or directly from Python
 * read the results back into your own Python programs
 
-Please consult the documentation in `manual.pdf` for a complete overview of its
-capabilities.
+Please consult the documentation in `manual.pdf` for a more extensive overview
+and a complete reference of SCIGMA's capabilities.
 
 The main focus of SCIGMA is the interactive exploration and visualization of
 small to moderately large systems of differential equations you want to get a
@@ -121,7 +121,7 @@ you might be better served with a full fledged mathematical software suite
  done with CMake. 
  Start the msys terminal (in the MinGW installation folder under
  `msys/1.0/bin/msys.bat`) and change into the build directory (if your build
- directory is `C:\scigma-0.9\build`, for example, use
+ directory is `C:\scigma-0.9.1\build`, for example, use
 
     $ cd /c/scigma-0.9.1/build
 
@@ -141,9 +141,9 @@ you might be better served with a full fledged mathematical software suite
  **3.2 Building under Linux**
 
  You will need to have `g++`, `gfortran` and `cmake` installed, as well as the
- X11 and OpenGL header packages (how these are called may depend on your distro
- - for Debian and its derivatives, like Ubuntu, install the `xorg-dev` and
- `libglu1-mesa-dev` packages).
+ X11 and OpenGL header packages (how these are called may vary depending on
+ your distro; for Debian and its derivatives, like Ubuntu, install the
+ `xorg-dev` and `libglu1-mesa-dev` packages).
 
  To build SCIGMA, open a terminal and change into the `build` directory of the
  toplevel folder. Now configure with
@@ -154,8 +154,10 @@ you might be better served with a full fledged mathematical software suite
 
     $ make
 
- Now, `build` should contain the shared library "libscigma.so".
- `>>> cp libscigma.so ../scigma`
+ Now, `build` should contain the shared library `libscigma.so`.
+
+    $ cp libscigma.so ../scigma
+
  copies this library into the `scigma` subdirectory, which now contains the
  complete Python package. See section 2.3 on how to use the package.	 
 
@@ -189,7 +191,7 @@ you might be better served with a full fledged mathematical software suite
 
  Now, `build` should contain the shared library `libscigma.dylib`.
 
-     $ cp libscigma.dylib ../scigma
+    $ cp libscigma.dylib ../scigma
 
  copies this library into the `scigma` subdirectory, which now contains the
  complete Python package. See section 2.3 on how to use the package.	 

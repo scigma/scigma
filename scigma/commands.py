@@ -828,6 +828,30 @@ def threeD(instance=None):
 alias['2d']=alias['2D']=twoD
 alias['3d']=alias['3D']=threeD
 
+def reset(instance=None):
+    """ reset
+    Deletes all graphical objects and all equations, and
+    resets the viewing volumme
+    """
+    if not instance:
+        instance=default.instance
+    clear(instance)
+    xexpr('x',instance)
+    yexpr('y',instance)
+    zexpr('',instance)
+    axes('xy', instance)
+    x_range(-1,1,instance)
+    y_range(-1,1,instance)
+    z_range(-1,1,instance)
+    c_range(0,1,instance)
+    instance.glWindow.reset_rotation()
+    instance.script='none'
+    instance.source='internal'
+    instance.equationSystemBackup=EquationSystem()
+    equations('internal',instance)
+
+alias['res']=alias['rese']=alias['reset']=reset
+
 def mode(mode,instance=None):
     """ mode <mode>
 
@@ -905,14 +929,14 @@ alias['m']=alias['mo']=alias['mode']=alias['mode']=mode
 def bye(instance=None):
     """ quit
 
-    closes the Instance window and frees all resources
+    closes the instance window and frees all resources
     """
     if not instance:
         instance=default.instance
         default.instance = None
     clear(instance)
     instance.destroy()
-
+    
 alias['q']=alias['qu']=alias['qui']=alias['quit']=alias['end']=alias['bye']=bye
 
 def parse(line,instance=None):

@@ -119,7 +119,7 @@ class Instance(object):
         #self.stylePanel.add_separator('sep1')
         self.stylePanel.add("color",color.from_string('red'))
         self.stylePanel.define("color","colormode=hls");
-        enum = Enum(POINT_TYPE,'none')
+        enum = Enum(POINT_TYPE,'star')
         self.stylePanel.add('marker.style',enum)
         self.stylePanel.add('marker.size',Float(32.0 if largeFontsFlag else 16.0))
         self.stylePanel.define('marker.size', 'min=1.0')
