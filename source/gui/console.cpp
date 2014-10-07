@@ -343,7 +343,6 @@ namespace scigma
     
     void Console::setup_current_text()
     {
-
       if(!currentLineBitmap)
 	{
 	  currentLineBitmap=new ScreenText(fontType);

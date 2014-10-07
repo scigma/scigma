@@ -85,6 +85,7 @@ namespace scigma
 			      GLfloat xAnchor,
 			      GLfloat yAnchor)
     {
+
       size_t n(text.size());
       if(0==n)
 	return;
@@ -155,6 +156,9 @@ namespace scigma
 	}
 
       usedSize_=buffer.size();
+
+      if(!usedSize_)
+	return;
       
       glBindBuffer(GL_ARRAY_BUFFER,glBuffer_);
       if(usedSize_>bufferSize_)
@@ -184,7 +188,6 @@ namespace scigma
       glBindBuffer(GL_ARRAY_BUFFER,0);
       glBindVertexArray(0);
 #endif
-
       GLERR;
     }
     
@@ -260,6 +263,8 @@ namespace scigma
 
     void ScreenText::draw(GLContext* context)
     {
+      if(!usedSize_)
+	return;
 
 #ifdef SCIGMA_USE_OPENGL_3_2
       glBindVertexArray(vertexArray_);
