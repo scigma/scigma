@@ -55,8 +55,13 @@ namespace scigma
     void Cosy::set_view(int view)
     {
       if(!(view_&Z_COORDINATE))
-	if(view&Z_COORDINATE)
-	  glWindow_->gl_context()->add_drawable(&zRuler_);
+	{	
+	  if(view&Z_COORDINATE)
+	    {
+	      zRuler_.update_geometry(glWindow_->viewing_volume());
+	      glWindow_->gl_context()->add_drawable(&zRuler_);
+	    }
+	}
 
       if(view_&Z_COORDINATE)
 	if(!(view&Z_COORDINATE))

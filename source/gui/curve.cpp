@@ -284,15 +284,19 @@ namespace scigma
 				     "\t\telse\n"
 				     "\t\t\trgba2_=foregroundColor;\n"
 				     "\t}\n"
-				     "\tvec2 pointCoord_=(screenPos_-gl_FragCoord.xy)/size_+vec2(0.5,0.5);\n"
 				     "\tif(sprite_!=0)\n"
+				     "\t{\n"
+				     "\t\tif(size_>2)\n"
+				     "\t\t{\n"
+				     "\t\t\tvec2 pointCoord_=(screenPos_-gl_FragCoord.xy)/size_+vec2(0.5,0.5);\n"
 #ifdef SCIGMA_USE_OPENGL_3_2
-				     "\t\trgba2_=texture(sampler_,pointCoord_).r*rgba2_;\n"
-				     "\tif(rgba2_.a==0)discard;\n"
+				     "\t\t\trgba2_=texture(sampler_,pointCoord_).r*rgba2_;\n"
 #else
-				     "\t\trgba2_=texture2D(sampler_,pointCoord_).r*rgba2_;\n"
-				     "\tif(rgba2_.a==0)discard;\n"
+				     "\t\t\trgba2_=texture2D(sampler_,pointCoord_).r*rgba2_;\n"
 #endif
+				     "\t\t\tif(rgba2_.a==0)discard;\n"
+				     "\t\t}\n"
+				     "\t}\n"
 				     "\tif(lighter_==1)\n"
 				     "\t\trgba2_=rgba2_+(1-rgba2_)*0.5;\n");
       std::string colorExpression("rgba2_");

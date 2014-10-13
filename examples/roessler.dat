@@ -1,0 +1,13 @@
+reset
+xrange -5 5
+yrange -5 5
+zrange -5 5
+x'=-(y+z)
+y'=x+a*y
+z'=b+z*(x-c)
+a=0.398
+b=2
+c=4
+z z
+dt 0.05
+3d

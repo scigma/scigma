@@ -1,3 +1,4 @@
+reset
 x'=s*(y-x)
 y'=x*(r-z)-y
 z'=x*y-b*z
