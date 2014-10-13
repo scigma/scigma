@@ -345,11 +345,10 @@ def plot(nSteps=1,name=None,instance=None):
     color=instance.options['Style']['color']
     delay=instance.options['Style']['delay'].value
     
+    # start plotting
+    cppwrapper.plot(nSteps,objlist,instance)
+    # now create the curve
     for obj in objlist:   
-        objects.move_to(obj,instance)
-        # start plotting
-        cppwrapper.plot(nSteps,obj,instance)
-        # now create the curve
         obj['__type__']='tr'
         obj['__graph__']=Curve(instance.glWindow,obj['__id__'],
                                n+1,obj['__varwave__'],obj['__constwave__'],
@@ -520,25 +519,28 @@ def manifold(stable, n=1,originlist=None,name=None,instance=None):
             
         obj['__varwave__'].destroy()
         obj['__varwave__']=Wave(init,columns,lines=n+1)
+
+
         objects.move_to(obj,instance)
         
-        if n>1:
-            if origobj['__mode__']=='ode':
-                nSteps= 1-n if stable else n-1
-                cppwrapper.plot(nSteps,obj,instance)
-            else:
+    if n>1:
+        if origobjlist[0]['__mode__']=='ode':
+            nSteps= 1-n if stable else n-1
+            cppwrapper.plot(nSteps,objlist,instance)
+        else:
+            for obj in objlist:
                 eival = 1/evreal[evindex-1] if stable else evreal[-evindex]
                 nSteps = 1-n if stable else n-1
                 cppwrapper.map_manifold(nSteps,eival,obj,instance)
         
-        # create the curve
-        obj['__type__']='mu'
+    # create the curves
+    for obj in objlist:
+        obj['__type__']='mf' if stable else 'mu'
         obj['__graph__']=Curve(instance.glWindow,obj['__id__'],n+1,
                                obj['__varwave__'],obj['__constwave__'],
                                marker,point,markerSize,pointSize,color,delay)
         objects.show(obj,instance)
         
-    
     instance.pendingTasks=instance.pendingTasks+len(objlist)
     return objlist
 

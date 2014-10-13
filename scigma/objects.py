@@ -112,13 +112,13 @@ def move_to(obj,instance):
     constdata=obj['__constwave__'].data()
     varnames=obj['__varying__']
     constnames=obj['__const__']
+
     instance.equationSystem.stall()
     for i in range (instance.equationSystem.n_variables()):
         instance.equationSystem.parse(varnames[i+1]+'='+str(vardata[offset+i+1])+'\n')
     for i in range (instance.equationSystem.n_parameters()):
         instance.equationSystem.parse(constnames[i]+'='+str(constdata[i])+'\n')
     instance.equationSystem.flush()
-    instance.rebuild_panels()
 
 def move_cursor(objlist,instance):
     if not objlist:
@@ -164,6 +164,7 @@ def move_cursor(objlist,instance):
 #        show(instance.cursorList[index],instance) 
         index=index+1
     move_to(objlist[len(objlist)-1],instance)
+    instance.rebuild_panels()
     instance.glWindow.flush()
 
 def add_cursor(instance):

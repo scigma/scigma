@@ -1,5 +1,6 @@
 from ctypes import *
 from . import lib
+from . import objects
 from .dat import Wave
 from .num import N_EIGEN_TYPES, N_FLOQUET_TYPES, MODE, MAP,ODE,STROBE,POINCARE
 
@@ -9,18 +10,16 @@ lib.scigma_num_plot.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,
                               c_int,c_double,c_double,c_bool,c_bool,
                               c_double,c_double,c_int]
 
-def plot(nSteps, obj, instance):
-    identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
+def plot(nSteps, objlist, instance):
     eqsys=instance.equationSystem.objectID
     log=instance.log.objectID
-    varwave=obj['__varwave__'].objectID
     mode=MODE[instance.options['Numerical']['mode'].label]
     period=0
     nperiod=instance.options['Numerical']['nperiod']
     dt=instance.options['Numerical']['dt']
     maxtime=instance.options['Numerical']['maxtime']
     secvar=0
-    secdir= 1 if instance.options['Numerical']['secdir'].label=='+' else -1
+    secdir=1 if instance.options['Numerical']['secdir'].label=='+' else -1
     secval=instance.options['Numerical']['secval']
     tol=instance.options['Numerical']['Newton']['tol']
     jac = True if instance.options['Numerical']['odessa']['Jacobian'].label=='symbolic' else False
@@ -41,13 +40,18 @@ def plot(nSteps, obj, instance):
         # secvar is assigned here because it might raise an exception which does not matter in other modes
         secvar=instance.options['Numerical']['secvar'].strip()
         secvar=instance.equationSystem.variable_names().index(secvar)
+
+    for obj in objlist: 
+        objects.move_to(obj,instance)    
         # omit the first point for Poincare maps, because it is usually 
         # not in the Poincare plane
-        obj['__varwave__'].destroy()
-        obj['__varwave__']=Wave(None,1+instance.equationSystem.n_variables()+instance.equationSystem.n_functions(),nSteps if nSteps>0 else -nSteps)
-    
-    obj['__thread__']=lib.scigma_num_plot(identifier,eqsys,log,varwave,mode,nSteps,period,nperiod,dt,maxtime,
-                                          secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
+        if mode==POINCARE:
+            obj['__varwave__'].destroy()
+            obj['__varwave__']=Wave(None,1+instance.equationSystem.n_variables()+instance.equationSystem.n_functions(),
+                                    nSteps if nSteps>0 else -nSteps)
+        identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
+        obj['__thread__']=lib.scigma_num_plot(identifier,eqsys,log,obj['__varwave__'].objectID,mode,nSteps,period,nperiod,dt,maxtime,
+                                              secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
 
 lib.scigma_num_guess.restype=c_void_p
 lib.scigma_num_guess.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,
