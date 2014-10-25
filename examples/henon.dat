@@ -1,0 +1,15 @@
+reset
+x'=1-a*x**2+y
+y'=b*x
+a=1.4
+b=0.3
+delay 0.0
+color yellow
+mode map
+point.style dot
+point.size 1
+
+
+
+
+
