@@ -242,7 +242,10 @@ class ATWPanel(object):
                         raise Exception(key+": direction must be of type [float,float,float]")
                 elif len(oldval)==4:
                     try:
-                        value=[float(value[0]),float(value[1]),float(value[2]),float(value[3])]
+                        if len(value)==4:
+                            value=[float(value[0]),float(value[1]),float(value[2]),float(value[3])]
+                        else:
+                            value=[float(value[0]),float(value[1]),float(value[2]),1.0]
                     except TypeError:
                         raise Exception(key+": color must be of type [float,float,float,float]")
             elif isinstance(value,Enum):

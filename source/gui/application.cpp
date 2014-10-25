@@ -254,7 +254,7 @@ namespace scigma
 	  seconds-=(t-lt);
 	  idleMutex_.lock();
 	  size_t nIdleSinks;
-	  while((nIdleSinks=EventSource<IdleEvent>::Type::sinks.size())!=0&&seconds>remainingSecondsAtStart-REFRESH_INTERVAL)
+	  while((nIdleSinks=EventSource<IdleEvent>::Type::sinks.size())!=0)
 	    {
 	      IdleEvent e;
 	      idleIndex_=idleIndex_%nIdleSinks;
@@ -266,6 +266,8 @@ namespace scigma
 	      lt=t;
 	      t=glfwGetTime();
 	      seconds-=(t-lt);
+	      if(seconds<remainingSecondsAtStart-REFRESH_INTERVAL)
+		break;
 	    }
 	  idleMutex_.unlock();
 	  /* if there is still more time, but no EventSinks for IdleEvent any more, insert a waiting period

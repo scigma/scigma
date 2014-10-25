@@ -163,7 +163,7 @@ def move_cursor(objlist,instance):
                                                       lambda identifier:instance.select_callback(identifier))
 #        show(instance.cursorList[index],instance) 
         index=index+1
-    move_to(objlist[len(objlist)-1],instance)
+    move_to(objlist[0],instance)
     instance.rebuild_panels()
     instance.glWindow.flush()
 
@@ -312,8 +312,10 @@ def success(obj, instance):
         info=''
         if obj['__mode__']=='ode':
             if evreal[-1]<=0:
+                obj['__stable__']=True
                 obj['__graph__'].set_point_style(RDOT)
             else:
+                obj['__stable__']=False
                 obj['__graph__'].set_point_style(RING)
             for i in range(N_EIGEN_TYPES):
                 evtypes.append(int(evdata[nVar*(nVar+2)+i]))
@@ -322,8 +324,10 @@ def success(obj, instance):
             instance.console.write_data(info.strip(' / ')+'\n')
         else:
             if evreal[-1]*evreal[-1]+evimag[-1]*evimag[-1]<=1:
+                obj['__stable__']=True
                 obj['__graph__'].set_point_style(QDOT)
             else:
+                obj['__stable__']=False
                 obj['__graph__'].set_point_style(QUAD)
             for i in range(N_FLOQUET_TYPES):
                 evtypes.append(int(evdata[nVar*(nVar+2)+i]))

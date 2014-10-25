@@ -30,11 +30,11 @@ namespace scigma
     {
       for(size_t i(0);i<n;++i)
 	{
-	  tFunc_.set_value(t0_+i);
 	  for(size_t j(0);j<nVar;++j)
 	    work_[j]=rhsFuncs_[j].evaluate();
 	  for(size_t j(0);j<nVar;++j)
 	    xFuncs_[j].set_value(work_[j]);
+	  tFunc_.set_value(tFunc_.evaluate()+1.0);
 	}
     }
     

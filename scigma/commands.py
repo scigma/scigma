@@ -18,7 +18,7 @@ from . import objects
 from . import cppwrapper
 from .dat import Wave
 from .gui import COORDINATE_NAME, COORDINATE_FLAG, COORDINATE_INDEX, N_COORDINATES, C_COORDINATE, VIEW_TYPE
-from .gui import graph, Curve, Navigator, Picker
+from .gui import graph, Curve, Navigator, Picker, QDOT, QUAD
 from .num import EquationSystem
 
 """ Available commands:
@@ -32,6 +32,49 @@ optional arguments are denoted like [this].
  
 """
 alias={}
+
+def circle(d,n=100,instance=None):
+    """ circle [name]
+
+    creates a circle of initial conditions;
+    d is the diameter measured in units of 
+    the coordinate system
+    """
+    d=float(d)
+    n=int(n)
+    if not instance:
+        instance=default.instance
+    if n<2:
+        raise Exception('circle must have at least two points')
+
+    xexp=instance.options['View']['x']
+    yexp=instance.options['View']['y']
+    if not (xexp in instance.equationSystem.variable_names()
+            or xexp in instance.equationSystem.parameter_names()):
+        raise Exception('cannot set initial conditions as long as x-axis shows '+xexp)
+    if not (xexp in instance.equationSystem.variable_names()
+            or xexp in instance.equationSystem.parameter_names()):
+        raise Exception('cannot set initial conditions as long as y-axis shows '+yexp)
+    xval=float(instance.equationSystem.parse('$'+xexp))
+    yval=float(instance.equationSystem.parse('$'+yexp))
+
+    min,max=instance.glWindow.range()
+    dx=d*(max[0]-min[0])*0.5
+    dy=d*(max[1]-min[1])*0.5
+    dphi=2*math.pi/(n-1)
+    phi=0
+
+    instance.equationSystem.parse("x="+str(xval+dx))
+    objects.move_cursor(None,instance)
+    for i in range(0,n-1):
+        phi=phi+dphi
+        instance.equationSystem.stall()
+        instance.equationSystem.parse("x="+str(xval+math.cos(phi)*dx)) 
+        instance.equationSystem.parse("y="+str(yval+math.sin(phi)*dy)) 
+        instance.equationSystem.flush()
+        objects.add_cursor(instance)
+                
+alias['cir']=alias['circ']=alias['circl']=alias['circle']=circle
 
 def rtime(objlist=None, instance=None):
     """ rtime [name]
@@ -306,6 +349,52 @@ def fit(instance=None):
     instance.glWindow.flush()
 
 alias['f']=alias['fi']=alias['fit']=fit
+
+def mark(instance=None):
+    "marks a periodic point with period > 1"
+    if not instance:
+        instance=default.instance
+        
+    
+    nperiod=instance.options['Numerical']['nperiod']
+    mode=instance.options['Numerical']['mode'].label
+    
+    origlist=objects.get(None,instance)
+    objlist=objects.newlist(objects.new_identifier("ppp",instance),nperiod,instance)
+    if origlist[0]['__type__']!='pt' or origlist[0]['__mode__'] == 'ode':
+        raise Exception("Can only mark periodic points")
+    
+    marker = instance.options['Style']['marker']['style']
+    marker = marker.definition['none']
+    markerSize = 1.0
+    pointSize = instance.options['Style']['marker']['size'].value
+    color=instance.options['Style']['color']
+    delay=0.0
+    
+    instance.options['Numerical']['nperiod']=1
+    instance.options['Numerical']['mode'].label=objlist[0]['__mode__']
+    
+    # start plotting
+    cppwrapper.plot(nperiod-1,objlist,instance)
+    # now create the curve
+    i = 0
+    for obj in objlist:   
+        obj['__type__']='pt'
+        point = QDOT if origlist[i]['__stable__'] else QUAD
+        obj['__graph__']=Curve(instance.glWindow,obj['__id__'],
+                               nperiod,obj['__varwave__'],obj['__constwave__'],
+                               marker,point,markerSize,pointSize,color,delay,
+                               lambda identifier:instance.select_callback(identifier))
+        objects.show(obj,instance)
+        i=i+1
+    
+    instance.options['Numerical']['nperiod']=nperiod
+    instance.options['Numerical']['mode'].label=mode
+    
+    instance.pendingTasks=instance.pendingTasks+len(objlist)
+    return objlist
+
+alias['ma']=alias['mar']=alias['mark']=mark
 
 def plot(nSteps=1,name=None,instance=None):
     """ plot [n] [name]

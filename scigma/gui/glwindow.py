@@ -5,6 +5,7 @@ from .picker import Picker
 from .console import Console
 from .atwpanel import ATWPanel
 from .curve import Curve
+from .constants import N_COORDINATES
 
 class GLWindow(object):
     """ Wrapper for GLWindow objects.
@@ -26,6 +27,8 @@ class GLWindow(object):
     lib.scigma_gui_gl_window_scale.argtypes=[c_int,c_int,c_float]
     lib.scigma_gui_gl_window_rotate.argtypes=[c_int,c_float,c_float,c_float,c_float]
     lib.scigma_gui_gl_window_rotateII.argtypes=[c_int,c_int,c_float]
+    lib.scigma_gui_gl_window_min.restype=POINTER(c_float)
+    lib.scigma_gui_gl_window_max.restype=POINTER(c_float)
 
     def __init__(self):
         self.objectID = lib.scigma_gui_create_gl_window()
@@ -90,6 +93,16 @@ class GLWindow(object):
 
     def set_range(self,coordinate,low,high):
         lib.scigma_gui_gl_window_set_range(self.objectID,coordinate,low,high)
+
+    def range(self):
+        min=[]
+        max=[]
+        cmin=cast(lib.scigma_gui_gl_window_min(self.objectID),POINTER(c_float))
+        cmax=cast(lib.scigma_gui_gl_window_max(self.objectID),POINTER(c_float))
+        for i in range(0,N_COORDINATES):
+            min.append(cmin[i])
+            max.append(cmax[i])
+        return min,max
 
     def shift(self,first,second,third=None):
         if(None==third):

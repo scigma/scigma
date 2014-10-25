@@ -9,5 +9,8 @@ b=2.66666667
 x x
 y y
 z z
-delay 0.0
-dt 0.01
+delay 0.001
+dt 0.005
+xrange -20 20
+yrange -20 20
+zrange -5 40

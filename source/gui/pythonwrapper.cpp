@@ -244,6 +244,22 @@ extern "C"
   {PYCLL(GLWindow,objectID,viewing_volume()->reset())}
   void scigma_gui_gl_window_reset_rotation(PythonID objectID)
   {PYCLL(GLWindow,objectID,viewing_volume()->reset_rotation())}
+  const GLfloat* scigma_gui_gl_window_min(PythonID objectID)
+  {
+    PYOBJ(GLWindow,ptr,objectID);
+    if(ptr)
+      return ptr->viewing_volume()->min();
+    else
+      return NULL;
+  }
+  const GLfloat* scigma_gui_gl_window_max(PythonID objectID)
+  {
+    PYOBJ(GLWindow,ptr,objectID);
+    if(ptr)
+      return ptr->viewing_volume()->max();
+    else
+      return NULL;
+  }
 
   /* not yet implemented
      void scigma_gui_gl_window_set_center(PythonID objectID, GLfloat x, GLfloat y, GLfloat z)
