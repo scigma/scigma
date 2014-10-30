@@ -39,9 +39,10 @@ namespace scigma
     void InternalOdessaStepper::advance(size_t n)
     {
       odessa_.integrate(dt_,n);
+
       if(!nFunc)
 	return;
-      
+
       tFunc_.set_value(odessa_.t());
       for(size_t i(0);i!=nVar;++i)
 	xFuncs_[i].set_value(x_[i]);

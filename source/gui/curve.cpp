@@ -192,8 +192,8 @@ namespace scigma
 	      glBindTexture(GL_TEXTURE_2D,Marker::texture_id(marker_));
 	      glPointSize(markerSize_);
 	      glUniform1f(sizeLocation_,markerSize_);
-	      glDrawArrays(GL_POINTS, GLsizei(drawnPoints-1), 1);
-	      
+	      if(drawnPoints>0)
+		glDrawArrays(GL_POINTS, GLsizei(drawnPoints-1),1);   
 	    }
 	}
 

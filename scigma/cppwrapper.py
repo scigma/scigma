@@ -6,11 +6,11 @@ from .num import N_EIGEN_TYPES, N_FLOQUET_TYPES, MODE, MAP,ODE,STROBE,POINCARE
 
 lib.scigma_num_plot.restype=c_void_p
 lib.scigma_num_plot.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,
-                              c_double,c_int,c_double,c_double,c_int,
+                              c_double,c_int,c_bool,c_double,c_double,c_int,
                               c_int,c_double,c_double,c_bool,c_bool,
                               c_double,c_double,c_int]
 
-def plot(nSteps, objlist, instance):
+def plot(nSteps, objlist, showall, instance):
     eqsys=instance.equationSystem.objectID
     log=instance.log.objectID
     mode=MODE[instance.options['Numerical']['mode'].label]
@@ -47,19 +47,20 @@ def plot(nSteps, objlist, instance):
         # not in the Poincare plane
         if mode==POINCARE:
             obj['__varwave__'].destroy()
-            obj['__varwave__']=Wave(None,1+instance.equationSystem.n_variables()+instance.equationSystem.n_functions(),
-                                    nSteps if nSteps>0 else -nSteps)
+            nPoints=nSteps if nSteps>0 else -nSteps
+            nPoints=nPoints*nperiod if showall else nPoints
+            obj['__varwave__']=Wave(None,1+instance.equationSystem.n_variables()+instance.equationSystem.n_functions(),nPoints)
         identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
-        obj['__thread__']=lib.scigma_num_plot(identifier,eqsys,log,obj['__varwave__'].objectID,mode,nSteps,period,nperiod,dt,maxtime,
-                                              secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
+        obj['__thread__']=lib.scigma_num_plot(identifier,eqsys,log,obj['__varwave__'].objectID,mode,nSteps,period,nperiod,
+                                              showall,dt,maxtime,secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
 
 lib.scigma_num_guess.restype=c_void_p
 lib.scigma_num_guess.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,
-                              c_double,c_int,c_double,c_double,c_int,
+                              c_double,c_int,c_bool,c_double,c_double,c_int,
                               c_int,c_double,c_double,c_bool,c_bool,
                               c_double,c_double,c_int]
 
-def guess(obj,instance):
+def guess(obj,showall,instance):
     identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
     eqsys=instance.equationSystem.objectID
     log=instance.log.objectID
@@ -98,17 +99,17 @@ def guess(obj,instance):
         secvar=instance.options['Numerical']['secvar'].strip()
         secvar=instance.equationSystem.variable_names().index(secvar)
     
-    obj['__thread__']=lib.scigma_num_guess(identifier,eqsys,log,varwave,evwave,mode,period,nperiod,dt,maxtime,
-                                           secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
+    obj['__thread__']=lib.scigma_num_guess(identifier,eqsys,log,varwave,evwave,mode,period,nperiod,showall,
+                                           dt,maxtime,secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
 
 
 lib.scigma_num_map_manifold.restype=c_void_p
 lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_double,c_double,
                                       POINTER(c_int),c_double,c_double, c_int,c_int,
-                                      c_double,c_int,c_double,c_double,c_int,c_int,
+                                      c_double,c_int,c_bool,c_double,c_double,c_int,c_int,
                                       c_double,c_double,c_bool,c_bool,c_double,c_double,c_int]
 
-def map_manifold(nSteps,eival,obj,instance):
+def map_manifold(nSteps,eival,obj,showall,instance):
     identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
     eqsys=instance.equationSystem.objectID
     log=instance.log.objectID
@@ -149,6 +150,6 @@ def map_manifold(nSteps,eival,obj,instance):
         secvar=instance.equationSystem.variable_names().index(secvar)
     
     obj['__thread__']=lib.scigma_num_map_manifold(identifier,eqsys,log,varwave,eival,eps,byref(segmentID),ds,alpha,
-                                                  mode,nSteps,period,nperiod,dt,maxtime,secvar,secdir,secval,
+                                                  mode,nSteps,period,nperiod,showall,dt,maxtime,secvar,secdir,secval,
                                                   tol,jac,stiff,atol,rtol,mxiter)
 

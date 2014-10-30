@@ -1,0 +1,14 @@
+mode strobe
+x'=y
+y'=-k*y-x**3+B*cos(omega*t)
+B=0.2
+k=0.08
+omega=1
+T=2*atan2(0,-1)/omega
+xrange -1.2 1.2
+yrange -1.2 1.2
+period $T
+delay 0.2
+marker.style star
+point.style dot
+point.size 3

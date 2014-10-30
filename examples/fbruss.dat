@@ -1,0 +1,19 @@
+reset
+mode strobe
+point.style dot
+point.size 3
+A=0.0072
+f=1.17333
+omega0=0.375
+T=2*pi/(omega0*f)
+period $T
+pi=3.14159265359
+a=0.4
+b=1.2
+x'=a+y*x**2-b*x-x+A*cos(omega0*f*t)
+y'=b*x-y*x*x
+xrange 0.2 0.8
+yrange 1.5 4.0
+delay 0.05
+dt 0.01
+ds 0.001

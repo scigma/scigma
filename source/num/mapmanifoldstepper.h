@@ -12,7 +12,7 @@ namespace scigma
     class MapManifoldStepper:public Stepper
     {
     public:
-      MapManifoldStepper(Stepper* mapStepper, Segment* segment, double dsmax, double dsmin, double alpha);
+      MapManifoldStepper(Stepper* mapStepper, Segment* segment, double dsmax, double dsmin, double alpha, size_t nPeriod);
       ~MapManifoldStepper();
 
       double t() const;
@@ -20,6 +20,7 @@ namespace scigma
       double func(size_t index) const;
       double jac(size_t index) const;
       void reset(const double* x);
+      void advance_once();
       void advance(size_t n=1);
 
     private:
@@ -33,6 +34,10 @@ namespace scigma
       double dsmin_;
 
       double alpha_;
+      size_t nPeriod_;
+      size_t current_;
+
+      double* xBackup_;
     };
 
   } /* end namespace num */

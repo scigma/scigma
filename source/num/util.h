@@ -41,7 +41,7 @@ namespace scigma
 				     int secvar, int secdir, double secval, double tol,
 				     bool extJac, bool stiff, double aTol, double rTol, size_t maxIter);
     
-    Task* create_stepping_task(std::string identifier, Log* log, Stepper* stepper, size_t nSteps, size_t nPeriod, dat::Wave* wave);
+    Task* create_stepping_task(std::string identifier, Log* log, Stepper* stepper, size_t nSteps, size_t nPeriod, size_t showAllIterates, dat::Wave* wave);
 
     Newton::F* create_ode_newton_function(const EquationSystem& eqsys, bool extJac);
 
@@ -50,7 +50,7 @@ namespace scigma
     F* create_additional_function_evaluator(const EquationSystem& eqsys);
 
     Task* create_guessing_task(std::string identifier, Log* log, Stepper* stepper, dat::Wave* varyingWave,
-			       dat::Wave* evWave, double tol, size_t nPeriod, long secvar);
+			       dat::Wave* evWave, double tol, size_t nPeriod, size_t showAllIterates, long secvar);
 
     Task* create_guessing_task(std::string identifier, Log* log, size_t nVar, size_t nFunc,
 			       Newton::F* f, std::function<void(const double*, double*)>* ff,

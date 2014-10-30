@@ -93,8 +93,7 @@ namespace scigma
     {
       if(!(0>dt||0<dt))
 	return;
-      double tEnd(t_+dt*steps);
-      do
+      for(size_t i(0);i<steps;++i)
 	{
 	  instanceMutex_.lock();
 	    instance_=this;
@@ -105,6 +104,7 @@ namespace scigma
 	      }
 	    else
 	      tNext_=t_+dt;
+
 	    odessa_(odessa_F,odessa_DF,nOdessa_,x_,p_,&t_,&tNext_,&itol_,&rtol_,&atol_,&itask_,&istate_,iopt_,rwork_,&lrw_,iwork_,&liw_,odessa_JAC,&mf_,rcomm_,icomm_);
 	    svcom_(rcomm_,icomm_);
 	    instanceMutex_.unlock();
@@ -137,7 +137,6 @@ namespace scigma
 	      throw(ss.str());
 	    }
 	}
-      while(dt>0?t_<tEnd:t_>tEnd);
     }
 
     void Odessa::reset()

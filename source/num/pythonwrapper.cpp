@@ -486,7 +486,8 @@ extern "C"
   }
 
   void* scigma_num_plot(const char* identifier, PythonID equationSystemID,PythonID logID,
-			PythonID varyingWaveID, int mode, int steps, double period, int nPeriod, double dt, 
+			PythonID varyingWaveID, int mode, int steps, double period, int nPeriod, 
+			bool showAllIterates, double dt, 
 			double maxtime, int secvar, int secdir, double secval, double tol,
 			bool extJac, bool stiff, double aTol, double rTol, int maxIter)
   {
@@ -519,13 +520,14 @@ extern "C"
 	stepper=create_poincare_stepper(*eqsys,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
       }
     
-    Task* task(create_stepping_task(identifier,log,stepper,size_t(steps),size_t(nPeriod),wave));
+    Task* task(create_stepping_task(identifier,log,stepper,size_t(steps),size_t(m==ODE?1:nPeriod),showAllIterates?1:0,wave));
     return reinterpret_cast<void*>(new tthread::thread(run_task,reinterpret_cast<void*>(task)));
 
   }
 
   void* scigma_num_guess(const char* identifier, PythonID equationSystemID,PythonID logID,
-			 PythonID varyingWaveID, PythonID evWaveID,int mode, double period, int nPeriod, double dt, 
+			 PythonID varyingWaveID, PythonID evWaveID,int mode, double period, int nPeriod, 
+			 bool showAllIterates, double dt, 
 			 double maxtime, int secvar, int secdir, double secval, double tol,
 			 bool extJac, bool stiff, double aTol, double rTol, int maxIter)
   {
@@ -548,9 +550,11 @@ extern "C"
     switch(m)
       {
       case MAP:
-	f=create_map_newton_function(*eqsys,size_t(nPeriod),extJac);
+	stepper=create_map_stepper(*eqsys);
+	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),showAllIterates?1:0,-1);
+	/*	f=create_map_newton_function(*eqsys,size_t(nPeriod),extJac);
 	ff=create_additional_function_evaluator(*eqsys);
-	task=create_guessing_task(identifier,log,nVar,nFunc,f,ff,varyingWave,evWave,extJac,tol,true);
+	task=create_guessing_task(identifier,log,nVar,nFunc,f,ff,varyingWave,evWave,extJac,tol,true);*/
 	break;
       case ODE:
 	if(!eqsys->is_autonomous())
@@ -566,11 +570,11 @@ extern "C"
 	break;
       case STROBE:
 	stepper=create_ode_stepper(*eqsys,period,extJac,stiff,aTol,rTol,size_t(maxIter));
-	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),-1);
+	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),showAllIterates?1:0,-1);
 	break;
       case POINCARE:
 	stepper=create_poincare_stepper(*eqsys,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
-	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),long(secvar));
+	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),showAllIterates?1:0,long(secvar));
       }
     (*task)();
     delete task;
@@ -581,7 +585,7 @@ extern "C"
   void* scigma_num_map_manifold(const char* identifier, PythonID equationSystemID,PythonID logID,
 				PythonID varyingWaveID, double eval, double eps,
 				int* segmentID, double ds, double alpha, int mode,
-				int steps, double period, int nPeriod, double dt, 
+				int steps, double period, int nPeriod, bool showAllIterates, double dt, 
 				double maxtime, int secvar, int secdir, double secval, double tol,
 				bool extJac, bool stiff, double aTol, double rTol, int maxIter)
   {
@@ -621,13 +625,13 @@ extern "C"
     PYOBJ(Segment,segment,*segmentID);
     if(!segment) // create a new segment, and store its PythonID in segmentID 
       {
-	segment=new Segment(stepper, size_t(nPeriod),eval,wave,eps>0?eps:-eps,1e-12);
+	segment=new Segment(stepper, size_t(nPeriod),eval,wave,eps>0?eps:-eps,1e-8);
 	*segmentID=segment->get_python_id();
       }
 
-    Stepper* ManifoldStepper(new MapManifoldStepper(stepper,segment,ds,1e-12,alpha));
+    Stepper* ManifoldStepper(new MapManifoldStepper(stepper,segment,ds,1e-8,alpha,size_t(nPeriod)));
     
-    Task* task(create_stepping_task(identifier,log,ManifoldStepper,size_t(steps),size_t(nPeriod),wave));
+    Task* task(create_stepping_task(identifier,log,ManifoldStepper,size_t(steps),size_t(nPeriod),showAllIterates?1:0,wave));
     return reinterpret_cast<void*>(new tthread::thread(run_task,reinterpret_cast<void*>(task)));
 
     }

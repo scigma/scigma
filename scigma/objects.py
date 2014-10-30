@@ -132,7 +132,7 @@ def move_cursor(objlist,instance):
         
     timeStamp=objlist[0]['__timestamp__']
     if timeStamp!=instance.timeStamp:
-        instance.console.write("structure of equation system has changed since creation of")
+        instance.console.write("structure of equation system has changed since creation of ")
         id=objlist[0]['__id__'].partition('[')[0]
         instance.console.write_data(id)
         instance.console.write(": cannot move cursor there\n")

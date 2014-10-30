@@ -396,7 +396,7 @@ def mark(instance=None):
 
 alias['ma']=alias['mar']=alias['mark']=mark
 
-def plot(nSteps=1,name=None,instance=None):
+def plot(nSteps=1,name=None,instance=None,showall=False):
     """ plot [n] [name]
     
     Performs and plots n iterations of the current map or n time steps
@@ -419,6 +419,10 @@ def plot(nSteps=1,name=None,instance=None):
         raise Exception ("error: no variables defined")
     
     n = nSteps if nSteps>0 else -nSteps
+    mode=instance.options['Numerical']['mode'].label
+    nperiod=instance.options['Numerical']['nperiod']   
+    
+    n = n*nperiod if (showall and mode!='ode') else n 
     
     if name:
         objlist=objects.newlist(name,n+1,instance)
@@ -435,7 +439,7 @@ def plot(nSteps=1,name=None,instance=None):
     delay=instance.options['Style']['delay'].value
     
     # start plotting
-    cppwrapper.plot(nSteps,objlist,instance)
+    cppwrapper.plot(nSteps,objlist,showall,instance)
     # now create the curve
     for obj in objlist:   
         obj['__type__']='tr'
@@ -450,7 +454,12 @@ def plot(nSteps=1,name=None,instance=None):
 
 alias['p']=alias['pl']=alias['plo']=alias['plot']=plot
 
-def guess(name=None,instance=None):
+def plotall(nSteps=1,name=None,instance=None):
+    return plot(nSteps,name,instance,True)
+
+alias['p*']=alias['pl*']=alias['plo*']=alias['plot*']=plotall
+
+def guess(name=None,instance=None,showall=False):
     """ guess [name]
     Starting at the current position in phase space and parameter 
     space, search for a steady state of the current map/ODE with
@@ -474,11 +483,16 @@ def guess(name=None,instance=None):
     else:
         defname='pp'
     
+    mode=instance.options['Numerical']['mode'].label
+    nperiod=instance.options['Numerical']['nperiod']   
+    
+    n = nperiod if (showall and mode!='ode') else 1 
+    
         # get a dictionary to store data and graph handles
     if name:
-        objlist=objects.newlist(name,1,instance)
+        objlist=objects.newlist(name,n,instance)
     else:
-        objlist=objects.newlist(objects.new_identifier(defname,instance),1,instance)
+        objlist=objects.newlist(objects.new_identifier(defname,instance),n,instance)
     
     marker = instance.options['Style']['marker']['style']
     marker = marker.definition['none']
@@ -488,13 +502,14 @@ def guess(name=None,instance=None):
     pointSize = instance.options['Style']['marker']['size'].value
     color=instance.options['Style']['color']
     delay=0.0
+    nperiod=instance.options['Numerical']['nperiod']   
     
     for obj in objlist:
         objects.move_to(obj,instance)
         obj['__nVar__']=nVar
-        cppwrapper.guess(obj,instance)
+        cppwrapper.guess(obj,showall,instance)
         obj['__type__']='pt'
-        obj['__graph__']=Curve(instance.glWindow,obj['__id__'],1,
+        obj['__graph__']=Curve(instance.glWindow,obj['__id__'],n,
                                obj['__varwave__'],obj['__constwave__'],
                                marker,point,markerSize,pointSize,color,0.0,
                                lambda identifier:instance.select_callback(identifier))
@@ -505,7 +520,12 @@ def guess(name=None,instance=None):
 
 alias['g']=alias['gu']=alias['gue']=alias['gues']=alias['guess']=guess
 
-def manifold(stable, n=1,originlist=None,name=None,instance=None):
+def guessall(name=None,instance=None):
+    return guess(name, instance, True)
+
+alias['g*']=alias['gu*']=alias['gue*']=alias['gues*']=alias['guess*']=guessall
+
+def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False):
     if not instance:
         instance=default.instance
     try:
@@ -538,8 +558,11 @@ def manifold(stable, n=1,originlist=None,name=None,instance=None):
     pointSize = instance.options['Style']['point']['size'].value
     color=instance.options['Style']['color']
     delay=instance.options['Style']['delay'].value
-    
     evindex=instance.options['Numerical']['manifolds']['evec1']
+    
+    mode=instance.options['Numerical']['mode'].label
+    nperiod=instance.options['Numerical']['nperiod']
+    nPoints = ((n+1)*nperiod) if (showall and mode !='ode') else (n+1)
     
     for origobj,obj in zip(origobjlist,objlist):
         # see if we can use the specified origin to create an unstable manifold
@@ -615,19 +638,20 @@ def manifold(stable, n=1,originlist=None,name=None,instance=None):
     if n>1:
         if origobjlist[0]['__mode__']=='ode':
             nSteps= 1-n if stable else n-1
-            cppwrapper.plot(nSteps,objlist,instance)
+            cppwrapper.plot(nSteps,objlist,showall,instance)
         else:
             for obj in objlist:
                 eival = 1/evreal[evindex-1] if stable else evreal[-evindex]
                 nSteps = 1-n if stable else n-1
-                cppwrapper.map_manifold(nSteps,eival,obj,instance)
+                cppwrapper.map_manifold(nSteps,eival,obj,showall,instance)
         
     # create the curves
     for obj in objlist:
         obj['__type__']='mf' if stable else 'mu'
-        obj['__graph__']=Curve(instance.glWindow,obj['__id__'],n+1,
+        obj['__graph__']=Curve(instance.glWindow,obj['__id__'],nPoints,
                                obj['__varwave__'],obj['__constwave__'],
-                               marker,point,markerSize,pointSize,color,delay)
+                               marker,point,markerSize,pointSize,color,delay,
+                               lambda identifier:instance.select_callback(identifier))
         objects.show(obj,instance)
         
     instance.pendingTasks=instance.pendingTasks+len(objlist)
@@ -651,6 +675,12 @@ alias['mu']=alias['mun']=alias['muns']=alias['munst']=alias['munsta']=alias['mun
 def mstable(n=1,origin=None,name=None,instance=None):
     return manifold(True,n,origin,name,instance)
 alias['ms']=alias['mst']=alias['msta']=alias['mstab']=alias['mstabl']=alias['mstable']=mstable
+def munstableall(n=1,origin=None,name=None,instance=None):
+    return manifold(False,n,origin,name,instance,True)
+alias['mu*']=alias['mun*']=alias['muns*']=alias['munst*']=alias['munsta*']=alias['munstab*']=alias['munstabl*']=alias['munstable*']=munstableall
+def mstableall(n=1,origin=None,name=None,instance=None):
+    return manifold(True,n,origin,name,instance,True)
+alias['ms*']=alias['mst*']=alias['msta*']=alias['mstab*']=alias['mstabl*']=alias['mstable*']=mstableall
 
 def show(objstring, instance=None):
     """show <object>

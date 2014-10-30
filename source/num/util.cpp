@@ -118,18 +118,19 @@ namespace scigma
       return NULL;
     }
     
-    Task* create_stepping_task(std::string identifier, Log* log, Stepper* stepper, size_t nSteps, size_t nPeriod, dat::Wave* wave)
+    Task* create_stepping_task(std::string identifier, Log* log, Stepper* stepper, size_t nSteps, size_t nPeriod, size_t showAllIterates, dat::Wave* wave)
     {
       Task* task = new Task
 	([=]() mutable
 	 {
 	   std::string message;
 	   size_t i;
-	   for(i=0;i<nSteps;++i)
+	   size_t factor(showAllIterates?nPeriod:1);
+	   for(i=0;i<nSteps*factor;++i)
 	     {
 	       try
 		 {
-		   stepper->advance(nPeriod);
+		   stepper->advance(nPeriod/factor);
 		 }
 	       catch(std::string error)
 		 {
@@ -272,7 +273,7 @@ namespace scigma
     }
     
     Task* create_guessing_task(std::string identifier, Log* log, Stepper* stepper, dat::Wave* varyingWave,
-			       dat::Wave* evWave, double tol, size_t nPeriod, long secvar)
+			       dat::Wave* evWave, double tol, size_t nPeriod, size_t showAllIterates, long secvar)
     {
       Task* task = new Task
 	([=]() mutable
@@ -335,15 +336,36 @@ namespace scigma
 	       for(size_t i(0);i<types.size();++i)
 		 evWave->append(double(types[i]));
 	       delete[] jac;
+
 	       message=APPLICATION_SUCCESS_PREFIX;
 	       message+=identifier;
+
+	       size_t factor(showAllIterates?nPeriod:1);
+	       stepper->reset(x);
+	       for(size_t j(0);j<factor;++j)
+		 {
+		   try
+		     {
+		       stepper->advance(nPeriod/factor);
+		     }
+		   catch(std::string error)
+		     {
+		       message=APPLICATION_ERROR_PREFIX;
+		       message+=error;
+		       log->push(message);
+		       message=APPLICATION_FAIL_PREFIX;
+		       message+=identifier;
+		       break;
+		     }
+		   varyingWave->append(stepper->t());
+		   for(size_t i(0);i<nVar;++i)
+		     varyingWave->append(stepper->x(i));
+		   for(size_t i(0);i<stepper->nFunc;++i)
+		     varyingWave->append(stepper->func(i));
+		 }
 	     }
 	   delete[] x;
-	   varyingWave->append(stepper->t());
-	   for(size_t i(0);i<nVar;++i)
-	     varyingWave->append(stepper->x(i));
-	   for(size_t i(0);i<stepper->nFunc;++i)
-	     varyingWave->append(stepper->func(i));
+	   
 	   log->push(message);
 	 });
       return task;
