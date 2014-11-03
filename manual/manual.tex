@@ -366,31 +366,33 @@ Deletes all orbits, manifolds and special points, deletes the current set of equ
 garbage collector). This command may be abbreviated by \T{q}.
 \end{description}
 \subsection{Numerical}
+You will notice that some of the commands below come in two versions, namely with and without an appended asterisk (\T{*}). For these commands, the version with the asterisk shows \emph{all} iterates if \HL{nperiod} is not 1, while the command without the asterisk just shows the \emph{nperiod-th} iterates. 
 \begin{description}
-
-\cmd{plot}{[n] [name]}\\takes the current state as initial condition and plots \T{n} steps of the resulting orbit or trajectory. The orbit will be assigned \T{name} as identifier for further reference. If \T{n} is not given, only one step will be taken. A negative \T{n} will reverse the direction of the iteration/integration. If \T{name} is not given, a unique name of the form \T{'trN'} will be generated.\\
+\cmd{plot}{[n] [name] / plot* [n] [name]}\\takes the current state as initial condition and plots \T{n} steps of the resulting orbit or trajectory. The orbit will be assigned \T{name} as identifier for further reference. If \T{n} is not given, only one step will be taken. A negative \T{n} will reverse the direction of the iteration/integration. If \T{name} is not given, a unique name of the form \T{'trN'} will be generated.\\
 The behavior of this command depends on the current setting of the \HL{mode} option:\\
 If \HL{mode} is \T{map}, the program iterates the map and plots every \HL{nperiod}-th point.\\
 If \HL{mode} is \T{ode}, the program integrates the differential equations for \T{n} time steps \HL{dt} and plots the trajectory.\\
 If \HL{mode} is \T{strobe}, 
 the program will plot every \HL{nperiod}-th point of the stroboscopic map of the differential equations with a time interval \HL{period} (this is effectively the same behavior as for \T{ode}, with \HL{period}$\times$\HL{nperiod} as time step instead of \HL{dt}).\\
 If \HL{mode} is \T{Poincare}, the program constructs a Poincare map for the intersection of the \HL{secvar}$=$\HL{secval} plane, iterates it and plots every \HL{nperiod}-th point. \HL{maxtime} determines how far the program should integrate before giving up on finding an intersection. \HL{secdir} determines whether the value of \HL{secvar} should be increasing or decreasing at the intersection.\\ 
-The appearance of the resulting trajectory in depends on the current values of \HL{color}, \HL{marker.style}, \HL{marker.size}, \HL{point.style}, \HL{point.size} and \HL{delay}. This command may be abbreviated by \T{p}.
-\cmd{guess}{[name]}\\takes the current state as starting point and tries to find a stationary state or the current map or ode by Newton iteration. If a stationary state is found, it will be assigned \T{name} as identifier for further reference. If \T{name} is not given, a unique name of the form 
-\T{'fpN'} ('fixed point', for differential equations) or \T{'ppN'} ('periodic point', for maps) will be generated. If \HL{mode} is not \T{ode}, the program will look for a stationary state of the \HL{nperiod}-th iterate of the map. Stationary states of differential equations will be marked with a circle, if they are unstable, and with circles with a dot in the center, if they are stable. Stationary states of maps will be marked with an empty square, if they are unstable, and with a square with a dot in the center, if they are stable. The further appearance depends on the current values of \HL{color}, and \HL{marker.size}. This command may be abbreviated by \T{g}.
+The appearance of the resulting trajectory in depends on the current values of \HL{color}, \HL{marker.style}, \HL{marker.size}, \HL{point.style}, \HL{point.size} and \HL{delay}. This command may be abbreviated by \T{p / p*}.
+\cmd{guess}{[name] / guess* [name]}\\takes the current state as starting point and tries to find a stationary state or the current map or ode by Newton iteration. If a stationary state is found, it will be assigned \T{name} as identifier for further reference. If \T{name} is not given, a unique name of the form 
+\T{'fpN'} ('fixed point', for differential equations) or \T{'ppN'} ('periodic point', for maps) will be generated. If \HL{mode} is not \T{ode}, the program will look for a stationary state of the \HL{nperiod}-th iterate of the map. Stationary states of differential equations will be marked with a circle, if they are unstable, and with circles with a dot in the center, if they are stable. Stationary states of maps will be marked with an empty square, if they are unstable, and with a square with a dot in the center, if they are stable. The further appearance depends on the current values of \HL{color}, and \HL{marker.size}. This command may be abbreviated by \T{g / g*}.
 \cmd{evals}{[name]}\\
 prints the eigenvalues of the object specified by \T{name}. If \T{name} is not given, the currently selected object is used.  
 \cmd{evecs}{[name]}\\
 prints the eigenvectors of the object specified by \T{name}. If \T{name} is not given, the currently selected object is used.  
-\cmd{mstable}{[n] [origin] [name]}\\takes a stationary state (the 'origin') previously found with \HL{guess} and plots \T{n} steps of the 1-dimensional unstable manifold of the origin along an unstable eigenvector, which is determined by the value of \HL{evec1}.  \T{name} will be assigned to the manifold as identifier for further reference. If \T{n} is not given, just the initial segment is created. If \T{origin} is not given, the currently selected object is used. If \T{name} is not given, a unique name of the form \T{'mfN'} will be generated. If \HL{mode} is \T{ode}, one step will correspond to an integration of $\pm$\HL{dt}. Otherwise, the manifold for the \HL{nperiod}-th iterate of the map will be constructed, with an arc length step of (roughly) \HL{ds}. The accuracy of the manifold stepping algorithm for maps can be adjusted with \HL{alpha}. The appearance of the manifold depends on the current values of \HL{color}, \HL{marker.style}, \HL{marker.size}, \HL{point.style}, \HL{point.size} and \HL{delay}. This command may be abbreviated by \T{ms}.
-\cmd{munstable}{[n] [origin] [name]}\\
-Works analog to \T{mstable}. This command may be abbreviated by \T{mu}.
+\cmd{mstable}{[n] [origin] [name] / mstable* [n] [origin] [name]}\\takes a stationary state (the 'origin') previously found with \HL{guess} and plots \T{n} steps of the 1-dimensional unstable manifold of the origin along an unstable eigenvector, which is determined by the value of \HL{evec1}.  \T{name} will be assigned to the manifold as identifier for further reference. If \T{n} is not given, just the initial segment is created. If \T{origin} is not given, the currently selected object is used. If \T{name} is not given, a unique name of the form \T{'mfN'} will be generated. If \HL{mode} is \T{ode}, one step will correspond to an integration of $\pm$\HL{dt}. Otherwise, the manifold for the \HL{nperiod}-th iterate of the map will be constructed, with an arc length step of (roughly) \HL{ds}. The accuracy of the manifold stepping algorithm for maps can be adjusted with \HL{alpha}. The appearance of the manifold depends on the current values of \HL{color}, \HL{marker.style}, \HL{marker.size}, \HL{point.style}, \HL{point.size} and \HL{delay}. This command may be abbreviated by \T{ms / ms*}.
+\cmd{munstable}{[n] [origin] [name] / munstable* [n] [origin] [name]}\\
+works analog to \T{mstable}. This command may be abbreviated by \T{mu / mu*}.
 %\cmd{m2unstable}{[n] [origin] [name]}\\
 %This command may be abbreviated by \T{mu}.
 %\cmd{m2stable}{[n] [origin] [name]}\\
 %This command may be abbreviated by \T{ms}.
 \cmd{rtime}{[name]}\\
 If \T{name} denotes an orbit or stationary state of a stroboscopic map or Poincare map, this prints the return time. If \T{name} is not given, \T{rtime} prints the return time of the currently selected object. This command may be abbreviated by \T{rt}.
+\cmd{circle}{<diameter> [n]}\\
+takes the current position as center and places \T{n} initial conditions equally spaced on the circle with the specified diameter. \T{diameter} is given in units of the currently visible portion of phase space. If \T{n} is not given, 100 is used. This command may be abbreviated by \T{cir}.
 \end{description}
 \subsection{View and style}
 \begin{description}
