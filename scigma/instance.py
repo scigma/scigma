@@ -89,7 +89,7 @@ class Instance(object):
         self.numericalPanel.define('odessa.atol',"min=0.0")
         self.numericalPanel.add('odessa.rtol',1e-9)
         self.numericalPanel.define('odessa.rtol',"min=0.0")
-        self.numericalPanel.add('odessa.mxiter',int(500))
+        self.numericalPanel.add('odessa.mxiter',int(10000))
         self.numericalPanel.define('odessa.mxiter',"min=1")
         self.numericalPanel.add('odessa.Jacobian',enum,True,"readonly=true")
         self.numericalPanel.add('Newton.tol',1e-9)

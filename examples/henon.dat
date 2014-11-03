@@ -1,4 +1,5 @@
 reset
+mxiter 10000
 x'=1-a*x**2+y
 y'=b*x
 a=1.4

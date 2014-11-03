@@ -1,4 +1,5 @@
 reset
+mxiter 10000
 daexp=da*exp(x2)
 x1'=-x1+daexp*(1-x1)
 x2'=-x2+b*daexp*(1-x1)-beta*(x2-tbar)

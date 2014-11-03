@@ -1,3 +1,5 @@
+reset
+mxiter 10000
 mode strobe
 x'=y
 y'=-k*y-x**3+B*cos(omega*t)

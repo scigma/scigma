@@ -1,4 +1,5 @@
 reset
+mxiter 10000
 xrange -5 5
 yrange -5 5
 zrange -5 5

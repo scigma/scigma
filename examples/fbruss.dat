@@ -1,4 +1,5 @@
 reset
+mxiter 10000
 mode strobe
 point.style dot
 point.size 3
