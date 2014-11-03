@@ -4,6 +4,8 @@
 #include "glwindow.h"
 #include "application.h"
 
+extern "C" int ESCAPE_COUNT;
+
 namespace scigma
 {
   namespace gui
@@ -194,6 +196,14 @@ namespace scigma
 	      glUniform1f(sizeLocation_,markerSize_);
 	      if(drawnPoints>0)
 		glDrawArrays(GL_POINTS, GLsizei(drawnPoints-1),1);   
+	    }
+
+	  if(escapeCount_!=ESCAPE_COUNT)
+	    {
+	      delay_=0.0f;
+	      nPoints_=availablePoints;
+	      drawnPoints=availablePoints;
+	      glContext->continuous_refresh_not_needed();
 	    }
 	}
 

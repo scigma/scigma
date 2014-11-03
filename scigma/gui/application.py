@@ -56,3 +56,4 @@ def remove_idle_callback(func):
         lib.scigma_gui_application_set_loop_callback(None)
         lib.scigma_gui_application_set_loop_callback.argtypes=[C_CallbackType]
 
+

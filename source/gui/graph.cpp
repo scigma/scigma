@@ -7,6 +7,8 @@
 #include "glcontext.h"
 #include "graphtypes.h"
 
+extern "C" int ESCAPE_COUNT;
+
 namespace scigma
 {
   namespace gui
@@ -58,6 +60,8 @@ namespace scigma
        glWindow_(glWindow),identifier_(identifier),doubleClickTime_(0.25),lastClickTime_(-1.0),hoverPoint_(-1),variableWave_(variableWave),constantWave_(constantWave),marker_(marker),point_(point),
        markerSize_(markerSize),pointSize_(pointSize),timeOfFirstDraw_(-1),delay_(delay),attributesInvalid_(true),hovering_(false),pointHoverIsActive_(false)
      {
+       escapeCount_=ESCAPE_COUNT;
+       
        if(!dummyBuffer_)
 	 glGenBuffers(1,&dummyBuffer_);
 
@@ -67,7 +71,7 @@ namespace scigma
        constantWave_->grab(Application::get_instance());
 
        if(color)
-       set_color(color);
+	 set_color(color);
        else
        {
 	 GLfloat col[]={1.0f,1.0f,1.0f,1.0f};

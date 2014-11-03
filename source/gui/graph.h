@@ -86,10 +86,12 @@ namespace scigma
       GLfloat timeOfFirstDraw_;
       GLfloat delay_;     
 
+      int escapeCount_;
+
       bool attributesInvalid_;
       bool hovering_;
       bool pointHoverIsActive_;
-      char padding_[5];
+      char padding_[1];
 
       // maximum number of shaders used by a child class of graph
       static const size_t MAX_SHADERS=32;

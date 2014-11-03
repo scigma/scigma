@@ -75,7 +75,9 @@ extern "C"
   
   void char_callback(GLFWwindow* w, unsigned int unicode)
   {
-    scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w))); 
+    scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w)));
+
+ 
     TwSetCurrentWindow(size_t(glWindow->gl_context()));
     if(TwEventCharGLFW(int(unicode),GLFW_PRESS))
       glWindow->gl_context()->request_redraw();
@@ -83,8 +85,17 @@ extern "C"
       glWindow->forward_char_event(unicode);
   }        
   
+  extern int ESCAPE_COUNT;
+  int ESCAPE_COUNT(0);
+
   void key_callback(GLFWwindow* w, int key, int scancode, int action, int mods)
   {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+      {
+	++ESCAPE_COUNT;
+	std::cout<<ESCAPE_COUNT<<std::endl;
+      }
+    
     scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w))); 
     TwSetCurrentWindow(size_t(glWindow->gl_context()));
     if(TwEventKeyGLFW(key,action))

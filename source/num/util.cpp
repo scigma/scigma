@@ -10,11 +10,13 @@
 #include "eigen.h"
 #include <iostream>
 
+extern "C" int ESCAPE_COUNT;
+
 namespace scigma
 {
   namespace num
   {
-    
+
     const char* APPLICATION_SUCCESS_PREFIX="__succ__";
     const char* APPLICATION_FAIL_PREFIX="__fail__";
     const char* APPLICATION_ERROR_PREFIX="__error_";
@@ -123,6 +125,7 @@ namespace scigma
       Task* task = new Task
 	([=]() mutable
 	 {
+	   int escapeCount(ESCAPE_COUNT);
 	   std::string message;
 	   size_t i;
 	   size_t factor(showAllIterates?nPeriod:1);
@@ -144,6 +147,9 @@ namespace scigma
 		 wave->append(stepper->x(j));
 	       for(size_t j(0);j<stepper->nFunc;++j)
 		 wave->append(stepper->func(j));
+	       
+	       if(escapeCount!=ESCAPE_COUNT)
+		 break;
 	     }
 	   if(i>0)
 	     {
