@@ -29,27 +29,27 @@ namespace scigma
       delete task;
     }
     
-    Stepper* create_map_stepper(const EquationSystem& eqsys)
+    Stepper* create_map_stepper(const EquationSystem& eqsys, bool computeJacobian)
     {
       if(eqsys.is_internal())
 	{
 	  Function tFunc;
 	  VecF xFuncs,rhsFuncs,funcFuncs;
 	  eqsys.detach(tFunc,xFuncs,rhsFuncs,funcFuncs);
-	  return new InternalMapStepper(tFunc,xFuncs,rhsFuncs,funcFuncs);
+	  return new InternalMapStepper(computeJacobian,tFunc,xFuncs,rhsFuncs,funcFuncs);
 	}
       return NULL;
     }
     
-    Stepper* create_ode_stepper(const EquationSystem& eqsys, double dt, bool extJac, 
-				bool stiff, double aTol, double rTol, size_t maxIter)
+    Stepper* create_ode_stepper(const EquationSystem& eqsys, bool computeJacobian,double dt,
+				bool extJac,bool stiff, double aTol, double rTol, size_t maxIter)
     {
       if(eqsys.is_internal())
 	{
 	  Function tFunc;
 	  VecF xFuncs,rhsFuncs,funcFuncs;
 	  eqsys.detach(tFunc,xFuncs,rhsFuncs,funcFuncs);
-	  return new InternalOdessaStepper(dt,tFunc,xFuncs,rhsFuncs,funcFuncs,stiff,aTol,rTol,maxIter);
+	  return new InternalOdessaStepper(computeJacobian,dt,tFunc,xFuncs,rhsFuncs,funcFuncs,stiff,aTol,rTol,maxIter);
 	}
       else
 	{
@@ -74,11 +74,11 @@ namespace scigma
 	  size_t nVar(eqsys.n_variables());
 	  size_t nFunc(eqsys.n_functions());
 	  F_t fFunc(eqsys.func_t());
-	  return new ExternalOdessaStepper(dt,nVar,nFunc,f,extJac?dfdx:NULL,fFunc,t,x,stiff,aTol,rTol,maxIter);
+	  return new ExternalOdessaStepper(computeJacobian,dt,nVar,nFunc,f,extJac?dfdx:NULL,fFunc,t,x,stiff,aTol,rTol,maxIter);
 	}
     }
 
-    Stepper* create_poincare_stepper(const EquationSystem& eqsys, double maxtime, double dt,
+    Stepper* create_poincare_stepper(const EquationSystem& eqsys, bool computeJacobian,double maxtime, double dt,
 				     int secvar, int secdir, double secval, double tol,
 				     bool extJac, bool stiff, double aTol, double rTol, size_t maxIter)
     {
@@ -87,7 +87,7 @@ namespace scigma
 	  Function tFunc;
 	  VecF xFuncs,rhsFuncs,funcFuncs;
 	  eqsys.detach(tFunc,xFuncs,rhsFuncs,funcFuncs);
-	  return new InternalPoincareStepper(maxtime,dt,secvar,secdir,secval,tol,
+	  return new InternalPoincareStepper(computeJacobian,maxtime,dt,secvar,secdir,secval,tol,
 					     tFunc,xFuncs,rhsFuncs,funcFuncs,
 					     stiff,aTol,rTol,maxIter);
 
@@ -115,7 +115,7 @@ namespace scigma
 	  size_t nVar(eqsys.n_variables());
 	  size_t nFunc(eqsys.n_functions());
 	  F_t fFunc(eqsys.func_t());
-	  return new ExternalPoincareStepper(maxtime,dt,secvar,secdir,secval,tol,nVar,nFunc,f,extJac?dfdx:NULL,fFunc,t,x,stiff,aTol,rTol,maxIter);
+	  return new ExternalPoincareStepper(computeJacobian,maxtime,dt,secvar,secdir,secval,tol,nVar,nFunc,f,extJac?dfdx:NULL,fFunc,t,x,stiff,aTol,rTol,maxIter);
 	}
       return NULL;
     }
@@ -298,7 +298,6 @@ namespace scigma
 	     // subtract 1 from the diagonal of the Jacobian
 	     for(size_t i(0);i<nVar;++i)
 	       rhs[nVar+i*(nVar+1)]-=1.0;
-	     //std::cout<<"stepper->t():"<<stepper->t()<<std::endl;
 	   };
 
 	   double* x(new double[nVar]);

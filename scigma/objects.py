@@ -112,13 +112,21 @@ def move_to(obj,instance):
     constdata=obj['__constwave__'].data()
     varnames=obj['__varying__']
     constnames=obj['__const__']
-
+    
     instance.equationSystem.stall()
     for i in range (instance.equationSystem.n_variables()):
         instance.equationSystem.parse(varnames[i+1]+'='+str(vardata[offset+i+1])+'\n')
     for i in range (instance.equationSystem.n_parameters()):
         instance.equationSystem.parse(constnames[i]+'='+str(constdata[i])+'\n')
     instance.equationSystem.flush()
+    
+    if instance.inverseConsistent:
+        instance.inverseEquationSystem.stall()
+        for i in range (instance.inverseEquationSystem.n_variables()):
+            instance.inverseEquationSystem.parse(varnames[i+1]+'='+str(vardata[offset+i+1])+'\n')
+        for i in range (instance.inverseEquationSystem.n_parameters()):
+            instance.inverseEquationSystem.parse(constnames[i]+'='+str(constdata[i])+'\n')
+        instance.inverseEquationSystem.flush()
 
 def move_cursor(objlist,instance):
     if not objlist:
@@ -223,9 +231,8 @@ def delete(obj, instance):
     if '__evwave__' in obj:
         obj['__evwave__'].destroy()
     if '__thread__' in obj:
-        if obj['__thread__']:
-            lib.scigma_num_destroy_thread(obj['__thread__'])
-            obj['__thread__']=None
+        lib.scigma_num_destroy_thread(obj['__thread__'])
+        obj['__thread__']=None
 
 def min_max(obj):
     obj['__min__']={}
@@ -302,10 +309,12 @@ def success(obj, instance):
         
         instance.console.write("found steady state:\n")
         vardata=obj['__varwave__'].data()
+        rows=obj['__varwave__'].rows()
+        columns=obj['__varwave__'].columns()
         names=obj['__varying__']
         for i in range(nVar):
             instance.console.write(names[i+1]+' = ')
-            instance.console.write_data(str(float("{0:.10f}".format(vardata[i+1])))+'\n')
+            instance.console.write_data(str(float("{0:.10f}".format(vardata[i+1+columns*(rows-1)])))+'\n')
         
         evtypes=[]
         instance.console.write("stability: ")

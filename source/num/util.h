@@ -32,12 +32,12 @@ namespace scigma
     typedef std::function<void(void)> Task; 
     void run_task(void* taskPtr);
     
-    Stepper* create_map_stepper(const EquationSystem& eqsys);
+    Stepper* create_map_stepper(const EquationSystem& eqsys, bool computeJacobian);
     
-    Stepper* create_ode_stepper(const EquationSystem& eqsys, double dt, bool extJac, 
+    Stepper* create_ode_stepper(const EquationSystem& eqsys, bool computeJacobian, double dt, bool extJac, 
 				bool stiff, double aTol, double rTol, size_t maxIter);
 
-    Stepper* create_poincare_stepper(const EquationSystem& eqsys, double maxtime, double dt,
+    Stepper* create_poincare_stepper(const EquationSystem& eqsys, bool computeJacobian,double maxtime, double dt,
 				     int secvar, int secdir, double secval, double tol,
 				     bool extJac, bool stiff, double aTol, double rTol, size_t maxIter);
     

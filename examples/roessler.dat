@@ -1,4 +1,8 @@
 reset
+mode ode
+point.style none
+delay 0
+color 0
 mxiter 10000
 xrange -5 5
 yrange -5 5
@@ -10,5 +14,5 @@ a=0.398
 b=2
 c=4
 z z
-dt 0.005
+dt 0.05
 3d

@@ -499,6 +499,24 @@ namespace scigma
       request_redraw();
     }
     
+    void GLContext::draw_frame()
+    {
+      glfwMakeContextCurrent(glfwWindowPointer_);
+      glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+      
+      draw<DrawableTypes>(0);
+      
+#ifdef SCIGMA_OPENGL_3_2
+      glBindVertexArray(0);
+#else
+      glUseProgram(0);	  
+#endif
+      TwSetCurrentWindow(size_t(this));
+      TwDraw();
+      GLERR;
+
+    }
+
     void GLContext::request_redraw()
     {
       if(stalled_)
@@ -514,20 +532,8 @@ namespace scigma
 	      return;
 	      }*/
 	  currentFrameStartTime_=now;
-	  glfwMakeContextCurrent(glfwWindowPointer_);
-	  
-	  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-	  draw<DrawableTypes>(0);
-	  
-#ifdef SCIGMA_OPENGL_3_2
-	  glBindVertexArray(0);
-#else
-	  glUseProgram(0);	  
-#endif
-	  TwSetCurrentWindow(size_t(this));
-	  TwDraw();
-	  GLERR;
+	  draw_frame();
 	  
 	  glfwSwapBuffers(glfwWindowPointer_);
 	  currentFrameRenderingTime_=glfwGetTime()-currentFrameStartTime_;

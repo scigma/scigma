@@ -9,7 +9,7 @@ namespace scigma
   {
     
     MapManifoldStepper::MapManifoldStepper(Stepper* mapStepper, Segment* segment, double dsmax, double dsmin, double alpha, size_t nPeriod):
-      Stepper(mapStepper->nVar,mapStepper->nFunc,0),mapStepper_(mapStepper),segment_(segment),
+      Stepper(false,mapStepper->nVar,mapStepper->nFunc,0),mapStepper_(mapStepper),segment_(segment),
       ds_(dsmax),dsmax_(dsmax),dsmin_(dsmin),alpha_(alpha),nPeriod_(nPeriod),current_(0),xBackup_(new double[mapStepper->nVar])
     {
       for(size_t i(0);i<mapStepper_->nVar;++i)

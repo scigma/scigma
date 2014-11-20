@@ -13,7 +13,7 @@ namespace scigma
     class InternalMapStepper:public Stepper
     {
     public:
-      InternalMapStepper(const Function& tFunc, const VecF& xFuncs, const VecF& rhsFuncs, const VecF& funcFuncs);
+      InternalMapStepper(bool computeJacobian, const Function& tFunc, const VecF& xFuncs, const VecF& rhsFuncs, const VecF& funcFuncs);
       
       double t() const;
       double x(size_t index) const;
@@ -30,11 +30,14 @@ namespace scigma
       InternalMapStepper& operator=(const InternalMapStepper&);
 
       Function tFunc_;
-      std::vector<Function> xFuncs_;
-      std::vector<Function> rhsFuncs_;
-      std::vector<Function> funcFuncs_;
+      VecF xFuncs_;
+      VecF rhsFuncs_;
+      VecF funcFuncs_;
 
       VecD work_;
+      VecD jacData_;
+      VecF jacFuncs_;
+      double* jac_;
 
       double t0_;
       char padding_[8];

@@ -142,6 +142,8 @@ namespace scigma
        */
       void flush();
       
+      void draw_frame();
+      
       //!redraws, if not stalled
       /*!
 	This function draws all drawable objects that are currently part of the GLContext, except if

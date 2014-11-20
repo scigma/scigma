@@ -44,6 +44,10 @@ def set(identifier, value, instance=None):
         d=dict_entry(parts[0],panel.data)
         key=parts[2]
         oldval=d[key]
+        if isinstance(value,int):
+            if isinstance(oldval,list):
+                if len(oldval)==4:
+                    value=color.values[color.names[value]]
         if isinstance(value,str):
             if isinstance(oldval,bool):
                 if value.lower()=='true':

@@ -183,13 +183,14 @@ namespace scigma
       if(dataMax_>bufferCapacity_) //create a larger buffer and copy the data, don't add new data for now
 	{
 	  usedFullChunk_=false;
-	  while(dataMax_>bufferCapacity_)
-	    bufferCapacity_*=1.5;
+	  uint32_t newBufferCapacity(bufferCapacity_);
+	  while(dataMax_>newBufferCapacity)
+	    newBufferCapacity*=1.5;
 	  GLuint newBuffer;
 	  glGenBuffers(1,&newBuffer);
 	  glBindBuffer(GL_ARRAY_BUFFER,newBuffer);
-	  glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*bufferCapacity_,NULL,GL_DYNAMIC_DRAW);
-	  void* ptr=glMapBuffer(GL_ARRAY_BUFFER,GL_MAP_WRITE_BIT);
+	  glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*newBufferCapacity,NULL,GL_DYNAMIC_DRAW);
+	  void* ptr=glMapBuffer(GL_ARRAY_BUFFER,GL_WRITE_ONLY);
 	  if(!ptr)
 	    {
 	      glDeleteBuffers(1,&newBuffer);
@@ -203,6 +204,7 @@ namespace scigma
 	      glDeleteBuffers(1,&newBuffer);
 	      return;
 	    }
+	  bufferCapacity_=newBufferCapacity;
 	  GLuint oldBuffer(glBuffer_);
 	  glBuffer_=newBuffer;
 	  glDeleteBuffers(1,&oldBuffer);
@@ -228,7 +230,9 @@ namespace scigma
 	  floatPtr+=bufferMax_;
 #endif
 	  if(!ptr)
+	    {
 	      return;
+	    }
 	  for(uint32_t i(bufferMax_);i<newMax;++i)
 	    floatPtr[i-bufferMax_]=GLfloat(data_[i]);
 	  if(!glUnmapBuffer(GL_ARRAY_BUFFER))
@@ -244,7 +248,6 @@ namespace scigma
 	  app_->EventSource<gui::IdleEvent>::Type::disconnect(this);
 	  transferring_=false;
 	}
-
     }
     
   } /* end namespace dat */

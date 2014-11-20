@@ -1,0 +1,17 @@
+reset
+mode map
+point.style dot
+point.size 1
+delay 0
+nperiod 1
+ds 0.0001
+x q	   
+y p
+xrange 0 1
+yrange 0 1
+pi=atan2(0,-1)
+p'=mod(p+lambda/2/pi*sin(2*pi*q)+1,1)
+q'=mod(q+p+lambda/2/pi*sin(2*pi*q)+1,1)
+i p'=mod(p-lambda/2/pi*sin(2*pi*(q-p))+1,1)
+i q'=mod(q-p+1,1)
+lambda=0.9

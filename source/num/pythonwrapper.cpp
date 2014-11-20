@@ -489,7 +489,7 @@ extern "C"
 			PythonID varyingWaveID, int mode, int steps, double period, int nPeriod, 
 			bool showAllIterates, double dt, 
 			double maxtime, int secvar, int secdir, double secval, double tol,
-			bool extJac, bool stiff, double aTol, double rTol, int maxIter)
+			bool extJac, bool stiff, double aTol, double rTol, int maxIter, bool noThread)
   {
     PYOBJ(EquationSystem,eqsys,equationSystemID);if(!eqsys)return NULL;
     PYOBJ(Log,log,logID);if(!log)return NULL;
@@ -508,20 +508,29 @@ extern "C"
     switch(m)
       {
       case MAP:
-	stepper=create_map_stepper(*eqsys);
+	stepper=create_map_stepper(*eqsys,false);
 	break;
       case ODE:
-	stepper=create_ode_stepper(*eqsys,dt,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_ode_stepper(*eqsys,false,dt,extJac,stiff,aTol,rTol,size_t(maxIter));
 	break;
       case STROBE:
-	stepper=create_ode_stepper(*eqsys,period,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_ode_stepper(*eqsys,false,period,extJac,stiff,aTol,rTol,size_t(maxIter));
 	break;
       case POINCARE:
-	stepper=create_poincare_stepper(*eqsys,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_poincare_stepper(*eqsys,false,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
       }
     
     Task* task(create_stepping_task(identifier,log,stepper,size_t(steps),size_t(m==ODE?1:nPeriod),showAllIterates?1:0,wave));
-    return reinterpret_cast<void*>(new tthread::thread(run_task,reinterpret_cast<void*>(task)));
+    if(noThread)
+      {
+	(*task)();
+	delete task;
+	return NULL;
+      }
+    else
+      {
+	return reinterpret_cast<void*>(new tthread::thread(run_task,reinterpret_cast<void*>(task)));
+      }
 
   }
 
@@ -550,7 +559,7 @@ extern "C"
     switch(m)
       {
       case MAP:
-	stepper=create_map_stepper(*eqsys);
+	stepper=create_map_stepper(*eqsys,true);
 	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),showAllIterates?1:0,-1);
 	/*	f=create_map_newton_function(*eqsys,size_t(nPeriod),extJac);
 	ff=create_additional_function_evaluator(*eqsys);
@@ -569,11 +578,11 @@ extern "C"
 	task=create_guessing_task(identifier,log,nVar,nFunc,f,ff,varyingWave,evWave,extJac,tol,false);
 	break;
       case STROBE:
-	stepper=create_ode_stepper(*eqsys,period,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_ode_stepper(*eqsys,true,period,extJac,stiff,aTol,rTol,size_t(maxIter));
 	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),showAllIterates?1:0,-1);
 	break;
       case POINCARE:
-	stepper=create_poincare_stepper(*eqsys,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_poincare_stepper(*eqsys,true,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
 	task=create_guessing_task(identifier,log,stepper,varyingWave,evWave,tol,size_t(nPeriod),showAllIterates?1:0,long(secvar));
       }
     (*task)();
@@ -587,7 +596,7 @@ extern "C"
 				int* segmentID, double ds, double alpha, int mode,
 				int steps, double period, int nPeriod, bool showAllIterates, double dt, 
 				double maxtime, int secvar, int secdir, double secval, double tol,
-				bool extJac, bool stiff, double aTol, double rTol, int maxIter)
+				bool extJac, bool stiff, double aTol, double rTol, int maxIter, bool noThread)
   {
     PYOBJ(EquationSystem,eqsys,equationSystemID);if(!eqsys)return NULL;
     PYOBJ(Log,log,logID);if(!log)return NULL;
@@ -606,7 +615,7 @@ extern "C"
     switch(m)
       {
       case MAP:
-	stepper=create_map_stepper(*eqsys);
+	stepper=create_map_stepper(*eqsys,false);
 	break;
       case ODE:
 	{
@@ -616,24 +625,33 @@ extern "C"
 	  return NULL;
 	}
       case STROBE:
-	stepper=create_ode_stepper(*eqsys,period,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_ode_stepper(*eqsys,false,period,extJac,stiff,aTol,rTol,size_t(maxIter));
 	break;
       case POINCARE:
-	stepper=create_poincare_stepper(*eqsys,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
+	stepper=create_poincare_stepper(*eqsys,false,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
       }
 
     PYOBJ(Segment,segment,*segmentID);
     if(!segment) // create a new segment, and store its PythonID in segmentID 
       {
-	segment=new Segment(stepper, size_t(nPeriod),eval,wave,eps>0?eps:-eps,1e-8);
+	segment=new Segment(stepper, size_t(nPeriod),eval,wave,eps>0?eps:-eps,1e-12);
 	*segmentID=segment->get_python_id();
       }
 
-    Stepper* ManifoldStepper(new MapManifoldStepper(stepper,segment,ds,1e-8,alpha,size_t(nPeriod)));
+    Stepper* ManifoldStepper(new MapManifoldStepper(stepper,segment,ds,1e-12,alpha,size_t(nPeriod)));
     
     Task* task(create_stepping_task(identifier,log,ManifoldStepper,size_t(steps),size_t(nPeriod),showAllIterates?1:0,wave));
-    return reinterpret_cast<void*>(new tthread::thread(run_task,reinterpret_cast<void*>(task)));
 
+    if(noThread)
+      {
+	(*task)();
+	delete task;
+	return NULL;
+      }
+    else
+      {
+	return reinterpret_cast<void*>(new tthread::thread(run_task,reinterpret_cast<void*>(task)));
+      }
     }
 
 

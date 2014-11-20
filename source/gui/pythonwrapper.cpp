@@ -276,6 +276,8 @@ extern "C"
   {PYCLL(GLWindow,objectID,gl_context()->continuous_refresh_not_needed())}
   void scigma_gui_gl_window_stall(PythonID objectID)
   {PYCLL(GLWindow,objectID,gl_context()->stall())}
+  void scigma_gui_gl_window_draw_frame(PythonID objectID)
+  {PYCLL(GLWindow,objectID,gl_context()->draw_frame())}
   void scigma_gui_gl_window_request_redraw(PythonID objectID)
   {PYCLL(GLWindow,objectID,gl_context()->request_redraw())}
   void scigma_gui_gl_window_flush(PythonID objectID)

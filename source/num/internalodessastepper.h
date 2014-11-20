@@ -14,7 +14,7 @@ namespace scigma
     class InternalOdessaStepper:public Stepper
     {
     public:
-      InternalOdessaStepper(double dt, const Function& tFunc, 
+      InternalOdessaStepper(bool computeJacobian, double dt, const Function& tFunc, 
 			    const VecF& xFuncs, const VecF& rhsFuncs, const VecF& funcFuncs, 			     
 			    bool stiff, double aTol, double rTol, size_t maxIter);
 

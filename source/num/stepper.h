@@ -11,7 +11,7 @@ namespace scigma
     class Stepper
     {
     public:
-      Stepper(size_t nVar_, size_t nFunc_, double t0);
+      Stepper(bool computeJacobian, size_t nVar_, size_t nFunc_, double t0);
       virtual ~Stepper();
 
       virtual double t() const =0;
@@ -27,7 +27,8 @@ namespace scigma
    
     protected:
       double t0_;
-      char padding_[8];
+      bool computeJacobian_;
+      char padding_[7];
     };
 
   } /* end namespace num */

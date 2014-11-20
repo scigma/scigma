@@ -134,6 +134,9 @@ class GLWindow(object):
     def stall(self):
         lib.scigma_gui_gl_window_stall(self.objectID)
 
+    def draw_frame(self):
+        lib.scigma_gui_gl_window_draw_frame(self.objectID)
+
     def request_redraw(self):
         lib.scigma_gui_gl_window_request_redraw(self.objectID)
   

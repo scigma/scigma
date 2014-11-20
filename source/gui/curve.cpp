@@ -28,7 +28,7 @@ namespace scigma
         
     Curve::Curve(GLWindow* glWindow, std::string identifier, size_t nExpectedPoints, Wave* variableWave, Wave* constantWave, Marker::Type marker,
 		 Marker::Type point, GLfloat markerSize,GLfloat pointSize, const GLfloat* color, GLfloat delay):
-      Graph(glWindow,identifier,nExpectedPoints,variableWave,constantWave,marker,point,markerSize,pointSize,color,delay>0?delay:GLfloat(1e-12)),
+      Graph(glWindow,identifier,nExpectedPoints,variableWave,constantWave,marker,point,markerSize,pointSize,color,delay),
       PythonObject<Curve>(this)
     {}
     
@@ -110,6 +110,7 @@ namespace scigma
       prepare_attributes();
       glBindVertexArray(0);
 #endif
+      delay_=(delay_>0.0f?delay_:GLfloat(1e-12));
       glContext->continuous_refresh_needed();
       GLERR; 
     }
@@ -119,7 +120,9 @@ namespace scigma
       if(hovering_||hoverPoint_>=0)
 	glWindow_->EventSource<MouseButtonEvent>::Type::disconnect(this);
       if(delay_>0.0f)
-	glContext->continuous_refresh_not_needed();
+	{
+	  glContext->continuous_refresh_not_needed();
+	}
       glContext->request_redraw();
     }
 
@@ -185,6 +188,7 @@ namespace scigma
 	      if(availablePoints==nPoints_)
 		{
 		  delay_=0.0f;
+		  escapeCount_=ESCAPE_COUNT;
 		  glContext->continuous_refresh_not_needed();
 		}
 	    }

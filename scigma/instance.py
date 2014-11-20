@@ -1,3 +1,4 @@
+import re
 from .log import Log
 from . import gui
 from .gui import GLWindow, ATWPanel, Enum, Navigator, Console, Picker, Cosy
@@ -7,7 +8,7 @@ from .num import EquationSystem
 from .num import MODE
 from .dat import Wave
 from .util import dict_entry, dict_full_paths, Float
-from .commands import alias, parse, axes, set_range, expr, mode, select
+from .commands import alias, parse, axes, set_range, expr, mode, select, inverse
 from . import options
 from . import objects
 from . import largeFontsFlag
@@ -42,13 +43,18 @@ class Instance(object):
         self.glWindow.connect_before(self.picker)
         self.glWindow.stall()
         self.equationSystem = eqsys if eqsys else EquationSystem()
-        self.equationSystemBackup=None
+        self.inverseEquationSystem = EquationSystem()
+        self.inverseConsistent = False
+        self.equationSystemBackup=None  
         self.timeStamp=0
         self.equationPanel=ATWPanel(self.glWindow,'Equations')
         self.equationPanel.add('variables.__anchor__',False,True,"visible=false")
+        self.equationPanel.add('inverse.__anchor__',False,True,"visible=false")
+        self.equationPanel.define('inverse','visible=false')
         self.equationPanel.add('functions.__anchor__',False,True,"visible=false")
         self.equationPanel.add('constants.__anchor__',False,True,"visible=false")
         self.equationPanel.set_callback(lambda identifier,rhs: self.equation_callback(identifier,rhs))
+        
         
         self.valuePanel=ATWPanel(self.glWindow,'Values')
         self.valuePanel.add('time.t = ','0.0')
@@ -195,6 +201,7 @@ class Instance(object):
     
     def console_callback(self,line):
         line=line.partition('#')[0]
+        line=re.sub("\s+=\s+","=",line)
         list=line.split()
         if len(list)==0:
             return
@@ -207,6 +214,11 @@ class Instance(object):
             except Exception as e:
                 self.console.write_error(str(e.args[0])+'\n')
                 raise
+        elif cmd in ['i','in','inv','inve','inver','invers','inverse']:
+            line=''
+            for c in args:
+                line+=c
+            inverse(line,self)
         else:
             try:
                 parse(line,self)
@@ -239,7 +251,10 @@ class Instance(object):
     def equation_callback(self,identifier,rhs):
         try:
             line = identifier.rpartition('.')[2]+rhs
-            parse(line,self)
+            if "inverse" in identifier:
+                inverse(line,self)
+            else:
+                parse(line,self)
         except Exception as e:
             self.console.write_error(e.args[0]+'\n')
             raise
@@ -323,15 +338,24 @@ class Instance(object):
         
         self.valuePanel.add('time.t = ',str(self.equationSystem.time()))
         
-        self.equationSystem.variable_definitions()
-        groups = ['variables','functions','constants','variables','parameters']
-        defs = [self.equationSystem.variable_definitions(),
-                self.equationSystem.function_definitions(),
+        if self.options['Numerical']['mode'].label=='map':
+            self.equationPanel.define('inverse','visible=true')
+            groups = ['variables','inverse','functions','constants','variables','parameters']
+            defs = [self.equationSystem.variable_definitions(),self.inverseEquationSystem.variable_definitions()]
+            panels = [self.equationPanel,self.equationPanel,self.equationPanel]
+        else:
+            self.equationPanel.define('inverse','visible=false')
+            groups = ['variables','functions','constants','variables','parameters']
+            defs = [self.equationSystem.variable_definitions()]
+            panels = [self.equationPanel,self.equationPanel]
+        
+        defs +=[self.equationSystem.function_definitions(),
                 self.equationSystem.constant_definitions(),
                 self.equationSystem.variables(),
                 self.equationSystem.parameters()]
-        panels = [self.equationPanel,self.equationPanel,self.equationPanel,
-                  self.valuePanel,self.valuePanel]
+        
+        panels += [self.equationPanel,self.valuePanel,self.valuePanel]
+        
         for i in range(len(groups)):
             for definition in defs[i]:
                 parts=definition.partition('=')

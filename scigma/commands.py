@@ -19,6 +19,7 @@ from . import cppwrapper
 from .dat import Wave
 from .gui import COORDINATE_NAME, COORDINATE_FLAG, COORDINATE_INDEX, N_COORDINATES, C_COORDINATE, VIEW_TYPE
 from .gui import graph, Curve, Navigator, Picker, QDOT, QUAD
+from .gui import application
 from .num import EquationSystem
 
 """ Available commands:
@@ -64,17 +65,72 @@ def circle(d,n=100,instance=None):
     dphi=2*math.pi/(n-1)
     phi=0
 
-    instance.equationSystem.parse("x="+str(xval+dx))
+    instance.equationSystem.parse(xexp+"="+str(xval+dx))
     objects.move_cursor(None,instance)
     for i in range(0,n-1):
         phi=phi+dphi
         instance.equationSystem.stall()
-        instance.equationSystem.parse("x="+str(xval+math.cos(phi)*dx)) 
-        instance.equationSystem.parse("y="+str(yval+math.sin(phi)*dy)) 
+        instance.equationSystem.parse(xexp+"="+str(xval+math.cos(phi)*dx)) 
+        instance.equationSystem.parse(yexp+"="+str(yval+math.sin(phi)*dy)) 
         instance.equationSystem.flush()
         objects.add_cursor(instance)
-                
+
 alias['cir']=alias['circ']=alias['circl']=alias['circle']=circle
+
+def fill(n=10,instance=None):
+    """ fill 
+
+    fills the gaps between a set of initial conditions
+    with a linear interpolation 
+    """
+    n=int(n)
+    if not instance:
+        instance=default.instance
+    if not n>0:
+        raise Exception('n must be at least 1')
+    
+    N=len(instance.cursorList)
+    if N<2:
+        raise Exception('need at least two points to interpolate')
+    
+    nVar=instance.equationSystem.n_variables()
+    nPar=instance.equationSystem.n_parameters()
+    varnames=instance.equationSystem.variable_names()
+    parnames=instance.equationSystem.parameter_names()
+    
+    vardata=instance.cursorList[0]['__varwave__'].data()
+    constdata=instance.cursorList[0]['__constwave__'].data()
+    lvars=[]
+    for j in range(nVar):
+        lvars.append(vardata[j+1])
+    for j in range(nPar):
+        lvars.append(constdata[j])
+    
+    for i in range(1,N):
+        vardata=instance.cursorList[i]['__varwave__'].data()
+        constdata=instance.cursorList[i]['__constwave__'].data()
+        vars=[]
+        diffs=[]
+        for j in range(nVar):
+            vars.append(vardata[j+1])
+            diffs.append((vars[j]-lvars[j])/float(n+1))
+        for j in range(nPar):
+            vars.append(constdata[j])
+            diffs.append((vars[nVar+j]-lvars[nVar+j])/float(n+1))
+        
+        for k in range(1,n+1):
+            instance.equationSystem.stall()
+            for j in range(nVar):
+                instance.equationSystem.parse(varnames[j]+"="+str(lvars[j]+float(k)*diffs[j])) 
+            for j in range(nPar):
+                instance.equationSystem.parse(parnames[j]+"="+str(lvars[j+nVar]+float(k)*diffs[j+nVar])) 
+            instance.equationSystem.flush()
+            objects.add_cursor(instance)
+        
+        lvars=vars
+
+alias['fil']=alias['fill']=fill
+
 
 def rtime(objlist=None, instance=None):
     """ rtime [name]
@@ -396,7 +452,7 @@ def mark(instance=None):
 
 alias['ma']=alias['mar']=alias['mark']=mark
 
-def plot(nSteps=1,name=None,instance=None,showall=False):
+def plot(nSteps=1,name=None,instance=None,showall=False,noThread=False):
     """ plot [n] [name]
     
     Performs and plots n iterations of the current map or n time steps
@@ -439,7 +495,7 @@ def plot(nSteps=1,name=None,instance=None,showall=False):
     delay=instance.options['Style']['delay'].value
     
     # start plotting
-    cppwrapper.plot(nSteps,objlist,showall,instance)
+    cppwrapper.plot(nSteps,objlist,showall,noThread,instance)
     # now create the curve
     for obj in objlist:   
         obj['__type__']='tr'
@@ -454,8 +510,8 @@ def plot(nSteps=1,name=None,instance=None,showall=False):
 
 alias['p']=alias['pl']=alias['plo']=alias['plot']=plot
 
-def plotall(nSteps=1,name=None,instance=None):
-    return plot(nSteps,name,instance,True)
+def plotall(nSteps=1,name=None,instance=None,noThread=False):
+    return plot(nSteps,name,instance,True,noThread)
 
 alias['p*']=alias['pl*']=alias['plo*']=alias['plot*']=plotall
 
@@ -525,7 +581,7 @@ def guessall(name=None,instance=None):
 
 alias['g*']=alias['gu*']=alias['gue*']=alias['gues*']=alias['guess*']=guessall
 
-def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False):
+def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False,noThread=False):
     if not instance:
         instance=default.instance
     try:
@@ -610,27 +666,28 @@ def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False):
         instance.glWindow.flush()
         
         fp = origobj['__varwave__'].data()
+        rows = origobj['__varwave__'].rows()
         columns = origobj['__varwave__'].columns()
         init=[]
         for i in range(columns):
-            init.append(fp[i])
-        init.append(fp[0])
+            init.append(fp[i+columns*(rows-1)])
+        init.append(fp[columns*(rows-1)])
         if stable:
             for i in range(len(evreal)):
-                init.append(fp[i+1]+eps*evecs[evindex-1][i])
+                init.append(fp[i+1+columns*(rows-1)]+eps*evecs[evindex-1][i])
         else:
             for i in range(len(evreal)):
-                init.append(fp[i+1]+eps*evecs[-evindex][i])
+                init.append(fp[i+1+columns*(rows-1)]+eps*evecs[-evindex][i])
         
         # for the next bit, we are cheating, because we do not
         # actually evaluate the values of dependent functions
         # for the initial segment - instead, we copy the values
         # for the fixed point
         for i in range(1+len(evreal),columns):
-            init.append(fp[i])
+            init.append(fp[i+columns*(rows-1)])
             
         obj['__varwave__'].destroy()
-        obj['__varwave__']=Wave(init,columns,lines=n+1)
+        obj['__varwave__']=Wave(init,columns,lines=nPoints)
 
 
         objects.move_to(obj,instance)
@@ -638,12 +695,12 @@ def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False):
     if n>1:
         if origobjlist[0]['__mode__']=='ode':
             nSteps= 1-n if stable else n-1
-            cppwrapper.plot(nSteps,objlist,showall,instance)
+            cppwrapper.plot(nSteps,objlist,showall,noThread,instance)
         else:
             for obj in objlist:
                 eival = 1/evreal[evindex-1] if stable else evreal[-evindex]
                 nSteps = 1-n if stable else n-1
-                cppwrapper.map_manifold(nSteps,eival,obj,showall,instance)
+                cppwrapper.map_manifold(nSteps,eival,obj,showall,noThread,instance)
         
     # create the curves
     for obj in objlist:
@@ -657,7 +714,7 @@ def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False):
     instance.pendingTasks=instance.pendingTasks+len(objlist)
     return objlist
 
-def munstable(n=1,origin=None,name=None,instance=None):
+def munstable(n=1,origin=None,name=None,instance=None,noThread=False):
     """ munstable [n] [origin] [name]
     
     Starting at the fixed point or periodic point with the
@@ -670,16 +727,16 @@ def munstable(n=1,origin=None,name=None,instance=None):
     name of the form 'mfN', if no name is given. 
     The behavior is analog for mstable.
     """
-    return manifold(False,n,origin,name,instance)
+    return manifold(False,n,origin,name,instance,False,noThread)
 alias['mu']=alias['mun']=alias['muns']=alias['munst']=alias['munsta']=alias['munstab']=alias['munstabl']=alias['munstable']=munstable
-def mstable(n=1,origin=None,name=None,instance=None):
-    return manifold(True,n,origin,name,instance)
+def mstable(n=1,origin=None,name=None,instance=None,noThread=False):
+    return manifold(True,n,origin,name,instance,False,noThread)
 alias['ms']=alias['mst']=alias['msta']=alias['mstab']=alias['mstabl']=alias['mstable']=mstable
-def munstableall(n=1,origin=None,name=None,instance=None):
-    return manifold(False,n,origin,name,instance,True)
+def munstableall(n=1,origin=None,name=None,instance=None,noThread=False):
+    return manifold(False,n,origin,name,instance,True,noThread)
 alias['mu*']=alias['mun*']=alias['muns*']=alias['munst*']=alias['munsta*']=alias['munstab*']=alias['munstabl*']=alias['munstable*']=munstableall
-def mstableall(n=1,origin=None,name=None,instance=None):
-    return manifold(True,n,origin,name,instance,True)
+def mstableall(n=1,origin=None,name=None,instance=None,noThread=False):
+    return manifold(True,n,origin,name,instance,True,noThread)
 alias['ms*']=alias['mst*']=alias['msta*']=alias['mstab*']=alias['mstabl*']=alias['mstable*']=mstableall
 
 def show(objstring, instance=None):
@@ -753,6 +810,9 @@ def load(filename=None,instance=None):
         instance=default.instance
     if not filename:
         filename=tkfile.askopenfilename()
+    if filename[-2:]=='py':
+        execfile(filename)
+        return
     try:
         with open(filename) as f:
             script = f.readlines()
@@ -1102,3 +1162,35 @@ def parse(line,instance=None):
         if(result != ''):
             instance.console.write_data(result+'\n')
             return float(result)
+
+def inverse(line,instance=None):
+    """Used to parse inverse maps.
+    """
+    if not instance:
+        instance = default.instance
+    if instance.options['Numerical']['mode'].label !='map':
+        raise Exception("must be in 'map' mode to define inverse equations")
+    result=instance.inverseEquationSystem.parse(line)
+    if(result[0:6]== "error:"):
+        raise Exception(result[6:])
+    else:
+        names=instance.equationSystem.variable_names()+instance.equationSystem.parameter_names()
+        inames=instance.inverseEquationSystem.variable_names()+instance.inverseEquationSystem.parameter_names()
+        instance.inverseConsistent=(names==inames)
+        instance.rebuild_panels()
+        if(result != ''):
+            instance.console.write_data(result+'\n')
+            return float(result)
+
+def set(function, value, instance=None):
+    if not instance:
+        instance = default.instance
+    result=instance.equationSystem.parse(function+"="+str(value))
+    if(result[0:6]== "error:"):
+        raise Exception(result[6:])
+    instance.timeStamp=instance.equationSystem.timestamp()
+    objects.move_cursor(None,instance)
+
+def wait(seconds):
+    application.loop(seconds)
+

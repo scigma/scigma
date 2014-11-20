@@ -58,7 +58,7 @@ namespace scigma
       */
       void push_error(std::string error, const char* file=NULL, int line=0);
 
-      //!run the scigmagl event loop
+      //!run the scigma event loop
       /*!@ingroup gui
 	This starts the main event loop of scigmagl. 
 	@param seconds specifies how long to run. If seconds is zero, the loop will

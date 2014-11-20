@@ -241,9 +241,34 @@ namespace scigma
     {
       log_->push(error,file,line);
     }
-    
+
     void Application::loop(double seconds)
     {
+      if(loopIsRunning_) //nested loop call
+	{
+	  double lt(glfwGetTime());
+	  while(true)
+	    {
+	      loopMutex_.lock();
+	      EventSource<LoopEvent>::Type::emit();
+	      loopMutex_.unlock();
+
+	      idleMutex_.lock();
+	      size_t nIdleSinks;
+	      while((nIdleSinks=EventSource<IdleEvent>::Type::sinks.size())!=0)
+		{
+		  IdleEvent e;
+		  idleIndex_=idleIndex_%nIdleSinks;
+		  EventSource<IdleEvent>::Type::sinks[idleIndex_]->process(e,glfwGetTime());
+		  ++idleIndex_;
+		}
+	      idleMutex_.unlock();
+
+	      if(glfwGetTime()>=seconds+lt)
+		return;
+	    }	      
+	}
+
       loopIsRunning_=true;
       if(seconds<REFRESH_INTERVAL)
 	seconds=REFRESH_INTERVAL;
@@ -251,7 +276,10 @@ namespace scigma
 	{
 	  double lt(glfwGetTime());
 	  if(seconds<REFRESH_INTERVAL)
+	    {
+	      loopIsRunning_=false;
 	      return;
+	    }
 	  double remainingSecondsAtStart(seconds);	 
 	  // refresh
 	  loopMutex_.lock();

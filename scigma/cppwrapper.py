@@ -8,10 +8,11 @@ lib.scigma_num_plot.restype=c_void_p
 lib.scigma_num_plot.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,
                               c_double,c_int,c_bool,c_double,c_double,c_int,
                               c_int,c_double,c_double,c_bool,c_bool,
-                              c_double,c_double,c_int]
+                              c_double,c_double,c_int,c_bool]
 
-def plot(nSteps, objlist, showall, instance):
-    eqsys=instance.equationSystem.objectID
+def plot(nSteps, objlist, showall, noThread,instance):
+    eqsys=instance.equationSystem
+    eqsysID=eqsys.objectID
     log=instance.log.objectID
     mode=MODE[instance.options['Numerical']['mode'].label]
     period=0
@@ -29,17 +30,21 @@ def plot(nSteps, objlist, showall, instance):
     mxiter=instance.options['Numerical']['odessa']['mxiter']
     
     if mode==MAP and nSteps<0:
-        raise exception("backwards stepping is not supported for maps -> switch to inverse map manually")
+        if not instance.inverseConsistent:
+            raise exception("inverse map and regular map are inconsistent: cannot perform backwards stepping")
+        nSteps=-nSteps
+        eqsys=instance.inverseEquationSystem
+        eqsysID=eqsys.objectID
     if mode==STROBE:
         # period is assigned here because it might raise an exception which does not matter in other modes
-        period=float(instance.equationSystem.parse(instance.options['Numerical']['period']))
+        period=float(eqsys.parse(instance.options['Numerical']['period']))
         if period<0:
             instance.console.write_error("period = "+str(period)+" is negative; using absolute value instead") 
             period = -period
     if mode==POINCARE:
         # secvar is assigned here because it might raise an exception which does not matter in other modes
         secvar=instance.options['Numerical']['secvar'].strip()
-        secvar=instance.equationSystem.variable_names().index(secvar)
+        secvar=eqsys.variable_names().index(secvar)
 
     for obj in objlist: 
         objects.move_to(obj,instance)    
@@ -49,10 +54,10 @@ def plot(nSteps, objlist, showall, instance):
             obj['__varwave__'].destroy()
             nPoints=nSteps if nSteps>0 else -nSteps
             nPoints=nPoints*nperiod if showall else nPoints
-            obj['__varwave__']=Wave(None,1+instance.equationSystem.n_variables()+instance.equationSystem.n_functions(),nPoints)
+            obj['__varwave__']=Wave(None,1+eqsys.n_variables()+eqsys.n_functions(),nPoints)
         identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
-        obj['__thread__']=lib.scigma_num_plot(identifier,eqsys,log,obj['__varwave__'].objectID,mode,nSteps,period,nperiod,
-                                              showall,dt,maxtime,secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter)
+        obj['__thread__']=lib.scigma_num_plot(identifier,eqsysID,log,obj['__varwave__'].objectID,mode,nSteps,period,nperiod,
+                                              showall,dt,maxtime,secvar,secdir,secval,tol,jac,stiff,atol,rtol,mxiter,noThread)
 
 lib.scigma_num_guess.restype=c_void_p
 lib.scigma_num_guess.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,
@@ -107,11 +112,12 @@ lib.scigma_num_map_manifold.restype=c_void_p
 lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_double,c_double,
                                       POINTER(c_int),c_double,c_double, c_int,c_int,
                                       c_double,c_int,c_bool,c_double,c_double,c_int,c_int,
-                                      c_double,c_double,c_bool,c_bool,c_double,c_double,c_int]
+                                      c_double,c_double,c_bool,c_bool,c_double,c_double,c_int,c_bool]
 
-def map_manifold(nSteps,eival,obj,showall,instance):
+def map_manifold(nSteps,eival,obj,showall,noThread,instance):
     identifier=create_string_buffer(bytes(obj['__id__'].encode("ascii")))
-    eqsys=instance.equationSystem.objectID
+    eqsys=instance.equationSystem
+    eqsysID=eqsys.objectID
     log=instance.log.objectID
     varwave=obj['__varwave__'].objectID
     mode=MODE[instance.options['Numerical']['mode'].label]
@@ -137,19 +143,23 @@ def map_manifold(nSteps,eival,obj,showall,instance):
     segmentID=c_int(-1)
     
     if mode==MAP and nSteps<0:
-        raise exception("stable manifolds are not supported for maps -> switch to inverse map manually")
+        if not instance.inverseConsistent:
+            raise exception("inverse map and regular map are inconsistent: cannot perform backwards stepping")
+        nSteps=-nSteps
+        eqsys=instance.inverseEquationSystem
+        eqsysID=eqsys.objectID
     if mode==STROBE:
         # period is assigned here because it might raise an exception which does not matter in other modes
-        period=float(instance.equationSystem.parse(instance.options['Numerical']['period']))
+        period=float(eqsys.parse(instance.options['Numerical']['period']))
         if period<0:
             instance.console.write_error("period = "+str(period)+" is negative; using absolute value instead") 
             period = -period
     if mode==POINCARE:
         # secvar is assigned here because it might raise an exception which does not matter in other modes
         secvar=instance.options['Numerical']['secvar'].strip()
-        secvar=instance.equationSystem.variable_names().index(secvar)
+        secvar=eqsys.variable_names().index(secvar)
     
-    obj['__thread__']=lib.scigma_num_map_manifold(identifier,eqsys,log,varwave,eival,eps,byref(segmentID),ds,alpha,
+    obj['__thread__']=lib.scigma_num_map_manifold(identifier,eqsysID,log,varwave,eival,eps,byref(segmentID),ds,alpha,
                                                   mode,nSteps,period,nperiod,showall,dt,maxtime,secvar,secdir,secval,
-                                                  tol,jac,stiff,atol,rtol,mxiter)
+                                                  tol,jac,stiff,atol,rtol,mxiter,noThread)
 

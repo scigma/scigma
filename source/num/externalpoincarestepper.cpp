@@ -10,17 +10,20 @@ namespace scigma
   namespace num
   {
     
-    ExternalPoincareStepper::ExternalPoincareStepper(double maxtime, double dt, int secvar, int secdir, double secval, double tol,
+    ExternalPoincareStepper::ExternalPoincareStepper(bool computeJacobian, double maxtime, double dt, int secvar, int secdir, double secval, double tol,
 						     size_t nVar, size_t nFunc, Odessa::F f, Odessa::DFDX dfdx, F_t fFunc,
 						     double t, const double* x, bool stiff, double aTol, double rTol, size_t maxIter):
-    Stepper(nVar,nFunc,t),dt_(dt),maxtime_(maxtime),secvar_(secvar),secdir_(secdir),secval_(secval),tol_(tol),f_(f),fFunc_(fFunc),
-      odessa_(nVar,f,dfdx,nVar,NULL,stiff,aTol,rTol,maxIter),x_(odessa_.x()),jac_(odessa_.sensitivity()),rhs_(nVar),jac2_(nVar*nVar),func_(nFunc)
+      Stepper(computeJacobian,nVar,nFunc,t),dt_(dt),maxtime_(maxtime),secvar_(secvar),secdir_(secdir),secval_(secval),tol_(tol),f_(f),fFunc_(fFunc),
+      odessa_(nVar,f,dfdx,computeJacobian?nVar:0,NULL,stiff,aTol,rTol,maxIter),x_(odessa_.x()),jac_(odessa_.sensitivity()),rhs_(nVar),jac2_(nVar*nVar),func_(nFunc)
     {
       odessa_.t()=t0_;
       for(size_t i(0);i!=nVar;++i)
 	x_[i]=x[i];
-      for(size_t i(0);i!=nVar*nVar;++i)
-	jac_[i]=(i%(nVar+1))?0:1;
+      if(computeJacobian_)
+	{
+	  for(size_t i(0);i!=nVar*nVar;++i)
+	    jac_[i]=(i%(nVar+1))?0:1;
+	}
     }
       
     double ExternalPoincareStepper::t() const {return odessa_.t();}
@@ -33,8 +36,11 @@ namespace scigma
       odessa_.t()=t0_;
       for(size_t i(0);i<nVar;++i)
 	x_[i]=x[i];
-      for(size_t i(0);i<nVar*nVar;++i)
-	jac_[i]=(i%(nVar+1))?0:1;
+      if(computeJacobian_)
+	{
+	  for(size_t i(0);i<nVar*nVar;++i)
+	    jac_[i]=(i%(nVar+1))?0:1;
+	}
     }
 
     void ExternalPoincareStepper::advance(size_t n)
@@ -76,12 +82,15 @@ namespace scigma
 	    }
 	}
 
-      f_(odessa_.t(),x_,NULL,&rhs_[0]);
-      for(size_t i(0);i<nVar*nVar;++i)
-	jac2_[i]=jac_[i]-rhs_[i%nVar]/rhs_[size_t(secvar_)]*jac_[size_t(secvar_)+nVar*(i/nVar)];
-      for(size_t i(0);i<nVar;++i)
-	jac2_[size_t(secvar_)*nVar+i]=jac2_[i*nVar+size_t(secvar_)]=0;
-    
+      if(computeJacobian_)
+	{
+	  f_(odessa_.t(),x_,NULL,&rhs_[0]);
+	  for(size_t i(0);i<nVar*nVar;++i)
+	    jac2_[i]=jac_[i]-rhs_[i%nVar]/rhs_[size_t(secvar_)]*jac_[size_t(secvar_)+nVar*(i/nVar)];
+	  for(size_t i(0);i<nVar;++i)
+	    jac2_[size_t(secvar_)*nVar+i]=jac2_[i*nVar+size_t(secvar_)]=0;
+	}
+      
       if(!nFunc)
 	return;
       fFunc_(odessa_.t(),x_,&func_[0]);

@@ -14,9 +14,10 @@ namespace scigma
     class InternalPoincareStepper:public Stepper
     {
     public:
-      InternalPoincareStepper(double maxtime, double dt, int secvar, int secdir, double secval, double tol,
-			      const Function& tFunc, const VecF& xFuncs, const VecF& rhsFuncs, const VecF& funcFuncs, 			     
-			      bool stiff, double aTol, double rTol, size_t maxIter);
+      InternalPoincareStepper(bool computeJacobian, double maxtime, double dt, int secvar,
+			      int secdir, double secval, double tol,
+			      const Function& tFunc, const VecF& xFuncs, const VecF& rhsFuncs, 
+			      const VecF& funcFuncs, bool stiff, double aTol, double rTol, size_t maxIter);
 
       double t() const;
       double x(size_t index) const;

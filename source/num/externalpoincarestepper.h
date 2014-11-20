@@ -14,7 +14,7 @@ namespace scigma
     class ExternalPoincareStepper:public Stepper
     {
     public:
-      ExternalPoincareStepper(double maxtime, double dt, int secvar, int secdir, double secval, double tol,
+      ExternalPoincareStepper(bool computeJacobian, double maxtime, double dt, int secvar, int secdir, double secval, double tol,
 			      size_t nVar, size_t nFunc, Odessa::F f, Odessa::DFDX dfdx, F_t fFunc,
 			      double t, const double* x, bool stiff, double aTol, double rTol, size_t maxIter);
 

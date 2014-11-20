@@ -14,7 +14,7 @@ namespace scigma
     class ExternalOdessaStepper:public Stepper
     {
     public:
-      ExternalOdessaStepper(double dt, size_t nVar, size_t nFunc, Odessa::F f, Odessa::DFDX dfdx, F_t fFunc,
+      ExternalOdessaStepper(bool computeJacobian, double dt, size_t nVar, size_t nFunc, Odessa::F f, Odessa::DFDX dfdx, F_t fFunc,
 			    double t, const double* x, bool stiff, double aTol, double rTol, size_t maxIter);
 
       double t() const;
