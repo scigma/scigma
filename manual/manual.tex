@@ -393,6 +393,8 @@ works analog to \T{mstable}. This command may be abbreviated by \T{mu / mu*}.
 If \T{name} denotes an orbit or stationary state of a stroboscopic map or Poincare map, this prints the return time. If \T{name} is not given, \T{rtime} prints the return time of the currently selected object. This command may be abbreviated by \T{rt}.
 \cmd{circle}{<diameter> [n]}\\
 takes the current position as center and places \T{n} initial conditions equally spaced on the circle with the specified diameter. \T{diameter} is given in units of the currently visible portion of phase space. If \T{n} is not given, 100 is used. This command may be abbreviated by \T{cir}.
+\cmd{fill}{<n>}\\
+inserts \T{n} equally distributed points between consecutive pairs of currently selected points (that means you need to have at least two points selected to use \T{fill}). The resulting set of points becomes the new initial condition. The coordinates of the new points are linear interpolations of the coordinates of the old points.
 \end{description}
 \subsection{View and style}
 \begin{description}
