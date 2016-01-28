@@ -21,7 +21,7 @@ namespace scigma
     using dat::Wave;
     
     struct CurveClickEvent{  
-      typedef LOKI_TYPELIST_1(const char*) Arguments;};
+      typedef LOKI_TYPELIST_3(const char*,long,bool) Arguments;};
     
     class Curve:public Graph, public Drawable, public PythonObject<Curve>,
       public EventSink<MouseButtonEvent>::Type,

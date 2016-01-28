@@ -668,12 +668,12 @@ extern "C"
   class ScigmaGuiCurveClickEventMonitor:public EventSink<CurveClickEvent>::Type
   {
   private:
-    void (*python_callback_)(const char* id);
+    void (*python_callback_)(const char*,int,bool);
   public:
-    ScigmaGuiCurveClickEventMonitor(void (*python_callback)(const char*)):python_callback_(python_callback){}
+    ScigmaGuiCurveClickEventMonitor(void (*python_callback)(const char*,int,bool)):python_callback_(python_callback){}
     virtual ~ScigmaGuiCurveClickEventMonitor();
-    virtual bool process(CurveClickEvent event, const char* id)
-    {python_callback_(id);return true;}
+    virtual bool process(CurveClickEvent event, const char* id,long point,bool ctrl)
+    {python_callback_(id,int(point),ctrl);return true;}
   };
   ScigmaGuiCurveClickEventMonitor::~ScigmaGuiCurveClickEventMonitor()
   {}
@@ -685,7 +685,7 @@ extern "C"
   PythonID scigma_gui_create_curve(PythonID glWindowID, const char* id, int nExpectedPoints, 
 				   PythonID varWaveID, PythonID constWaveID,
 				   int marker, int point, GLfloat markerSize, GLfloat pointSize,
-				   const GLfloat* color, GLfloat delay, void(*python_callback)(const char*))
+				   const GLfloat* color, GLfloat delay, void(*python_callback)(const char*,int point,bool ctrl))
   {
     PYOBJ(GLWindow,glWindow,glWindowID);
     PYOBJ(Wave,varWave,varWaveID);

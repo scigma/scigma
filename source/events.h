@@ -50,7 +50,7 @@ namespace scigma
       virtual bool process(Event event,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,0>::Result arg1,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg2,
-			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg3)=0;
+			   typename Loki::TL::TypeAt<typename Event::Arguments,2>::Result arg3)=0;
     };
   
   template <class Event> class EventSinkWithNArguments<Event,4>
@@ -59,8 +59,8 @@ namespace scigma
       virtual bool process(Event event,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,0>::Result arg1,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg2,
-			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg3,
-			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg4)=0;
+			   typename Loki::TL::TypeAt<typename Event::Arguments,2>::Result arg3,
+			   typename Loki::TL::TypeAt<typename Event::Arguments,3>::Result arg4)=0;
     };
   
   template <class Event> class EventSinkWithNArguments<Event,5>
@@ -69,9 +69,9 @@ namespace scigma
       virtual bool process(Event event,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,0>::Result arg1,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg2,
-			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg3,
-			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg4,
-			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg5)=0;
+			   typename Loki::TL::TypeAt<typename Event::Arguments,2>::Result arg3,
+			   typename Loki::TL::TypeAt<typename Event::Arguments,3>::Result arg4,
+			   typename Loki::TL::TypeAt<typename Event::Arguments,4>::Result arg5)=0;
     };
   
   //!Base class wrapper EventSink

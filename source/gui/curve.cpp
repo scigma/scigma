@@ -71,9 +71,8 @@ namespace scigma
       glBindBuffer(GL_ARRAY_BUFFER,dummyBuffer_);
       glEnableVertexAttribArray(0);
       glVertexAttribPointer(0,1,GL_FLOAT,GL_FALSE,0,0);
-   
+
       size_t nIndices(indices_.size());
-      size_t nMyVar(0);
       for(size_t i(0);i<nIndices;++i)
 	{
 	  GLuint attLoc((GLuint(i+1)));
@@ -81,7 +80,6 @@ namespace scigma
 	    {
 	      glBindBuffer(GL_ARRAY_BUFFER,variableWave_->gl_buffer());
 	      size_t index(size_t(indices_[i]-1));
-	      ++nMyVar;
 	      glEnableVertexAttribArray(attLoc);
 	      glVertexAttribPointer(attLoc, 1,GL_FLOAT, GL_FALSE, GLsizei(variableWave_->columns()*sizeof(GLfloat)),
 				    (const GLvoid*)(sizeof(GLfloat)*index));
@@ -157,8 +155,13 @@ namespace scigma
 	availablePoints=variableWave_->buffer_rows();
 #ifdef SCIGMA_USE_OPENGL_3_2
       glBindVertexArray(vertexArray_);
-      if(attributesInvalid_)
-        prepare_attributes();
+      
+      // muss gepatcht werden, damit glVertexAttrib immer aufgerufen wird
+      //if(attributesInvalid_)
+      prepare_attributes();
+
+      
+      
 #else
       prepare_attributes();
 #endif
@@ -246,7 +249,7 @@ namespace scigma
 	  lastClickTime_=time;
 	  if(dt>doubleClickTime_)
 	    return true;
-	  EventSource<CurveClickEvent>::Type::emit(identifier_.c_str());
+	  EventSource<CurveClickEvent>::Type::emit(identifier_.c_str(),hoverPoint_,bool(GLFW_MOD_CONTROL&mods));
 	  return true;
 	}
       return false;
