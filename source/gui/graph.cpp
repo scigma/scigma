@@ -58,7 +58,7 @@ namespace scigma
      Graph::Graph(GLWindow* glWindow, std::string identifier,size_t nExpectedPoints, Wave* variableWave, Wave* constantWave,
 		  Marker::Type marker, Marker::Type point, GLfloat markerSize, GLfloat pointSize, const GLfloat* color, GLfloat delay):
        glWindow_(glWindow),identifier_(identifier),doubleClickTime_(0.25),lastClickTime_(-1.0),hoverPoint_(-1),variableWave_(variableWave),constantWave_(constantWave),marker_(marker),point_(point),
-       markerSize_(markerSize),pointSize_(pointSize),timeOfFirstDraw_(-1),delay_(delay),attributesInvalid_(true),hovering_(false),pointHoverIsActive_(false)
+       markerSize_(markerSize),pointSize_(pointSize),timeOfFirstDraw_(-1),delay_(delay),attributesInvalid_(true),hovering_(false),pointHoverIsActive_(true)
      {
        escapeCount_=ESCAPE_COUNT;
        

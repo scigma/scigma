@@ -3,7 +3,7 @@ from .. import lib
 from .constants import *
 from . import color
 
-C_CallbackType=CFUNCTYPE(None, c_char_p)
+C_CallbackType=CFUNCTYPE(None, c_char_p,c_int,c_bool)
 
 class Curve(object):
     """ Wrapper for Curve objects """
@@ -26,7 +26,7 @@ class Curve(object):
         C_FloatArrayType=c_float*4
         colorArray=C_FloatArrayType(*col)
         identifier=bytes(str(identifier).encode("ascii"))
-        self.c_callback=C_CallbackType(lambda id_ptr: self.callback(id_ptr)) 
+        self.c_callback=C_CallbackType(lambda id_ptr,point,ctrl: self.callback(id_ptr,point,ctrl)) 
         self.py_callback=cbfun
         self.objectID = lib.scigma_gui_create_curve(glWindow.objectID,identifier,nPoints,
                                                     varWave.objectID,constWave.objectID,
@@ -44,10 +44,10 @@ class Curve(object):
     def __repr__(self):
         return 'Curve(id='+str(self.objectID)+')'
     
-    def callback(self,id_ptr):
+    def callback(self,id_ptr,point,ctrl):
         if self.py_callback:
             identifier=str(string_at(id_ptr).decode())
-            self.py_callback(identifier)
+            self.py_callback(identifier,point,ctrl)
     
     def set_marker_style(self,style):
         lib.scigma_gui_curve_set_marker_style(self.objectID,style)

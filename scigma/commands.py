@@ -279,6 +279,31 @@ def evecs(objlist=None, instance=None):
 
 alias['eve']=alias['evec']=alias['evecs']=evecs 
 
+def save(objstring, filename=None, instance=None):
+    """ save <object> [filename]
+
+    Saves all parts of the specified object into the file
+    specified by filename. If the object has several parts,
+    all of them are stored in different numbered files
+    """
+    if not instance:
+        instance=default.instance
+
+    if not filename:
+        filename=objstring+'.txt'
+
+    p = filename.partition('.')
+    name,suffix=p[0],p[1]+p[2]
+        
+    objlist=objects.get(objstring,instance)
+    number = 1
+    for obj in objlist:
+        counter = '_'+str(number) if len(objlist)>1 else ""
+        number+=1
+        objects.save(obj,name+counter+suffix )
+
+alias['s']=alias['sa']=alias['sav']=alias['save']=save
+        
 def where(instance=None):
     """ where
     
@@ -440,7 +465,7 @@ def mark(instance=None):
         obj['__graph__']=Curve(instance.glWindow,obj['__id__'],
                                nperiod,obj['__varwave__'],obj['__constwave__'],
                                marker,point,markerSize,pointSize,color,delay,
-                               lambda identifier:instance.select_callback(identifier))
+                               lambda identifier,point,ctrl:instance.select_callback(identifier,point,ctrl))
         objects.show(obj,instance)
         i=i+1
     
@@ -452,7 +477,13 @@ def mark(instance=None):
 
 alias['ma']=alias['mar']=alias['mark']=mark
 
-def plot(nSteps=1,name=None,instance=None,showall=False,noThread=False):
+def plot(nSteps=1,name=None,instance=None,showall=False,noThread=True):
+    result=thread_plot(nSteps,name,instance,showall,noThread)
+    if(noThread):
+        wait(0)
+    return result
+
+def thread_plot(nSteps=1,name=None,instance=None,showall=False,noThread=False):
     """ plot [n] [name]
     
     Performs and plots n iterations of the current map or n time steps
@@ -502,13 +533,13 @@ def plot(nSteps=1,name=None,instance=None,showall=False,noThread=False):
         obj['__graph__']=Curve(instance.glWindow,obj['__id__'],
                                n+1,obj['__varwave__'],obj['__constwave__'],
                                marker,point,markerSize,pointSize,color,delay,
-                               lambda identifier:instance.select_callback(identifier))
+                               lambda identifier,point,ctrl:instance.select_callback(identifier,point,ctrl))
         objects.show(obj,instance)
     
     instance.pendingTasks=instance.pendingTasks+len(objlist)
     return objlist
 
-alias['p']=alias['pl']=alias['plo']=alias['plot']=plot
+alias['p']=alias['pl']=alias['plo']=alias['plot']=thread_plot
 
 def plotall(nSteps=1,name=None,instance=None,noThread=False):
     return plot(nSteps,name,instance,True,noThread)
@@ -568,7 +599,7 @@ def guess(name=None,instance=None,showall=False):
         obj['__graph__']=Curve(instance.glWindow,obj['__id__'],n,
                                obj['__varwave__'],obj['__constwave__'],
                                marker,point,markerSize,pointSize,color,0.0,
-                               lambda identifier:instance.select_callback(identifier))
+                               lambda identifier,point,ctrl:instance.select_callback(identifier,point,ctrl))
         objects.show(obj,instance)
     
     instance.pendingTasks=instance.pendingTasks+len(objlist)
@@ -708,7 +739,7 @@ def manifold(stable,n=1,originlist=None,name=None,instance=None,showall=False,no
         obj['__graph__']=Curve(instance.glWindow,obj['__id__'],nPoints,
                                obj['__varwave__'],obj['__constwave__'],
                                marker,point,markerSize,pointSize,color,delay,
-                               lambda identifier:instance.select_callback(identifier))
+                               lambda identifier,point,ctrl:instance.select_callback(identifier,point,ctrl))
         objects.show(obj,instance)
         
     instance.pendingTasks=instance.pendingTasks+len(objlist)
@@ -792,7 +823,10 @@ def equations(filename=None,instance=None):
         instance.source='internal'
     elif filename:
         instance.equationSystemBackup=instance.equationSystem
-        instance.equationSystem=EquationSystem(filename)
+        if filename.rpartition('.')[2] is 'py': 
+            instance.equationSystem=EquationSystem(script=filename)
+        else:
+            instance.equationSystem=EquationSystem(library=filename)
         instance.equationPanel.define("","visible=false")
         instance.source=filename
     instance.glWindow.set_title("SCIGMA - script: "+instance.script+" - equations: "+instance.source)
@@ -811,7 +845,12 @@ def load(filename=None,instance=None):
     if not filename:
         filename=tkfile.askopenfilename()
     if filename[-2:]=='py':
-        execfile(filename)
+        if version_info.major==2:
+            execfile(filename)
+        elif version_info.major==3:
+            with open(filename) as f:
+                code = compile(f.read(), filename, 'exec')
+                exec(code, globals(), locals())
         return
     try:
         with open(filename) as f:
@@ -1019,7 +1058,7 @@ def reset(instance=None):
     clear(instance)
     xexpr('x',instance)
     yexpr('y',instance)
-    zexpr('',instance)
+    zexpr('z',instance)
     axes('xy', instance)
     x_range(-1,1,instance)
     y_range(-1,1,instance)
@@ -1182,7 +1221,15 @@ def inverse(line,instance=None):
             instance.console.write_data(result+'\n')
             return float(result)
 
-def set(function, value, instance=None):
+def getval(function, instance=None):
+    if not instance:
+        instance = default.instance
+    result=instance.equationSystem.parse('$'+function)
+    if(result[0:6]== "error:"):
+        raise Exception(result[6:])
+    return float(result)
+
+def setval(function, value, instance=None):
     if not instance:
         instance = default.instance
     result=instance.equationSystem.parse(function+"="+str(value))
@@ -1191,6 +1238,12 @@ def set(function, value, instance=None):
     instance.timeStamp=instance.equationSystem.timestamp()
     objects.move_cursor(None,instance)
 
+def getopt(identifier, instance=None):
+    return options.get(identifier,instance)
+    
+def setopt(identifier, value, instance=None):
+    options.set(identifier,value,instance)
+    
 def wait(seconds):
     application.loop(seconds)
 

@@ -8,7 +8,7 @@ from .num import EquationSystem
 from .num import MODE
 from .dat import Wave
 from .util import dict_entry, dict_full_paths, Float
-from .commands import alias, parse, axes, set_range, expr, mode, select, inverse
+from .commands import alias, parse, axes, set_range, expr, mode, select, inverse, setval
 from . import options
 from . import objects
 from . import largeFontsFlag
@@ -288,7 +288,7 @@ class Instance(object):
                     parse(var+"="+str(args[i]))
                     self.console.write("setting "+var+" to ")
                     self.console.write_data(str(args[i])+"\n")
-            self.selectedObject=None
+            self.selectedObjectList=None
             if ctrl:
                 objects.add_cursor(self)
             else:
@@ -311,11 +311,39 @@ class Instance(object):
             min,max = self.options['View'][coord+'range']['min'].value,value.value
             set_range(coord,min,max,self)
     
-    def select_callback(self, identifier):
-        identifier=identifier.partition('[')[0]
-        select(identifier,self)
-        self.console.write("selecting ")
-        self.console.write_data(identifier+"\n")
+    def select_callback(self, identifier,point,ctrl):
+        idf=identifier.partition('[')[0]
+        if ctrl:
+            index=int(identifier[len(idf)+1:-1])
+            obj=objects.get(idf,self)[index]
+            index = 0
+            for var in obj['__varying__']:
+                value=obj['__varwave__'].data()[point*obj['__varwave__'].columns()+index]
+                parse(var+"="+str(value))
+                self.console.write("setting "+var+" to ")
+                self.console.write_data(str(value)+"\n")
+                index+=1
+                if index==self.equationSystem.n_variables()+1:
+                    break
+            index =0
+            for par in obj['__const__']:
+                value=obj['__constwave__'].data()[index]
+                parse(par+"="+str(value))
+                self.console.write("setting "+par+" to ")
+                self.console.write_data(str(value)+"\n")
+                index+=1
+                if index==self.equationSystem.n_parameters()+1:
+                    break
+
+            if self.selectedObjectList:
+                self.selectedObjectList=None
+                objects.move_cursor(None,self)
+            else:
+                objects.add_cursor(self)
+        else:
+            select(idf,self)
+            self.console.write("selecting ")
+            self.console.write_data(idf+"\n")
     
     def rebuild_panels(self):
         self.glWindow.stall()
