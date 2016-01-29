@@ -1,18 +1,20 @@
 #ifndef __SCIGMA_NUM_MAPMANIFOLDSTEPPER_H__
 #define __SCIGMA_NUM_MAPMANIFOLDSTEPPER_H__
 
+#include <list>
+#include <vector>
 #include "stepper.h"
-#include "segment.h"
+#include "../dat/wave.h"
 
 namespace scigma
 {
   namespace num
   {
-
+    
     class MapManifoldStepper:public Stepper
     {
     public:
-      MapManifoldStepper(Stepper* mapStepper, Segment* segment, double dsmax, double dsmin, double alpha, size_t nPeriod);
+      MapManifoldStepper(Stepper* mapStepper, dat::Wave* initial, double dsmax, double dsmin, double alpha, double dalpha, size_t nPeriod);
       ~MapManifoldStepper();
 
       double t() const;
@@ -25,19 +27,25 @@ namespace scigma
 
     private:
       double angle(double* q0,double* q1, double* q2);
+      double arc(double* q0,double* q1);
 
       Stepper* mapStepper_;
-      Segment* segment_;
       
       double ds_;
       double dsmax_;
       double dsmin_;
 
       double alpha_;
+      double dalpha_;
       size_t nPeriod_;
-      size_t current_;
 
-      double* xBackup_;
+      size_t current_;
+      size_t nVar_;
+      std::list<std::vector<double> > points_;
+      std::vector<double> xBackup_;
+
+      typedef std::list<std::vector<double> >::iterator SegPt;
+      SegPt preImage_;
     };
 
   } /* end namespace num */

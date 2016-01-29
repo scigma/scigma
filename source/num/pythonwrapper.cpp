@@ -631,14 +631,16 @@ extern "C"
 	stepper=create_poincare_stepper(*eqsys,false,maxtime,dt,secvar,secdir,secval,tol,extJac,stiff,aTol,rTol,size_t(maxIter));
       }
 
-    PYOBJ(Segment,segment,*segmentID);
+    /*    PYOBJ(Segment,segment,*segmentID);
     if(!segment) // create a new segment, and store its PythonID in segmentID 
       {
 	segment=new Segment(stepper, size_t(nPeriod),eval,wave,eps>0?eps:-eps,1e-12);
 	*segmentID=segment->get_python_id();
-      }
+	}*/
 
-    Stepper* ManifoldStepper(new MapManifoldStepper(stepper,segment,ds,1e-12,alpha,size_t(nPeriod)));
+    if(eval>0)if(eps>0)if(segmentID)void();
+
+    Stepper* ManifoldStepper(new MapManifoldStepper(stepper,wave,ds,1e-12,alpha,1e-4,size_t(nPeriod)));
     
     Task* task(create_stepping_task(identifier,log,ManifoldStepper,size_t(steps),size_t(nPeriod),showAllIterates?1:0,wave));
 

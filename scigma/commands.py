@@ -1244,6 +1244,12 @@ def getopt(identifier, instance=None):
 def setopt(identifier, value, instance=None):
     options.set(identifier,value,instance)
     
-def wait(seconds):
-    application.loop(seconds)
+def wait(seconds=None, instance=None):
+    if seconds:
+        application.loop(seconds)
+    else:
+        if not instance:
+            instance = default.instance
+        while instance.pendingTasks:
+            application.loop(0)    
 
