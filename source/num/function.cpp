@@ -1,4 +1,4 @@
-#include "function.h"
+#include "function.hpp"
 
 namespace scigma
 {
@@ -56,6 +56,7 @@ FunctionData::FunctionData(double d)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
+
 FunctionData::FunctionData(const Operator& op, Function* args)
 {
   this->op = op;
@@ -64,16 +65,15 @@ FunctionData::FunctionData(const Operator& op, Function* args)
   valueIsSet = false;
   value = 0;
   refcount=0;
-  
+
   for(uint8_t i = 0;i<this->op.get_number_of_arguments();i++)
     deps.push_back(args[i]);
 }
 #pragma clang diagnostic pop
 
-    FunctionData::FunctionData(const FunctionData& f):op(f.op),value(f.value),deps(f.deps),args(f.args),nArgs(f.nArgs),refcount(0),valueIsSet(f.valueIsSet),isConstant(f.isConstant)
+    FunctionData::FunctionData(const FunctionData& f):op(f.op),value(f.value),deps(f.deps),args(f.args),nArgs(f.nArgs),valueIsSet(f.valueIsSet),isConstant(f.isConstant),refcount(0)
 {}
 
-//#include <iostream>
 
 Function::Function()
 {
@@ -321,7 +321,7 @@ bool Function::operator!=(const Function& f) const
   return fData!=f.fData;
 }
 
-Function Function::operator+(const Function& f) const
+    /*Function Function::operator+(const Function& f) const
 {
   Operator plus;
   Operator::get_operator("+",plus);
@@ -351,7 +351,39 @@ Function Function::operator/(const Function& f) const
   Operator::get_operator("/",div);
   Function F[]={*this,f};
   return div(F);
+  }*/
+
+Function operator+(const Function& f1, const Function& f2) 
+{
+  Operator plus;
+  Operator::get_operator("+",plus);
+  Function F[]={f1,f2};
+  return plus(F);
 }
+
+    Function operator-(const Function& f1,const Function& f2) 
+{
+  Operator minus;
+  Operator::get_operator("-",minus);
+  Function F[]={f1,f2};
+  return minus(F);
+}
+
+    Function operator*(const Function& f1,const Function& f2) 
+{
+  Operator mult;
+  Operator::get_operator("*",mult);
+  Function F[]={f1,f2};
+  return mult(F);
+}
+
+    Function operator/(const Function& f1,const Function& f2) 
+{
+  Operator div;
+  Operator::get_operator("/",div);
+  Function F[]={f1,f2};
+  return div(F);
+  }
 
 Function Function::operator-() const
 {

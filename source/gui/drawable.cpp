@@ -1,5 +1,5 @@
-#include "drawable.h"
-#include "glcontext.h"
+#include "drawable.hpp"
+#include "glcontext.hpp"
 
 namespace scigma
 {
@@ -36,5 +36,5 @@ namespace scigma
 
 #pragma GCC diagnostic pop
 
-  } /* End namespace gui */
+  } /* end namespace gui */
 } /* end namespace scigma */

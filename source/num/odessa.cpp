@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-#include "odessa.h"
+#include "odessa.hpp"
 
 extern "C" void odessa_(void (*F)(int*,double*,double*,double*,double*),void(*DF)(int*, double*, double*, double*, double*, int*), 
 			int* NEQ, double* Y, double* RPAR, double* TIN,double* TOUT,  int* ITOL,  double* RTOL,
@@ -24,39 +24,51 @@ namespace scigma
 #pragma clang diagnostic pop    
 
     Odessa::Odessa(size_t nVar, F f, DFDX dfdx, size_t nPar,
-      DFDP dfdp, bool stiff, double aTol, double rTol, size_t steps):
+		   DFDP dfdp, bool stiff, double aTol, double rTol, size_t steps, bool computeSensitivity):
       nVar_(nVar),nPar_(nPar),atol_(aTol),rtol_(rTol),
       f_(f),dfdx_(dfdx),dfdp_(dfdp),
-      t_(0),x_(new double[nVar*(nPar+1)]),p_(new double[nPar]),sensitivity_(&x_[nVar])
+      t_(0),x_(new double[nVar*(nVar+1)]),p_(new double[nPar+nVar]),sensitivity_(&x_[nVar])
     {
       nOdessa_[0]=int(nVar_);
-      nOdessa_[1]=int(nPar_);
-    // tolerances are scalars (see odessa.f line 159 for documentation)
-    itol_=1;
-    // new integration (odessa.f line 178)
-    itask_=istate_=1;
-    // optional inputs (odessa.f line 720/866)
+      nOdessa_[1]=int(nVar_); // sensitivity analyis is done to obtain the fundamental matrix!
+      
+      // tolerances are scalars (see odessa.f line 159 for documentation)
+      itol_=1;
+      // new integration (odessa.f line 178)
+      itask_=istate_=1;
+      // optional inputs (odessa.f line 720/866)
       iopt_[0]=1; // set to one because we change the number of internal solver steps (iwork_[5])
-      // if nPar!=0, a sensitivity analysis is required
-      if(0!=nPar_)
+
+      if(dfdx_)
 	{
-	  iopt_[1]=1;
+	  if(computeSensitivity)
+	    iopt_[1]=1;
+	  else
+	    iopt_[1]=0;
 	  liw_=int(21+nVar_+nPar_);
-	  iwork_=new int[liw_];
-	  for(size_t i(0);i<nPar_;++i)
-	    p_[i]=0;
+	  iwork_=new int[size_t(liw_)];
 	}
       else
 	{
 	  iopt_[1]=0;
 	  liw_=int(20+nVar_);
-	  iwork_=new int[liw_];
+	  iwork_=new int[size_t(liw_)];
 	}
+
+      /* first nVar values of p_ are fake parameters for sensitivity analysis (always zero)
+	 next nPar values of are actual parameters */
+      for(size_t i(0);i<nVar_+nPar_;++i)
+	p_[i]=0;
+	  
+
+      /* this part may be included later, if we do actual sensitivity analysis as well */
+      /*
       if(dfdp_) // inhomogeneity function provided 
-	iopt_[2]=1;
+      iopt_[2]=1;
       else
-	iopt_[2]=0;
-    
+      */
+      iopt_[2]=0;
+      
       if(stiff)
 	{
 	  if(dfdx_) // Jacobian provided
@@ -64,7 +76,7 @@ namespace scigma
 	  else
 	    mf_=22;
 	  lrw_=int(22+8*(nPar_+1)*nVar_+nVar_*nVar_+nVar_);
-	  rwork_=new double[lrw_];
+	  rwork_=new double[size_t(lrw_)];
 	}
       else
 	{
@@ -73,20 +85,19 @@ namespace scigma
 	  else
 	    mf_=12;
 	  lrw_=int(22+15*(nPar_+1)*nVar_+nVar_*nVar_+nVar_);
-	  rwork_=new double[lrw_];
+	  rwork_=new double[size_t(lrw_)];
 	}
       for(size_t i(4);i<9;++i)
 	rwork_[i]=iwork_[i]=0;
       iwork_[5]=int(steps);
     }
-
+    
     Odessa::~Odessa()
     {
       delete[] rwork_;
       delete[] iwork_;
       delete[] x_;
-      if(p_)
-	delete[] p_;
+      delete[] p_;
     }
 
     void Odessa::integrate(double dt, size_t steps)
@@ -144,10 +155,9 @@ namespace scigma
       istate_=itask_=1;
     }
 
-
     double& Odessa::t(){return t_;}
     double* Odessa::x(){return x_;}
-    double* Odessa::p(){return p_;}
+    double* Odessa::p(){return &p_[nVar_];}
     double* Odessa::sensitivity() {return sensitivity_;}    
 
     const double& Odessa::t() const {return t_;}
@@ -160,16 +170,17 @@ namespace scigma
 
     void Odessa::odessa_F(int* n, double* t, double* x, double* p, double* rhs) 
     {
-      instance_->f_(*t,x,p,rhs);
+      instance_->f_(*t,x,instance_->p(),rhs);
     }
 
     void Odessa::odessa_JAC(int* n, double* t, double* x, double* p, int* ml, int* mu, double* dfdx, int* nrowpd)
     {
-      instance_->dfdx_(*t,x,p,dfdx);
+      instance_->dfdx_(*t,x,instance_->p(),dfdx);
     }
 
     void Odessa::odessa_DF(int* n, double* t, double* x, double* p, double* dfdp, int* jpar)
     {
+      /* not used at the moment */
       instance_->dfdp_(*t,x,p,dfdp,*jpar-1);
     }
 #pragma GCC diagnostic pop

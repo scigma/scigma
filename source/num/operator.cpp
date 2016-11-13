@@ -1,7 +1,7 @@
 #include <cmath>
 #include <stdlib.h>
-#include "operator.h"
-#include "function.h"
+#include "operator.hpp"
+#include "function.hpp"
 
 namespace scigma
 {

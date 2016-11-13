@@ -1,6 +1,6 @@
 #include <algorithm>
-#include "../util.h"
-#include "atwpanel.h"
+#include "../common/util.hpp"
+#include "atwpanel.hpp"
 
 
 using namespace scigma;
@@ -308,6 +308,9 @@ namespace scigma
       storage[0]=values[0];
       add_external_enum(identifier,storage,labels,values,forward,defs);
     }
+
+    using scigma::common::append_tokens;
+    
     void ATWPanel::add_external_enum(const char* identifier, int* storage,std::string labels, int* values, bool forward, const char* defs)
     {
       std::map<std::string,Int*>::iterator entry(intData_.find(identifier));

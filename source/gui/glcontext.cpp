@@ -1,8 +1,10 @@
 #include <string>
 #include <iostream>
 #include <AntTweakBar.h>
-#include "glcontext.h"
-#include "glutil.h"
+#include "glcontext.hpp"
+#include "glutil.hpp"
+
+using scigma::common::connect;
 
 namespace scigma
 {
@@ -94,15 +96,13 @@ namespace scigma
 #endif
    
     GLContext::GLContext(GLFWwindow* ptr):PythonObject<GLContext>(this),
-					  currentFrameStartTime_(0.0),
-					  currentFrameRenderingTime_(0.0),
-					  glfwWindowPointer_(ptr),
-					  stalled_(0),
-					  hoverIndex_(0xFFFFFFFF),
-					  refreshContinuously_(0),
-					  redrawRequested_(false),
-					  colorPicking_(false)
-
+      currentFrameStartTime_(0.0),
+      currentFrameRenderingTime_(0.0),lastHoverTime_(0.0),
+      glfwWindowPointer_(ptr),
+      stalled_(0),
+      hoverIndex_(0xFFFFFFFF),
+      redrawRequested_(false),
+      colorPicking_(false)
     {
       glfwMakeContextCurrent(glfwWindowPointer_);
       glfwSwapInterval(2);
@@ -127,51 +127,34 @@ namespace scigma
       glPointParameterf(GL_POINT_SIZE_MAX, sizes[1]);
 #endif
       creation_notify<DrawableTypes>();
-      Application::get_instance()->EventSource<LoopEvent>::Type::connect(this);
     }
 
     void GLContext::destroy()
     {
       destruction_notify<DrawableTypes>();
-      Application::get_instance()->EventSource<LoopEvent>::Type::disconnect(this);
-    }
-
-    GLContext::~GLContext()
-    {
 #ifdef SCIGMA_USE_OPENGL_3_2
       glfwMakeContextCurrent(glfwWindowPointer_);
       glDeleteBuffers(1,&globalUniformBuffer_);
 #endif
     }
-    
-    void GLContext::continuous_refresh_needed()
-    {
-      ++refreshContinuously_;
-      //      request_redraw();
-    }
 
-    void GLContext::continuous_refresh_not_needed()
-    {
-      --refreshContinuously_;
-    }
+    GLContext::~GLContext()
+    {}
     
     double GLContext::get_current_frame_start_time()
     {
       return currentFrameStartTime_;
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-    bool GLContext::process(LoopEvent event)
-    {
-      if(refreshContinuously_)
-	request_redraw();
-      return false;
-    }
-#pragma GCC diagnostic pop
     
     void GLContext::check_for_hover(GLfloat x, GLfloat y)
     {
+      double now(glfwGetTime());
+      if(now-lastHoverTime_<TARGET_FRAME_TIME)
+	return;
+      else
+	lastHoverTime_=now;
+	
       /* In color picking mode, only a 5x5 pixel rectangle is drawn.
 	 The nearest object in this rectangle (excluding the corner
 	 pixels) is detected, and its on_hover_begin()/on_hover_end
@@ -224,11 +207,11 @@ namespace scigma
       GLubyte minDepth(color[i*3+2]);
 
       //DEBUG OUTPUT
-      /*  for(int l=0;l<5;++l)
+      /*for(int l=0;l<5;++l)
 	{
 	  for(int n=0;n<5;++n)
 	    {
-	      std::cerr<<(size_t)(color[(l*5+n)*3])<<",";
+	      std::cerr<<size_t(color[(l*5+n)*3])<<",";
 	    }
 	  std::cerr<<std::endl;
 	}
@@ -237,7 +220,7 @@ namespace scigma
 	{
 	  for(int n=0;n<5;++n)
 	    {
-	      std::cerr<<(size_t)(color[(l*5+n)*3+2])<<",";
+	      std::cerr<<size_t(color[(l*5+n)*3+2])<<",";
 	    }
 	  std::cerr<<std::endl;
 	  }*/
@@ -458,6 +441,8 @@ namespace scigma
 	ptr[i]=vector[i];
       update_4_uniform_in_all_programs(uniform,vector);
 #endif
+      if(uniform==BACKGROUND_COLOR)
+	glClearColor(vector[0],vector[1],vector[2],vector[3]);
       GLERR;
     }
 
@@ -526,16 +511,16 @@ namespace scigma
       else
 	{ 
 	  double now(glfwGetTime());
-	  /*	  if(now-currentFrameStartTime_<TARGET_FRAME_TIME-currentFrameRenderingTime_)
+	  if(now-currentFrameStartTime_<TARGET_FRAME_TIME-currentFrameRenderingTime_)
 	    {
 	      redrawRequested_=true;
 	      return;
-	      }*/
+	    }
 	  currentFrameStartTime_=now;
 
 	  draw_frame();
-	  
 	  glfwSwapBuffers(glfwWindowPointer_);
+
 	  currentFrameRenderingTime_=glfwGetTime()-currentFrameStartTime_;
 	  redrawRequested_=false;
 	}
@@ -573,21 +558,6 @@ namespace scigma
 
     template<> void GLContext::end_hover<LOKI_TYPELIST_0>(size_t hoverIndexBase)
     {}
-
-    std::string GLContext::create_fragment_main(const std::string& body,
-						const std::string& colorExpression, 
-						const std::string& hoverExpression, 
-						const std::string& colorOutput)
-    {
-      std::string main("void main()\n{\n"+body+
-		       "\tif(0.5>uniqueID.z)\n\t{\n"+
-		       "\t\t"+colorOutput+"="+colorExpression+";\n\t}\n"+
-		       "\telse if(1.5>uniqueID.z)\n\t{\n"+
-		       "\t\t"+colorOutput+"=vec4(uniqueID.xy,gl_FragCoord.z,1);\n\t}\n"+
-		       "\telse\n\t{\n"+
-		       "\t\t"+colorOutput+"="+hoverExpression+";\n\t}\n}\n");
-      return main;
-    }
 
 #pragma GCC diagnostic pop
 

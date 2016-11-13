@@ -1,7 +1,7 @@
 #include <AntTweakBar.h>
-#include "glwindow.h"
-#include "application.h"
-#include "cosy.h"
+#include "glwindow.hpp"
+#include "application.hpp"
+#include "cosy.hpp"
 
 namespace scigma
 {
@@ -33,11 +33,7 @@ namespace scigma
       *cursorLastX_=-1e10f;
       *cursorLastY_=-1e10f;
 
-      GLfloat fg[4]={1,1,1,1};
-      GLfloat bg[4]={0,0,0,1};
-      
-      set_foreground_color(fg);
-      set_background_color(bg);
+      set_theme(DARK);
     }
     
     GLWindow::~GLWindow()
@@ -51,6 +47,23 @@ namespace scigma
       glfwSetWindowTitle(glfwWindowPointer_,title);
     }
 
+    void GLWindow::set_theme(Theme theme)
+    {
+      GLfloat fg[4]={1,1,1,1};
+      GLfloat bg[4]={0,0,0,1};
+
+      if(theme==DARK)
+	{
+	  set_foreground_color(fg);
+	  set_background_color(bg);
+	}
+      else
+	{
+	  set_foreground_color(bg);
+	  set_background_color(fg);
+	}
+    }
+    
     void GLWindow::set_foreground_color(const GLfloat* color)
     {
       glContext_.update_global_uniform_4(GLContext::FOREGROUND_COLOR,color);

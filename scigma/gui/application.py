@@ -1,12 +1,13 @@
-import os
-from ctypes import *
+import os, ctypes
 from .. import lib
 
-C_CallbackType=CFUNCTYPE(None)
+C_CallbackType=ctypes.CFUNCTYPE(None)
 
 lib.scigma_gui_application_set_loop_callback.argtypes=[C_CallbackType]
 lib.scigma_gui_application_set_idle_callback.argtypes=[C_CallbackType]
-lib.scigma_gui_application_loop.argtypes=[c_double]
+lib.scigma_gui_application_loop.argtypes=[ctypes.c_double]
+lib.scigma_gui_application_idle.argtypes=[ctypes.c_double]
+lib.scigma_gui_application_is_sleeping.restype=ctypes.c_bool
 
 py_loop_callbacks=[]
 py_idle_callbacks=[]
@@ -28,6 +29,18 @@ def loop(seconds):
 def break_loop():
     lib.scigma_gui_application_break_loop()
 
+def idle(seconds):
+    lib.scigma_gui_application_idle(seconds)
+
+def sleep():
+    lib.scigma_gui_application_sleep()
+
+def wake():
+    lib.scigma_gui_application_wake()
+
+def is_sleeping():
+    return lib.scigma_gui_application_is_sleeping()
+    
 def add_loop_callback(func):
     if py_loop_callbacks==[]:
         lib.scigma_gui_application_set_loop_callback(c_loop_callback)
@@ -38,7 +51,7 @@ def remove_loop_callback(func):
     if func in py_loop_callbacks:
         py_loop_callbacks.remove(func)
     if py_loop_callbacks==[]:
-        lib.scigma_gui_application_set_loop_callback.argtypes=[c_void_p]
+        lib.scigma_gui_application_set_loop_callback.argtypes=[ctypes.c_void_p]
         lib.scigma_gui_application_set_loop_callback(None)
         lib.scigma_gui_application_set_loop_callback.argtypes=[C_CallbackType]
 
@@ -52,7 +65,7 @@ def remove_idle_callback(func):
     if func in py_idle_callbacks:
         py_idle_callbacks.remove(func)
     if py_idle_callbacks==[]:
-        lib.scigma_gui_application_set_loop_callback.argtypes=[c_void_p]
+        lib.scigma_gui_application_set_loop_callback.argtypes=[ctypes.c_void_p]
         lib.scigma_gui_application_set_loop_callback(None)
         lib.scigma_gui_application_set_loop_callback.argtypes=[C_CallbackType]
 

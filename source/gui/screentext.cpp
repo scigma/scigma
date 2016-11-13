@@ -1,7 +1,6 @@
-#include "screentext.h"
-#include "glutil.h"
-#include "glcontext.h"
-#include <iostream>
+#include "screentext.hpp"
+#include "glutil.hpp"
+#include "glcontext.hpp"
 
 namespace scigma
 {
@@ -289,7 +288,8 @@ namespace scigma
 	  glUniform4f(screenAnchorLocation_,-1,1,0,0);break;
 	}
      
-      glBindTexture(GL_TEXTURE_2D,font_.textureID);      
+      glBindTexture(GL_TEXTURE_2D,font_.textureID);
+      glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
       glDrawArrays(GL_TRIANGLES, 0, GLsizei(usedSize_/4));
 
       GLERR;

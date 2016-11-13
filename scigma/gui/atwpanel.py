@@ -1,6 +1,6 @@
 import string
 from ctypes import *
-from .. import util
+from .. import common
 from .. import lib
 
 C_Color = c_float*4
@@ -10,14 +10,8 @@ C_CallbackType=CFUNCTYPE(None, c_char_p, c_void_p)
 class Button(object):
     pass
 
-class Enum(object):
-    def __init__(self,definition={},label=None):
-        self.definition=definition
-        self.label=label   
-    def __str__(self):
-        return self.label
-    def __repr__(self):
-        return self.label
+class Separator(object):
+    pass
 
 class ATWPanel(object):
     """ Wrapper for ATWPanel objects.
@@ -60,7 +54,7 @@ class ATWPanel(object):
     def callback(self,id_ptr,entry_ptr):
         identifier=str(string_at(id_ptr).decode())
         parts=identifier.rpartition('.')
-        d=util.dict_entry(parts[0],self.data)
+        d=common.dict_entry(parts[0],self.data)
         key=parts[2]
         oldval=d[key]
         if isinstance(oldval, bool):
@@ -69,9 +63,9 @@ class ATWPanel(object):
         elif isinstance(oldval,int):
             value=cast(entry_ptr,POINTER(c_int))
             d[key]=value[0]
-        elif isinstance(oldval,util.Float):
+        elif isinstance(oldval,common.Float):
             value=cast(entry_ptr,POINTER(c_float))
-            d[key]=util.Float(value[0])
+            d[key]=common.Float(value[0])
         elif isinstance(oldval,float):
             value=cast(entry_ptr,POINTER(c_double))
             d[key]=value[0]
@@ -84,7 +78,7 @@ class ATWPanel(object):
         elif isinstance(oldval,str):
             value=str(cast(entry_ptr,c_char_p).value.decode())
             d[key]=value
-        elif isinstance(oldval,Enum):
+        elif isinstance(oldval,common.Enum):
             newval=cast(entry_ptr,POINTER(c_int))
             for entry, value in oldval.definition.items():
                 if value==newval[0]:
@@ -109,7 +103,7 @@ class ATWPanel(object):
             lib.scigma_gui_atw_panel_set_bool(self.objectID,create_string_buffer(identifier),b)
         elif isinstance(value,int):
             lib.scigma_gui_atw_panel_set_int(self.objectID,create_string_buffer(identifier),value)
-        elif isinstance(value,util.Float):
+        elif isinstance(value,common.Float):
             lib.scigma_gui_atw_panel_set_float(self.objectID,create_string_buffer(identifier),
                                                   c_float(value.value))
         elif isinstance(value,float):
@@ -117,7 +111,7 @@ class ATWPanel(object):
         elif isinstance(value,str):
             lib.scigma_gui_atw_panel_set_string(self.objectID,create_string_buffer(identifier),
                                                    create_string_buffer(bytes(value.encode("ascii"))))
-        elif isinstance(value,Enum):
+        elif isinstance(value,common.Enum):
             lib.scigma_gui_atw_panel_set_enum(self.objectID,create_string_buffer(identifier),value.definition[value.label])
         elif isinstance(value,list):
             if len(value)==3:
@@ -150,7 +144,7 @@ class ATWPanel(object):
         elif isinstance(value,int):
             lib.scigma_gui_atw_panel_add_int(self.objectID,create_string_buffer(idascii),
                                                 forward, create_string_buffer(defs))
-        elif isinstance(value,util.Float):
+        elif isinstance(value,common.Float):
             lib.scigma_gui_atw_panel_add_float(self.objectID,create_string_buffer(idascii),
                                                   forward, create_string_buffer(defs))
         elif isinstance(value,float):
@@ -159,7 +153,7 @@ class ATWPanel(object):
         elif isinstance(value,str):
             lib.scigma_gui_atw_panel_add_string(self.objectID,create_string_buffer(idascii),
                                                    forward, create_string_buffer(defs))
-        elif isinstance(value,Enum):
+        elif isinstance(value,common.Enum):
             labels = ''
             n=0
             for entry in value.definition:
@@ -195,84 +189,87 @@ class ATWPanel(object):
         elif isinstance(value,Button):
             lib.scigma_gui_atw_panel_add_button(self.objectID,create_string_buffer(idascii),
                                                    create_string_buffer(defs))
+        elif isinstance(value,Separator):
+            lib.scigma_gui_atw_panel_add_separator(self.objectID,create_string_buffer(idascii),
+                                                   create_string_buffer(defs))
         else:
-            raise Exception("expected bool, int, util.Float, float, Direction, Color, str, Enum or Button")
+            raise Exception("expected bool, int, common.Float, float, Direction, Color, str, Enum, Button or Separator")
         self.change(identifier,d,key,value)
 
     def get(self, identifier):
-        paths=[]
-        util.dict_full_paths(identifier,self.data,paths)
-        if len(paths) is 0:
-            raise Exception("key not found")
-        elif not len(paths) is 1:
-            raise Exception("ambiguous key")
+        entry=common.dict_single_entry(identifier,self.data,"entry")
+        if isinstance(entry,common.Float):
+            return entry.value
+        elif isinstance(entry,common.Enum):
+            return entry.label
+        elif isinstance(entry,Button) or isinstance(entry,Separator):
+            return None
         else:
-            entry=util.dict_entry(paths[0],self.data)
-            if isinstance(entry,util.Float):
-                return entry.value
-            elif isinstance(entry,Enum):
-                return entry.label
-            elif isinstance(entry,Button):
-                return None
-            else:
-                return entry
+            return entry
 
     def set(self, identifier, value):
-        paths=[]
-        util.dict_full_paths(identifier,self.data,paths)
-        if len(paths) == 0:
-            raise Exception("key not found")
-        elif not len(paths) == 1:
-            raise Exception("ambiguous key")
-        else:
-            parts=paths[0].rpartition('.')
-            d=util.dict_entry(parts[0],self.data)
-            key=parts[2]
-            oldval=d[key]
-            if not type(oldval) == type(value):
-                if type(oldval) == util.Float and isinstance(value,int) or isinstance(value,float):
-                    value=util.Float(value)
+        path=common.dict_single_path(identifier,self.data)
+
+        parts=path.rpartition('.')
+        d=common.dict_entry(parts[0],self.data)
+        key=parts[2]
+        oldval=d[key]
+        if not type(oldval) == type(value):
+            if type(oldval) == common.Float:
+                if isinstance(value,int) or isinstance(value,float):
+                    value=common.Float(value)
                 else:
                     raise Exception(key+": excpected " + str(type(oldval)))
-            if isinstance(oldval,list):
-                if len(oldval)==3:
-                    try:
-                        value=[float(value[0]),float(value[1]),float(value[2])]
-                    except TypeError:
-                        raise Exception(key+": direction must be of type [float,float,float]")
-                elif len(oldval)==4:
-                    try:
-                        if len(value)==4:
-                            value=[float(value[0]),float(value[1]),float(value[2]),float(value[3])]
-                        else:
-                            value=[float(value[0]),float(value[1]),float(value[2]),1.0]
-                    except TypeError:
-                        raise Exception(key+": color must be of type [float,float,float,float]")
-            elif isinstance(value,Enum):
-                if not oldval.definition is value.definition:
-                    raise Exception("wrong type of Enum for "+key)
-            self.change(paths[0],d,key,value)
+            elif type(oldval) == common.Enum:
+                if isinstance(value,str):
+                    if value in oldval.definition:
+                        value = common.Enum(oldval.definition,value)
+                    else:
+                        raise Exception(key+": value "+value+" not in Enum")
+        if isinstance(oldval,list):
+            if len(oldval)==3:
+                try:
+                    value=[float(value[0]),float(value[1]),float(value[2])]
+                except TypeError:
+                    raise Exception(key+": direction must be of type [float,float,float]")
+            elif len(oldval)==4:
+                try:
+                    if len(value)==4:
+                        value=[float(value[0]),float(value[1]),float(value[2]),float(value[3])]
+                    else:
+                        value=[float(value[0]),float(value[1]),float(value[2]),1.0]
+                except TypeError:
+                    raise Exception(key+": color must be of type [float,float,float,float]")
+        elif isinstance(value,common.Enum):
+            if not oldval.definition is value.definition:
+                raise Exception("wrong type of Enum for "+key)
+        self.change(path,d,key,value)
 
     def remove(self, identifier):
-        parts=identifier.rpartition('.')
-        if parts[0]=='':
-            d = None
-            entry = util.dict_entry(parts[2],self.data)
-        else:
-            d = util.dict_entry(parts[0],self.data)
-            if not d:
-                raise Exception("key '" + identifier + "' not found")
-            try:
-                entry = d[parts[2]]
-            except KeyError:
-                raise Exception("key '" + identifier + "' not found")
-        if isinstance(entry,dict):
-            for key in entry:
+        path=common.dict_single_path(identifier,self.data)
+        entry=common.dict_entry(path,self.data)
+
+        parts=path.rpartition('.')
+        dname=None
+        name=parts[2]
+        d0=None # node two levels above
+        d1=common.dict_entry(parts[0],self.data) # node one level above
+        if not parts[0] == '':
+            parts=parts[0].rpartition('.')
+            dname=parts[2]
+            d0=common.dict_entry(parts[0],self.data)
+
+        if isinstance(entry,dict): # if entry is a node, 
+            keys=entry.keys()
+            for key in keys: # recursively delete subnodes
                 self.remove(identifier+'.'+key)
-        else:
-            if d:
-                d.pop(parts[2],None)
-        lib.scigma_gui_atw_panel_remove(self.objectID,create_string_buffer(bytes(identifier.encode("ascii"))))
+        else: # if entry is not a node, remove it from the TWBar
+            lib.scigma_gui_atw_panel_remove(self.objectID,create_string_buffer(bytes(identifier.encode("ascii"))))
+        #remove entry from dictionary one level higher
+        del d1[name]
+        #if dictionary one level higher is empty, delete the whole group
+        if not d1 and dname:
+            del d0[dname]
 
     def add_separator(self, identifier,defs=''):
         lib.scigma_gui_atw_panel_add_separator(self.objectID,

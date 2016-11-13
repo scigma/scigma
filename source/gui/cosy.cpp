@@ -1,7 +1,9 @@
-#include "cosy.h"
-#include "viewingvolume.h"
-#include "glcontext.h"
-#include "glwindow.h"
+#include "cosy.hpp"
+#include "viewingvolume.hpp"
+#include "glcontext.hpp"
+#include "glwindow.hpp"
+
+using scigma::common::connect;
 
 namespace scigma
 {
@@ -26,25 +28,19 @@ namespace scigma
       zRuler_.set_label("z");
       update_rulers(glWindow_->viewing_volume());
       glWindow_->gl_context()->flush();
-      xRuler_.connect(this);
-      yRuler_.connect(this);
-      zRuler_.connect(this);
+      connect<AdjustEvent>(&xRuler_,this);
+      connect<AdjustEvent>(&yRuler_,this);
+      connect<AdjustEvent>(&zRuler_,this);
 
-      glWindow_->viewing_volume()->EventSource<RangeEvent>::Type::connect(this);
-      glWindow_->viewing_volume()->EventSource<ShiftEvent>::Type::connect(this);
-      glWindow_->viewing_volume()->EventSource<ScaleEvent>::Type::connect(this);
-      glWindow_->viewing_volume()->EventSource<ResetEvent>::Type::connect(this);
-      glWindow_->viewing_volume()->EventSource<RotateEvent>::Type::connect(this);
+      connect<RangeEvent>(glWindow_->viewing_volume(),this);
+      connect<ShiftEvent>(glWindow_->viewing_volume(),this);
+      connect<ScaleEvent>(glWindow_->viewing_volume(),this);
+      connect<ResetEvent>(glWindow_->viewing_volume(),this);
+      connect<RotateEvent>(glWindow_->viewing_volume(),this);
     }
 
     Cosy::~Cosy()
     {
-      glWindow_->viewing_volume()->EventSource<RangeEvent>::Type::disconnect(this);
-      glWindow_->viewing_volume()->EventSource<ShiftEvent>::Type::disconnect(this);
-      glWindow_->viewing_volume()->EventSource<ScaleEvent>::Type::disconnect(this);
-      glWindow_->viewing_volume()->EventSource<ResetEvent>::Type::disconnect(this);
-      glWindow_->viewing_volume()->EventSource<RotateEvent>::Type::disconnect(this);
-
       glWindow_->gl_context()->stall();
       glWindow_->gl_context()->remove_drawable(&xRuler_);
       glWindow_->gl_context()->remove_drawable(&yRuler_);

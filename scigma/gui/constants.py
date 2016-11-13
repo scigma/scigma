@@ -40,6 +40,16 @@ VIEW_TYPE={'xy':XY,'xyc':XYC,'xyt':XYT,
            'xyct':XYCT,'xyz':XYZ,'xyzc':XYZC,
            'xyzt':XYZT,'xyzct':XYZCT}
 
+POINTS=0
+LINES=1
+ISOLINES=2
+WIREFRAME=3
+SOLID=4
+POLYGON=5
+
+DRAWING_TYPE ={'points':POINTS, 'lines':LINES, 'isolines':ISOLINES,
+               'wireframe':WIREFRAME, 'solid':SOLID, 'polygon':POLYGON}
+
 DOT=0
 PLUS=1
 CROSS=2
@@ -58,4 +68,5 @@ NONE=13
 POINT_TYPE={'dot':DOT,'plus':PLUS,'cross':CROSS,'ring':RING,
             'rdot':RDOT,'rplus':RPLUS,'rcross':RCROSS,'quad':QUAD,
             'qdot':QDOT,'qplus':QPLUS,'qcross':QCROSS,'hash':HASH,
-            'star':STAR,'none':NONE}
+            'star':STAR, 'none':NONE}
+

@@ -4,7 +4,8 @@ from .navigator import Navigator
 from .picker import Picker
 from .console import Console
 from .atwpanel import ATWPanel
-from .curve import Curve
+from .bundle import Bundle
+from .sheet import Sheet
 from .constants import N_COORDINATES
 
 class GLWindow(object):
@@ -29,6 +30,7 @@ class GLWindow(object):
     lib.scigma_gui_gl_window_rotateII.argtypes=[c_int,c_int,c_float]
     lib.scigma_gui_gl_window_min.restype=POINTER(c_float)
     lib.scigma_gui_gl_window_max.restype=POINTER(c_float)
+    lib.scigma_gui_gl_window_set_theme.argtypes=[c_int,c_int]
 
     def __init__(self):
         self.objectID = lib.scigma_gui_create_gl_window()
@@ -125,12 +127,6 @@ class GLWindow(object):
     def reset_rotation(self):
         lib.scigma_gui_gl_window_reset_rotation(self.objectID)
 
-    def continuous_refresh_needed(self):
-        lib.scigma_gui_gl_window_continuous_refresh_needed()
-
-    def continuous_refresh_not_needed(self):
-        lib.scigma_gui_gl_window_continuous_refresh_not_needed()
-
     def stall(self):
         lib.scigma_gui_gl_window_stall(self.objectID)
 
@@ -144,16 +140,21 @@ class GLWindow(object):
         lib.scigma_gui_gl_window_flush(self.objectID)
 
     def add_drawable(self, drawable):
-        if isinstance(drawable,Curve):
-            lib.scigma_gui_gl_window_add_curve(self.objectID,drawable.objectID)
+        if isinstance(drawable,Bundle):
+            lib.scigma_gui_gl_window_add_bundle(self.objectID,drawable.objectID)
+        elif isinstance(drawable,Sheet):
+            lib.scigma_gui_gl_window_add_sheet(self.objectID,drawable.objectID)
         elif isinstance(drawable,Picker):
             lib.scigma_gui_gl_window_add_picker(self.objectID,drawable.objectID)
 
     def remove_drawable(self, drawable):
-        if isinstance(drawable,Curve):
-            lib.scigma_gui_gl_window_remove_curve(self.objectID,drawable.objectID)
-        if isinstance(drawable,Picker):
+        if isinstance(drawable,Bundle):
+            lib.scigma_gui_gl_window_remove_bundle(self.objectID,drawable.objectID)
+        elif isinstance(drawable,Sheet):
+            lib.scigma_gui_gl_window_remove_sheet(self.objectID,drawable.objectID)
+        elif isinstance(drawable,Picker):
             lib.scigma_gui_gl_window_remove_picker(self.objectID,drawable.objectID)
 
-
+    def set_theme(self,theme):
+        lib.scigma_gui_gl_window_set_theme(self.objectID,theme)
 

@@ -1,15 +1,16 @@
 #include <unistd.h>
+#include <chrono>
+#include <thread>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <AntTweakBar.h>
-#include "../events.h"
-#include "application.h"
-#include "glwindow.h"
-#include "glutil.h"
-#include "drawable.h"
-#include "font.h"
-#include "marker.h"
+#include "application.hpp"
+#include "glwindow.hpp"
+#include "glutil.hpp"
+#include "drawable.hpp"
+#include "font.hpp"
+#include "marker.hpp"
 
 extern "C"
 {
@@ -34,18 +35,28 @@ extern "C"
   }
   
   /*void window_position_callback(GLFWwindow* w, int x, int y)
-  {}
+    {}*/
   
-  void window_refresh_callback(GLFWwindow* w)
-  {}
-  
+  /*void window_refresh_callback(GLFWwindow* w)
+  {
+    scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w)));
+    glWindow->gl_context()->request_redraw();
+    }*/
+
+  /*
   void window_focus_callback(GLFWwindow* w, int focused)
-  {}
+  {}*/
   
-  void framebuffer_size_callback(GLFWwindow* w, int width, int height)
-  {}*/  
+  /*  void framebuffer_size_callback(GLFWwindow* w, int width, int height)
+  {
+    scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w))); 
+    glWindow->viewing_area()->set_size(width,height,false);
+    }*/
+  
   void mouse_button_callback(GLFWwindow* w, int button , int action, int mods)
   {
+    if(scigma::gui::Application::get_instance()->is_sleeping())
+      return;
     scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w))); 
     TwSetCurrentWindow(size_t(glWindow->gl_context()));
     if(TwEventMouseButtonGLFW(button,action))
@@ -60,6 +71,8 @@ extern "C"
   
   void cursor_position_callback(GLFWwindow* w, double x, double y)
   {
+    if(scigma::gui::Application::get_instance()->is_sleeping())
+      return;
     scigma::gui::GLWindow* glWindow = static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w));
     TwSetCurrentWindow(size_t(glWindow->gl_context()));
     if(TwEventMousePosGLFW(int(x),int(y)))
@@ -70,13 +83,16 @@ extern "C"
   
   void scroll_callback(GLFWwindow* w, double xScroll, double yScroll)
   {
+    if(scigma::gui::Application::get_instance()->is_sleeping())
+      return;
     static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w))->forward_scroll_event(GLfloat(xScroll), GLfloat(yScroll));
   }
   
   void char_callback(GLFWwindow* w, unsigned int unicode)
   {
+    if(scigma::gui::Application::get_instance()->is_sleeping())
+      return;
     scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w)));
-
  
     TwSetCurrentWindow(size_t(glWindow->gl_context()));
     if(TwEventCharGLFW(int(unicode),GLFW_PRESS))
@@ -90,11 +106,14 @@ extern "C"
 
   void key_callback(GLFWwindow* w, int key, int scancode, int action, int mods)
   {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    if(scigma::gui::Application::get_instance()->is_sleeping())
       {
-	++ESCAPE_COUNT;
-	std::cout<<ESCAPE_COUNT<<std::endl;
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	  scigma::gui::Application::get_instance()->wake();
+	return;
       }
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	++ESCAPE_COUNT;
     
     scigma::gui::GLWindow* glWindow(static_cast<scigma::gui::GLWindow*>(glfwGetWindowUserPointer(w))); 
     TwSetCurrentWindow(size_t(glWindow->gl_context()));
@@ -116,7 +135,7 @@ namespace scigma
 
     Application* Application::theInstance_(NULL);
     
-    Application::Application():masterWindow_(NULL),log_(NULL),idleIndex_(0),loopIsRunning_(false)
+    Application::Application():masterWindow_(NULL),log_(NULL),idleIndex_(0),loopIsRunning_(false),sleeping_(false)
     {
       char path[0x1000];
       getcwd(path,0x1000);
@@ -158,7 +177,7 @@ namespace scigma
       //glfwWindowHint(GLFW_DECORATED,GL_FALSE);
       theInstance_->masterWindow_=glfwCreateWindow(10,10, "", NULL,NULL);
       glfwWindowHint(GLFW_VISIBLE,GL_TRUE);
-      //glfwWindowHint(GLFW_SAMPLES, 4);
+      //glfwWindowHint(GLFW_SAMPLES, 16);
       glfwMakeContextCurrent(theInstance_->masterWindow_);
       GLERR;
 
@@ -200,7 +219,7 @@ namespace scigma
       //Font::terminate();
       glfwDestroyWindow(theInstance_->masterWindow_);
       glfwTerminate();
-      
+
       delete theInstance_;
     }
     
@@ -209,10 +228,10 @@ namespace scigma
       glfwSetWindowCloseCallback(w, window_close_callback);  
       //glfwSetWindowIconifyCallback(w, window_iconify_callback);
       glfwSetWindowSizeCallback(w, window_size_callback);
-      /*glfwSetWindowPosCallback(w, window_position_callback);
-      glfwSetWindowRefreshCallback(w, window_refresh_callback);
-      glfwSetWindowFocusCallback(w, window_focus_callback);  
-      glfwSetFramebufferSizeCallback(w, framebuffer_size_callback);*/
+      //glfwSetWindowPosCallback(w, window_position_callback);
+      //      glfwSetWindowRefreshCallback(w, window_refresh_callback);
+      //glfwSetWindowFocusCallback(w, window_focus_callback);
+      // glfwSetFramebufferSizeCallback(w, framebuffer_size_callback);
       glfwSetMouseButtonCallback(w, mouse_button_callback);
       glfwSetCursorPosCallback(w, cursor_position_callback);
       glfwSetScrollCallback(w, scroll_callback);
@@ -232,9 +251,9 @@ namespace scigma
       theInstance_->push_error(combine.str());
     }
     
-    const char* Application::pop_error()
+    std::string Application::pop_error()
     {
-      return log_->pop();
+      return log_->pop().second;
     }
     
     void Application::push_error(std::string error, const char* file, int line)
@@ -244,30 +263,10 @@ namespace scigma
 
     void Application::loop(double seconds)
     {
-      if(loopIsRunning_) //nested loop call
-	{
-	  double lt(glfwGetTime());
-	  while(true)
-	    {
-	      loopMutex_.lock();
-	      EventSource<LoopEvent>::Type::emit();
-	      loopMutex_.unlock();
-
-	      idleMutex_.lock();
-	      size_t nIdleSinks;
-	      while((nIdleSinks=EventSource<IdleEvent>::Type::sinks.size())!=0)
-		{
-		  IdleEvent e;
-		  idleIndex_=idleIndex_%nIdleSinks;
-		  EventSource<IdleEvent>::Type::sinks[idleIndex_]->process(e,glfwGetTime());
-		  ++idleIndex_;
-		}
-	      idleMutex_.unlock();
-
-	      if(glfwGetTime()>=seconds+lt)
-		return;
-	    }	      
-	}
+      std::cout<<"1, ";	  
+      bool noIdle(false);
+      if(!(seconds>0))
+	 noIdle=true;
 
       loopIsRunning_=true;
       if(seconds<REFRESH_INTERVAL)
@@ -278,77 +277,106 @@ namespace scigma
 	  if(seconds<REFRESH_INTERVAL)
 	    {
 	      loopIsRunning_=false;
+	      std::cout<<"2, ";	  
 	      return;
 	    }
 	  double remainingSecondsAtStart(seconds);	 
-	  // refresh
-	  loopMutex_.lock();
 	  EventSource<LoopEvent>::Type::emit();
-	  loopMutex_.unlock();
 	  glfwPollEvents();
 	  if(!loopIsRunning_)
-	    return;
+	    {
+	      std::cout<<"3, ";
+	      return;}
+
+	  if(noIdle)
+	    {
+	      std::cout<<"4, ";
+	      loopIsRunning_=false;
+	      return;
+	    }  
+	  
 	  // as long as there is time, emit IdleEvents, if there are connected sinks
 	  double t(glfwGetTime());
 	  seconds-=(t-lt);
-	  idleMutex_.lock();
+
 	  size_t nIdleSinks;
-	  while((nIdleSinks=EventSource<IdleEvent>::Type::sinks.size())!=0)
+	  while((nIdleSinks=EventSource<IdleEvent>::Type::sinks_.size())!=0)
 	    {
 	      IdleEvent e;
 	      idleIndex_=idleIndex_%nIdleSinks;
-	      EventSource<IdleEvent>::Type::sinks[idleIndex_]->process(e,glfwGetTime());
+	      EventSource<IdleEvent>::Type::sinks_[idleIndex_]->process(e,glfwGetTime());
 	      ++idleIndex_;
 	      glfwPollEvents();
 	      if(!loopIsRunning_)
-		  return;
+		{	  std::cout<<"5, ";
+		  return;}
 	      lt=t;
 	      t=glfwGetTime();
 	      seconds-=(t-lt);
 	      if(seconds<remainingSecondsAtStart-REFRESH_INTERVAL)
 		break;
 	    }
-	  idleMutex_.unlock();
-	  /* if there is still more time, but no EventSinks for IdleEvent any more, insert a waiting period
-	     to avoid busy waits
+	  
+	  /* if there is still more time, but no EventSinks for IdleEvent any more, insert a
+	     waiting period to avoid busy waits
 	  */
 	  while(seconds>remainingSecondsAtStart-REFRESH_INTERVAL)
 	    {
 	      double d(seconds-remainingSecondsAtStart+REFRESH_INTERVAL);
 	      glfwWaitEventsWithTimeOut(d);
 	      if(!loopIsRunning_)
-		  return;
+		{	  std::cout<<"6, ";
+		  return;}
 	      lt=t;
 	      t=glfwGetTime();
 	      seconds-=(t-lt);
 	    }
 	}
+      std::cout<<"7, ";
     }
-    
+
     void Application::break_loop()
     {
       loopIsRunning_=false;
     }
 
-    void Application::connect_to_loop_threadsafe(EventSink<LoopEvent>::Type* sink)
+    void Application::idle(double seconds)
     {
-      tthread::lock_guard<tthread::mutex> guard(loopMutex_);
-      EventSource<LoopEvent>::Type::connect(sink);
+      double t(glfwGetTime()), lt(0);
+      size_t nIdleSinks;
+      while((nIdleSinks=EventSource<IdleEvent>::Type::sinks_.size())!=0)
+	{
+	  IdleEvent e;
+	  idleIndex_=idleIndex_%nIdleSinks;
+	  EventSource<IdleEvent>::Type::sinks_[idleIndex_]->process(e,glfwGetTime());
+	  ++idleIndex_;
+	  lt=t;
+	  t=glfwGetTime();
+	  seconds-=(t-lt);
+	  if(seconds<0)
+	    break;
+	}
+      if(seconds>0)
+	{
+	  std::chrono::duration<double> d(seconds);
+	  std::this_thread::sleep_for(d);
+	}
     }
-    void Application::connect_to_idle_threadsafe(EventSink<IdleEvent>::Type* sink)
+
+    void Application::sleep()
     {
-      tthread::lock_guard<tthread::mutex> guard(idleMutex_);
-      EventSource<IdleEvent>::Type::connect(sink);
+      sleeping_=true;
     }
-    void Application::disconnect_from_loop_threadsafe(EventSink<LoopEvent>::Type* sink)
+
+    void Application::wake()
     {
-      tthread::lock_guard<tthread::mutex> guard(loopMutex_);
-      EventSource<LoopEvent>::Type::disconnect(sink);
+
+      sleeping_=false;
     }
-    void Application::disconnect_from_idle_threadsafe(EventSink<IdleEvent>::Type* sink)
+
+    bool Application::is_sleeping() const
     {
-      tthread::lock_guard<tthread::mutex> guard(idleMutex_);
-      EventSource<IdleEvent>::Type::disconnect(sink);
+      return sleeping_;
     }
 
   } /* end namespace gui */

@@ -1,6 +1,6 @@
-#include "marker.h"
-#include "spritedata.h"
-#include "glutil.h"
+#include "marker.hpp"
+#include "spritedata.hpp"
+#include "glutil.hpp"
 
 namespace scigma
 {

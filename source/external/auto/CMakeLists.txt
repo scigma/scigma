@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 2.8)
+enable_language(Fortran)
+add_subdirectory(util)
+file(GLOB autfiles "*.f90")
+#set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fPIC -Wall -pedantic -Wextra")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fPIC")		
+add_library(autobjects OBJECT ${autfiles})
+add_library(auto STATIC $<TARGET_OBJECTS:autobjects>)

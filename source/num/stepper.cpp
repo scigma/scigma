@@ -1,12 +1,10 @@
-#include "stepper.h"
+#include "stepper.hpp"
 
 namespace scigma
 {
   namespace num
   {
-
-    Stepper::Stepper(bool computeJacobian, size_t nVar_,size_t nFunc_, double t0):
-      nVar(nVar_),nFunc(nFunc_),t0_(t0),computeJacobian_(computeJacobian)
+    Stepper::Stepper()
     {}
     
     Stepper::~Stepper()

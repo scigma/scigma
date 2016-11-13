@@ -1,7 +1,6 @@
-#include "spacetext.h"
-#include "glutil.h"
-#include "glcontext.h"
-#include <iostream>
+#include "spacetext.hpp"
+#include "glutil.hpp"
+#include "glcontext.hpp"
 
 namespace scigma
 {
@@ -308,6 +307,7 @@ namespace scigma
       glUniform2fv(globalOffsetLocation_,1,globalOffset_);
       glUniform1f(heightLocation_,font_.charHeight);
       glBindTexture(GL_TEXTURE_2D,font_.textureID);      
+      glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
       glDrawArrays(GL_TRIANGLES, 0, GLsizei(usedSize_/9));
       GLERR;
     }

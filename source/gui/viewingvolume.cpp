@@ -3,8 +3,8 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-#include "viewingvolume.h"
-#include "glcontext.h"
+#include "viewingvolume.hpp"
+#include "glcontext.hpp"
 
 namespace scigma
 {

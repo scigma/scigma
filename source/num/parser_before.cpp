@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cmath>
 #include <stdlib.h>
-#include "parser.h"
+#include "parser.hpp"
 
 namespace scigma // note: this namespace is closed at the end of parser_after.cpp
 {

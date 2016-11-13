@@ -2,34 +2,36 @@
 #include <cmath>
 #include <string>
 #include <algorithm>
-#include "mapmanifoldstepper.h"
+#include <tinythread.h>
+#include "mapmanifoldstepper.hpp"
 
 namespace scigma
 {
   namespace num
   {
     
-    MapManifoldStepper::MapManifoldStepper(Stepper* mapStepper, dat::Wave* initial,double dsmax, double dsmin, double alpha, double dalpha,size_t nPeriod):
-      Stepper(false,mapStepper->nVar,mapStepper->nFunc,0),mapStepper_(mapStepper),
-      ds_(dsmax),dsmax_(dsmax),dsmin_(dsmin),alpha_(alpha),dalpha_(dalpha),nPeriod_(nPeriod),
-      current_(0),nVar_(mapStepper->nVar),xBackup_(mapStepper->nVar)
+    MapManifoldStepper::MapManifoldStepper(Stepper* mapStepper, Wave* initial,double dsmax, double dsmin, double alpha, double dalpha,size_t nPeriod):
+      mapStepper_(mapStepper),t0_(mapStepper_->t()),ds_(dsmax),dsmax_(dsmax),dsmin_(dsmin),alpha_(alpha),dalpha_(dalpha),
+      nPeriod_(nPeriod),current_(0),nVar_(mapStepper->n_variables()),nFunc_(mapStepper->n_functions()),xBackup_(mapStepper->n_variables())
     {
+      initial->lock();
       // insert fixed point
       points_.push_back(std::vector<double>(nVar_+1));
-      for(uint32_t i(0);i<nVar_;++i)
-	points_.back()[i]=(*initial)[1+i];
+      for(size_t i(0);i<nVar_;++i)
+	points_.back()[i]=initial->data()[1+i];
       points_.back()[nVar_]=0;
 
       // insert end point of initial segment
       points_.push_back(std::vector<double>(nVar_+1));
       for(uint32_t i(0);i<nVar_;++i)
-	points_.back()[i]=(*initial)[uint32_t(initial->columns())+1+i];
-      points_.back()[nVar_]=1.0;//arc(&(points_.front()[0]),&(points_.back()[0]));
+	points_.back()[i]=initial->data()[1+nVar_+nFunc_+1+i];
+      points_.back()[nVar_]=arc(&(points_.front()[0]),&(points_.back()[0]));
 
       /*      for(size_t i(0);i<nVar;++i)
 	      xBackup_[i]=mapStepper->x(i);*/
 
       preImage_=points_.begin();
+      initial->unlock();
     }
     
     MapManifoldStepper::~MapManifoldStepper()
@@ -38,11 +40,14 @@ namespace scigma
     }
     
     double MapManifoldStepper::t() const {return points_.back()[nVar_];}
-    double MapManifoldStepper::x(size_t index) const {return mapStepper_->x(index);}
-    double MapManifoldStepper::func(size_t index) const {return mapStepper_->func(index);}
-    double MapManifoldStepper::jac(size_t index) const {return 0*index;}
-    void MapManifoldStepper::reset(const double* x){mapStepper_->reset(x);}
+    const double* MapManifoldStepper::x() const {return mapStepper_->x();}
+    const double* MapManifoldStepper::func() const {return mapStepper_->func();}
+    const double* MapManifoldStepper::jac() const {return NULL;}
+    void MapManifoldStepper::reset(double t, const double* x){mapStepper_->reset(t,x);}
 
+    size_t MapManifoldStepper::n_variables() const {return nVar_;}
+    size_t MapManifoldStepper::n_functions() const {return nFunc_;}
+    
     double MapManifoldStepper::arc(double* q0,double* q1)
     {
       double d(0);
@@ -79,7 +84,6 @@ namespace scigma
 	}
       else
 	{
-
 	  std::vector<double> work(4*nVar_+4);
 	  double* p(&work[0]);
 	  double* q(&work[nVar_+1]);
@@ -96,44 +100,53 @@ namespace scigma
 		++pre;
 	      while(pre!=points_.end())
 		{
-		  //		  std::cerr<<"finding segment, starting at "<<(*pre)[nVar_]<<std::endl;
-		  mapStepper_->reset(&((*pre)[0]));
+		  //std::cerr<<"finding segment, starting at "<<(*pre)[nVar_]<<std::endl;
+		  mapStepper_->reset(t0_,&((*pre)[0]));
 		  mapStepper_->advance(nPeriod_);
 		  for(size_t j(0);j<nVar_;++j)
 		    {
-		      Q[j]=mapStepper_->x(j);
-		      //  std::cerr<<Q[j]<<", ";
+		      Q[j]=mapStepper_->x()[j];
+		      //std::cerr<<Q[j]<<", ";
 		    }
-		  if((l=arc(&Q[0],&(points_.back()[0])))>=ds_)
+		  l=arc(&Q[0],&(points_.back()[0]));
+		  Q[nVar_]=points_.back()[nVar_]+l;
+		  if(l>=ds_)
 		    break;
 		  //std::cerr<<"arc: "<<l<<std::endl;
 		  ++pre;
 		}
-	      //std::cerr<<"arc: "<<l<<std::endl;
+	      //std::cerr<<"arc: "<<l<<", ds: "<<ds_<<std::endl;
 	      if(l<dsmin_)
 		throw(std::string("reached minimum arclength step\n"));
-	      
+
 	      if(!(l<1.2*ds_)) // otherwise go immediately to angle-checking
 		{
 		  for(size_t j(0);j<nVar_+1;++j)
 		    {
 		      r[j]=(*(pre))[j];
+		      /*		      std::cout<<"r["<<j<<"]="<<r[j]<<", ";
+					      std::cout.flush();*/
 		      p[j]=(*(--pre))[j];
+		      /*		      std::cout<<"p["<<j<<"]="<<p[j]<<", ";
+					      std::cout.flush();*/
 		      ++pre;
 		      q[j]=(p[j]+r[j])/2;
+		      /*		      std::cout<<"q["<<j<<"]="<<q[j]<<", ";
+					      std::cout.flush();*/
 		    }
-		  
+
 		  //perform bisection algorithm
 		  size_t count(0);
 		  double L(0);
 		  while(++count<100)
 		    {
-		      //std::cerr<<"bisecting, starting at "<<q[nVar_]<<std::endl;
-		      mapStepper_->reset(q);
+		      //		      std::cerr<<"bisecting, starting at "<<q[nVar_]<<std::endl;
+		      mapStepper_->reset(t0_,q);
 		      mapStepper_->advance(nPeriod_);
 		      for(size_t j(0);j<nVar_;++j)
-			Q[j]=mapStepper_->x(j);
-		      L=(arc(&Q[0],&(points_.back()[0])));
+			Q[j]=mapStepper_->x()[j];
+		      L=arc(&Q[0],&(points_.back()[0]));
+		      Q[nVar_]=points_.back()[nVar_]+L;
 		      //std::cerr<<"arc: "<<l<<" ds: "<<ds_<<std::endl;
 		      if(L<0.8*ds_)
 			std::swap(q,p);
@@ -151,8 +164,7 @@ namespace scigma
 		      throw(std::string("reached maximum number of bisection steps"));
 		    }
 		}
-	      
-	      
+
 	      // check if angle is ok:
 	      SegPt p2(--points_.end());
 	      SegPt p1(--p2);
@@ -167,17 +179,16 @@ namespace scigma
 		  continue;
 		}
 
-	      Q[nVar_]=points_.back()[nVar_]+1;
 	      std::vector<double> newPt(nVar_+1);
 	      for(size_t j(0);j<nVar_+1;++j)
 		newPt[j]=Q[j];
 
 	      preImage_=--pre;//points_.end();
 	      points_.push_back(newPt);
-	      //	      std::cerr<<"............."<<std::endl;
+	      /*std::cerr<<"............."<<std::endl;
 
-	      //	      std::cerr<<"adding point "<< newPt[nVar_]<<std::endl;
-	      /*	      for(size_t j(0);j<nVar_;++j)
+	      	      std::cerr<<"adding point "<< newPt[nVar_]<<std::endl;
+	      	      for(size_t j(0);j<nVar_;++j)
 		  std::cerr<<newPt[j]<<", ";
 		  std::cerr<<std::endl<<".........."<<std::endl;*/
 
@@ -187,7 +198,7 @@ namespace scigma
 		  for(size_t j(0);j<nVar_+1;++j)
 		    prePt[j]=q[j];
 		  preImage_=points_.insert(++pre,prePt);
-		  /*		  std::cerr<<"adding prepoint "<< prePt[nVar_]<<std::endl;
+		  /*std::cerr<<"adding prepoint "<< prePt[nVar_]<<std::endl;
 		  for(size_t j(0);j<nVar_;++j)
 		      std::cerr<<prePt[j]<<", ";
 		      std::cerr<<std::endl<<".........."<<std::endl;*/

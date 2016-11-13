@@ -7,7 +7,6 @@ C_F_pType=CFUNCTYPE(c_voidp,POINTER(c_double),POINTER(c_double),POINTER(c_double
 C_F_tType=CFUNCTYPE(c_voidp,c_double,POINTER(c_double),POINTER(c_double))
 C_F_ptType=CFUNCTYPE(c_voidp,c_double,POINTER(c_double),POINTER(c_double),POINTER(c_double)) 
 
-
 def get_names(defs,typestring):
     namestring=''
     if typestring in defs:
@@ -136,94 +135,81 @@ class EquationSystem(object):
         return lib.scigma_num_equation_system_time_stamp(self.objectID)
     
     def parse(self,line):
-        if lib.scigma_num_equation_system_is_internal(self.objectID):
-            line=bytes(line.encode("ascii"))
-            return str(lib.scigma_num_equation_system_parse(self.objectID, create_string_buffer(line)).decode())
-        else:
-            line=line.strip()
-            if line[0]=='$':
-                symbol=bytes(line[1:].strip().encode("ascii"))
-                return str(lib.scigma_num_equation_system_get(self.objectID,symbol))
-            else:
-                parts=line.partition('=')
-                if parts[1]=='':
-                    return str(float(parts[0]))
-                symbol=bytes(parts[0].strip().encode("ascii"))
-                value=float(parts[2])
-                return str(lib.scigma_num_equation_system_set(self.objectID,symbol,value))
+        line=bytes(line.encode("ascii"))
+        return str(lib.scigma_num_equation_system_parse(self.objectID, create_string_buffer(line)).decode())
     
     def time(self):
         return lib.scigma_num_equation_system_time(self.objectID)
     
-    def n_variables(self):
+    def n_vars(self):
         return lib.scigma_num_equation_system_n_variables(self.objectID)
     
-    def n_parameters(self):
+    def n_pars(self):
         return lib.scigma_num_equation_system_n_parameters(self.objectID)
     
-    def n_functions(self):
+    def n_funcs(self):
         return lib.scigma_num_equation_system_n_functions(self.objectID)
     
-    def n_constants(self):
+    def n_consts(self):
         return lib.scigma_num_equation_system_n_constants(self.objectID)
     
-    def variables(self):
+    def vars(self):
         result=lib.scigma_num_equation_system_variables(self.objectID)
         return self.string_to_list(result)
     
-    def parameters(self):
+    def pars(self):
         result=lib.scigma_num_equation_system_parameters(self.objectID)
         return self.string_to_list(result)
     
-    def functions(self):
+    def funcs(self):
         result=lib.scigma_num_equation_system_functions(self.objectID)
         return self.string_to_list(result)
     
-    def constants(self):
+    def consts(self):
         result=lib.scigma_num_equation_system_constants(self.objectID)
         return self.string_to_list(result)
     
-    def variable_names(self):
+    def var_names(self):
         result=lib.scigma_num_equation_system_variable_names(self.objectID)
         return self.string_to_list(result)
     
-    def parameter_names(self):
+    def par_names(self):
         result=lib.scigma_num_equation_system_parameter_names(self.objectID)
         return self.string_to_list(result)
     
-    def function_names(self):
+    def func_names(self):
         result=lib.scigma_num_equation_system_function_names(self.objectID)
         return self.string_to_list(result)
     
-    def constant_names(self):
+    def const_names(self):
         result=lib.scigma_num_equation_system_constant_names(self.objectID)
         return self.string_to_list(result)
     
-    def variable_values(self):
+    def var_vals(self):
         result=lib.scigma_num_equation_system_variable_values(self.objectID)
-        return self.array_to_list(result,self.n_variables())
+        return self.array_to_list(result,self.n_vars())
     
-    def parameter_values(self):
+    def par_vals(self):
         result=lib.scigma_num_equation_system_parameter_values(self.objectID)
-        return self.array_to_list(result,self.n_parameters())
+        return self.array_to_list(result,self.n_pars())
     
-    def function_values(self):
+    def func_vals(self):
         result=lib.scigma_num_equation_system_function_values(self.objectID)
-        return self.array_to_list(result,self.n_functions())
+        return self.array_to_list(result,self.n_funcs())
     
-    def constant_values(self):
+    def const_vals(self):
         result=lib.scigma_num_equation_system_constant_values(self.objectID)
-        return self.array_to_list(result,self.n_constants())
+        return self.array_to_list(result,self.n_consts())
     
-    def variable_definitions(self):
+    def var_defs(self):
         result=lib.scigma_num_equation_system_variable_definitions(self.objectID)
         return self.string_to_list(result)
     
-    def function_definitions(self):
+    def func_defs(self):
         result=lib.scigma_num_equation_system_function_definitions(self.objectID)
         return self.string_to_list(result)
     
-    def constant_definitions(self):
+    def const_defs(self):
         result=lib.scigma_num_equation_system_constant_definitions(self.objectID)
         return self.string_to_list(result)
     

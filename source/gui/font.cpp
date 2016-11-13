@@ -1,11 +1,9 @@
 #include <string>
 #include <cstdlib>
 #include <cstdio>
-#include "font.h"
-#include "fontdata.h"
-#include "glutil.h"
-#include <iostream>
-
+#include "font.hpp"
+#include "fontdata.hpp"
+#include "glutil.hpp"
 
 
 namespace scigma

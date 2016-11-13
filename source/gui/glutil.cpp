@@ -1,6 +1,6 @@
 #include <png.h>
-#include "glutil.h"
-#include "glcontext.h"
+#include "glutil.hpp"
+#include "glcontext.hpp"
 
 namespace scigma
 {

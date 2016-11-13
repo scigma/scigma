@@ -1,29 +1,28 @@
-import sys,os
-from sys import version_info
-try:
-    if version_info.major == 2:
-        # We are using Python 2.x
-        import Tkinter as tk
-    elif version_info.major == 3:
-        # We are using Python 3.x
-        import tkinter as tk
-except:
-    tk=None
-    print("tkinter not found / not using tk")
-import ctypes
+import sys,os,ctypes
 from .constants import *
-from .application import loop, break_loop
+from .application import loop, break_loop, idle, sleep, wake
 from .application import add_loop_callback, add_idle_callback
 from .application import remove_loop_callback, remove_idle_callback
 from .glwindow import GLWindow
-from .atwpanel import ATWPanel, Enum
+from .atwpanel import ATWPanel, Button, Separator
 from .navigator import Navigator
 from .console import Console
-from .curve import Curve
+from .bundle import Bundle
+from .sheet import Sheet
 from .picker import Picker
 from .cosy import Cosy
-from . import color
-from . import graph
+
+try:
+    if sys.version_info.major == 2:
+        # We are using Python 2.x
+        import Tkinter as tk
+    elif sys.version_info.major == 3:
+        # We are using Python 3.x
+        import tkinter as tk
+
+except:
+    tk=None
+    print("tkinter not found / not using tk")
 
 if os.name== 'posix':
     import select
@@ -55,6 +54,7 @@ if tk:
 KEY_INTERVAL=0.05 # wait for events for KEY_INTERVAL seconds,
 # between checks whether a key has been hit at the Python interface
 
+
 def hook():       
     """ 
     If the Python interpreter is idle, the scigma.gui event 
@@ -66,8 +66,12 @@ def hook():
     the python console less responsive
     """
 
-    while not stdin_ready():
-        loop(KEY_INTERVAL)
+    while not stdin_ready() or application.is_sleeping():
+        application.loop(KEY_INTERVAL)
+        if tk:
+            pass
+#            tkroot.update_idletasks()
+#            tkroot.update()
     return 0
 
 """
@@ -75,8 +79,12 @@ This installs hook() as PyOS_InputHook, calling
 the scigma event loop whenever the interpreter
 is idle.
 """
+
 c_hook=ctypes.PYFUNCTYPE(ctypes.c_int)(hook)
 ctypes.c_void_p.in_dll(ctypes.pythonapi,"PyOS_InputHook").value=ctypes.cast(c_hook,ctypes.c_void_p).value
 
-colorList=[color.values[name] for name in color.names]
-graph.set_indexed_colors(colorList)
+def sleep(seconds=0.0,win=None):
+    if seconds > 0:
+        application.idle(seconds)
+    else:
+        application.sleep()

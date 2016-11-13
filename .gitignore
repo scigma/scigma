@@ -17,3 +17,4 @@ source/external/lpng1610/pnglibconf.h
 *.so
 *.a
 *.gz
+*.DS_STORE

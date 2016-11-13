@@ -1,0 +1,2 @@
+look out for uses of SAVE!!
+homcont.f90 inho: hardcoded 12

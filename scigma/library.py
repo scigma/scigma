@@ -1,30 +1,35 @@
-from sys import platform
-from inspect import getfile
-from ctypes import CDLL,c_float,c_bool
-import os
-from . import default
+import os, sys, inspect, ctypes
+
 """ Load shared library:"""
-if platform=='linux2':
+if sys.platform=='linux2':
     sep='/'
     libfile="libscigma.so"
-elif platform=='darwin':
+elif sys.platform=='darwin':
     sep='/'
     libfile="libscigma.dylib"
-elif platform=='win32':
+elif sys.platform=='win32':
     sep='\\'
     libfile="libscigma.dll"
 else:
     quit()
 
-libpath=getfile(default).rpartition(sep)[0]
+    
+libpath=inspect.stack()[0][1].rpartition(sep)[0]
 path=os.getcwd()
 try:
     os.chdir(libpath)
-    lib=CDLL(libfile)
+    lib=ctypes.CDLL(libfile)
     os.chdir(path)
 except:
     os.chdir(path)
-    lib=CDLL(libpath+sep+libfile)
+    lib=ctypes.CDLL(libpath+sep+libfile)
 
-largeFontsFlag=False
-c_bool.in_dll(lib,"LARGE_FONTS_FLAG").value=largeFontsFlag
+try:
+    input = raw_input
+except NameError:
+    pass;
+print ("Use large fonts (better on big screens) y/N?")
+reply=input()+'N'
+largeFontsFlag=True if reply.lower()[0] =='y' else False
+ctypes.c_bool.in_dll(lib,"LARGE_FONTS_FLAG").value=largeFontsFlag
+

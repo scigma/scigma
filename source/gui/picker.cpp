@@ -1,10 +1,11 @@
-#include "definitions.h"
-#include "glwindow.h"
-#include "picker.h"
-#include "graph.h"
-#include <iostream>
+#include "definitions.hpp"
+#include "glwindow.hpp"
+#include "picker.hpp"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+
+using scigma::common::connect_before;
+using scigma::common::disconnect;
 
 namespace scigma
 {
@@ -188,13 +189,13 @@ namespace scigma
       
       if(!visible_)
 	{
-	  w->EventSource<MouseMotionEvent>::Type::disconnect(this);
+	  disconnect<MouseMotionEvent>(w,this);
 	  EventSource<PickEvent>::Type::emit(bool(GLFW_MOD_CONTROL&mods),points_[4],points_[5],points_[6]);
 	  w->gl_context()->remove_drawable(this);
 	}
       else
 	{
-	  w->EventSource<MouseMotionEvent>::Type::connect_before(this);
+	  connect_before<MouseMotionEvent>(w,this);
 	  for(size_t i(0);i<N_SCREEN_DIMENSIONS;++i)
 	    {
 	      points_[i]=points_[8+i]=screenCoords[i];

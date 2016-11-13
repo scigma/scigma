@@ -1,0 +1,87 @@
+auto_constants: a whole bunch of global variables
+ae.f90: CNRLAE: NPARX
+	WRTSP8: IPS, NDIMU => NDIM ??
+bvp.f90: CNRLBV: NPARX
+	 RSPTBV: TY
+	 STHOPF: TY
+	 WRTBV8: IPS, NDIMU => NDIM
+equilibrium.f90: FFHBX: TY
+f2003.f90: none
+floquet.f90: none
+homcont.f90: global: HCONST, (NPARX), NEWCFILE, only used in:
+	     INHO: HCONST, NEWCFILE
+	     
+interfaces.f90: PVLSI: NPARX
+io.f90: getname: INDEXSTR
+	READC: EVERYTHING
+	READOLDC: EVERYTHING
+	STHD: A WHOLE BUNCH OF SHIT
+	WRITELIST: INDEXVAR
+	WRITEUZRLIST: INDEXMVAR
+	WRITESTRLIST: INDEXSTR
+	WRITEINTLIST: INDEXVAR
+	headng: unames, parnames
+	NEWLAB: IBR
+	FINDLB: SIRS, SFILE
+	READLB: UVALS, PARVALS, unames, parnames
+	READBV; PARVALS, parnames
+main.f90: global: ICU, parnames, AUTOPARAMETERS
+	  FINDLB_OR_STOP: SIRS
+	  AUTOI: NBC, NINT, NDIM
+	  INIT: EVERYTHING
+	  CLEANUP: A WHOLE BUNCH OF SHIT (might be everything allocatable)
+	  INIT1: IVTHL, TY
+maps.f90: FFNSX: TY
+periodic.f90: STPNTR: TY
+support.f90: CHECKSP: SP
+	     INITSTOPCNTS: STOPS, SP
+	     NAMEIDX: INDEXSTR
+	     INIT3: A WHOLE BUNCH OF SHIT
+toolboxae.f90: STPNUS: UVALS, PARVALS, unames, parnames
+toolboxae.f90: STPNUB: DATFILE, UVALS, PARVALS, unames, parnames
+	       FNCSBV: NPARX
+
+ae: no global variables
+
+bvp: IRTN, NRTN
+bvp.f90: SETRTN: IRTN, NTRN
+	 	
+homcont.f90: global: EVERYTHING
+	FBHO: NRTN, IRTN
+	TRANHO: NRTN, IRTN
+	PREHO: NRTN, IRTN
+optimization.f90: global: EVERYTHING
+	STPNPO: just AUTOBV, not indicated
+periodic.f90: global: EVERYTHING
+	BCPS: IRTN, NRTN
+	BCPL: IRTN, NRTN
+	BCPBP: IRTN, NRTN
+	BCPD: IRTN, NRTN
+	BCTR: IRTN, NRTN
+toolboxbv.f90: global: EVERYTHING
+	no USE BVP or IRTN/NRTN
+
+equilibrium: HMACH
+
+homcont: a bunch of global variables
+homcont.f90: global vars are used throughout all routines, some of 		them in COMMON blocks :(
+main.f90: AUTOI:EVERYTHING
+STHD in support.f90 has a common block
+
+io: ROOTSOL, CURSOL, MBR, MLAB
+	variables never appear outside io.f90
+io.f90: ubiquitous use everywhere
+	
+optimization: HMACH
+
+periodic: HMACH
+
+support: DTV, P0V, P1V, AV, EVV, ATYPES(constant)
+seems to be used pretty often
+
+toolboxae: HMACH
+
+toolboxbv: HMACH
+
+
+homcont initialization ?? INSTRHO usw??

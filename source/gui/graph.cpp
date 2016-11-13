@@ -1,13 +1,9 @@
-#include <set>
-#include <sstream>
+#include "graph.hpp"
+#include "glwindow.hpp"
 #include <iostream>
-#include "application.h"
-#include "graph.h"
-#include "glutil.h"
-#include "glcontext.h"
-#include "graphtypes.h"
 
-extern "C" int ESCAPE_COUNT;
+using scigma::common::connect_before;
+using scigma::common::disconnect;
 
 namespace scigma
 {
@@ -15,218 +11,177 @@ namespace scigma
   {
 
     const char* Graph::colorMapFunction_=
-       "vec4 colormap_(in float p)\n"
-       "{\n"
-       "vec4 color;\n"
-       "\tif(p<0.0||p>1.0)\n"
-       "\t\tcolor= vec4(1,0.0,1,1.0);\n"
-       "\telse if (p<0.5)\n"
-       "\t\tcolor= mix(vec4(0,0,1.0,1.0),vec4(0.0,1.0,0,1.0),p*2);\n"
-       "\telse\n"
-       "\t\tcolor= mix(vec4(0,1.0,0.0,1.0),vec4(1.0,0.0,0.0,1.0),p*2-1);\n"
-       "\treturn color\n;"
-       "}\n\n";
-       //+*/mix(vec4(0,1.0,0.0,1.0),vec4(1.0,0.0,0,1.0),p*2-1)*/*step(p,0.5)*/;\n"
+      "vec4 colormap_(in float p)\n"
+      "{\n"
+      "vec4 color;\n"
+      "\tif(p<0.0||p>1.0)\n"
+      "\t\tcolor= vec4(1,0.0,1,1.0);\n"
+      "\telse if (p<0.5)\n"
+      "\t\tcolor= mix(vec4(0,0,1.0,1.0),vec4(0.0,1.0,0,1.0),p*2);\n"
+      "\telse\n"
+      "\t\tcolor= mix(vec4(0,1.0,0.0,1.0),vec4(1.0,0.0,0.0,1.0),p*2-1);\n"
+      "\treturn color\n;"
+      "}\n\n";
+    //+*/mix(vec4(0,1.0,0.0,1.0),vec4(1.0,0.0,0,1.0),p*2-1)*/*step(p,0.5)*/;\n"
+    
+    
+    /*      "vec4 colormap_(in float p)\n"
+	    "{\n"
+	    "\tif(p<0.0||p>1.0)\n"
+	    "\t\treturn vec4(0.72,0.0,0.72,1.0);\n"
+	    "\treturn vec4(\n"
+	    "\t\tclamp(-0.95*p*p+0.86*p+0.43+2.2*abs(p-0.35),0,1),\n"
+	    "\t\t-1.1*p*p+0.58*p+0.75-0.56*abs(p-0.75),\n"
+	    "\t\t-0.32*p*p+0.64*p+0.4-1.2*abs(p-0.5),\n"
+	    "\t\t1.0);\n"
+	    "}\n\n";*/
 
-
-       /*      "vec4 colormap_(in float p)\n"
-       "{\n"
-       "\tif(p<0.0||p>1.0)\n"
-       "\t\treturn vec4(0.72,0.0,0.72,1.0);\n"
-       "\treturn vec4(\n"
-       "\t\tclamp(-0.95*p*p+0.86*p+0.43+2.2*abs(p-0.35),0,1),\n"
-       "\t\t-1.1*p*p+0.58*p+0.75-0.56*abs(p-0.75),\n"
-       "\t\t-0.32*p*p+0.64*p+0.4-1.2*abs(p-0.5),\n"
-       "\t\t1.0);\n"
-       "}\n\n";*/
-
-     GLuint Graph::programs_[MAX_SHADERS];
-
-     size_t Graph::nIndexedColors_(0);
-     GLfloat Graph::indexedColors_[MAX_SHADERS*4];
-
-     GLuint Graph::dummyBuffer_(0);
-     size_t Graph::nDummyPoints_(0);
-
+    GLuint Graph::dummyBuffer_(0);
+    
  #pragma clang diagnostic push
  #pragma clang diagnostic ignored "-Wglobal-constructors"
  #pragma clang diagnostic ignored "-Wexit-time-destructors"
-     std::map<GLContext*,ExpressionArray> Graph::independentVariables_;
+    Graph::LightMap Graph::lightDirection_;
  #pragma clang diagnostic pop
 
-
-     Graph::Graph(GLWindow* glWindow, std::string identifier,size_t nExpectedPoints, Wave* variableWave, Wave* constantWave,
-		  Marker::Type marker, Marker::Type point, GLfloat markerSize, GLfloat pointSize, const GLfloat* color, GLfloat delay):
-       glWindow_(glWindow),identifier_(identifier),doubleClickTime_(0.25),lastClickTime_(-1.0),hoverPoint_(-1),variableWave_(variableWave),constantWave_(constantWave),marker_(marker),point_(point),
-       markerSize_(markerSize),pointSize_(pointSize),timeOfFirstDraw_(-1),delay_(delay),attributesInvalid_(true),hovering_(false),pointHoverIsActive_(true)
-     {
-       escapeCount_=ESCAPE_COUNT;
-       
-       if(!dummyBuffer_)
-	 glGenBuffers(1,&dummyBuffer_);
-
-       set_n_points(nExpectedPoints);
-
-       variableWave_->grab(Application::get_instance());
-       constantWave_->grab(Application::get_instance());
-
-       if(color)
-	 set_color(color);
-       else
-       {
-	 GLfloat col[]={1.0f,1.0f,1.0f,1.0f};
-	 set_color(col);
-       }
-     }
-
-     Graph::~Graph()
-     {
-       variableWave_->release();
-       constantWave_->release();
-     }
     
-    void Graph::set_marker_style(Marker::Type marker){marker_=marker;}
+    Graph::Graph(GLWindow* glWindow):
+      glWindow_(glWindow),
+      doubleClickTime_(0.25),lastClickTime_(-1.0),
+      startTime_(-1),
+      marker_(Marker::STAR),point_(Marker::DOT),
+      markerSize_(16),pointSize_(1),
+      delay_(0),style_(POINTS),
+      lastDrawn_(-1),lastTotal_(0xFFFFFFF),
+      pickPoint_(-1),hovering_(false)
+    {
+      if(!dummyBuffer_)
+	{
+	  glGenBuffers(1,&dummyBuffer_);
+	  glBindBuffer(GL_ARRAY_BUFFER,dummyBuffer_);
+	  glBufferData(GL_ARRAY_BUFFER,GLsizeiptr(sizeof(GLfloat)*1),NULL,GL_DYNAMIC_DRAW);
+	  glBindBuffer(GL_ARRAY_BUFFER,0);
+	}
+      
+      GLfloat col[]={1.0f,1.0f,1.0f,1.0f};
+      set_color(col);
+    }
+    
+    Graph::~Graph()
+    {}
+    
+    void Graph::set_marker_style(Marker::Type marker){marker_=marker;glWindow_->gl_context()->request_redraw();}
     Marker::Type Graph::marker_style() const {return marker_;}
 
-    void Graph::set_marker_size(GLfloat size){markerSize_=size<1.0f?1.0f:size;}
+    void Graph::set_marker_size(GLfloat size){markerSize_=size<1.0f?1.0f:size;glWindow_->gl_context()->request_redraw();}
     GLfloat Graph::marker_size() const{return markerSize_;}
-      
-    void Graph::set_point_style(Marker::Type marker){point_=marker;}
+    
+    void Graph::set_point_style(Marker::Type marker){point_=marker;glWindow_->gl_context()->request_redraw();}
     Marker::Type Graph::point_style() const{return point_;}
     
-    void Graph::set_point_size(GLfloat size){pointSize_=size<1.0f?1.0f:size;}
+    void Graph::set_point_size(GLfloat size){pointSize_=size<1.0f?1.0f:size;glWindow_->gl_context()->request_redraw();}
     GLfloat Graph::point_size() const{return pointSize_;}
     
     void Graph::set_color(const GLfloat* color)
     {
       for(size_t i(0);i<4;++i)
-      color_[i]=color[i];
+	color_[i]=color[i];
+      glWindow_->gl_context()->request_redraw();
     }
     const GLfloat* Graph::color() const{return color_;}
 
-    void Graph::set_data(Wave* variables, Wave* constants)
+    void Graph::set_delay(GLfloat delay){delay_=delay<0.0?0.0:delay;}
+    GLfloat Graph::delay() const{return delay_;}
+
+    void Graph::set_style(Style style){style_=style;}
+    GLfloat Graph::style() const{return style_;}
+
+    void Graph::set_light_direction(GLContext* glContext, const GLfloat* direction)
     {
-      variableWave_->release();
-      constantWave_->release();
-      variableWave_=variables;
-      constantWave_=constants;
-      variableWave_->grab(Application::get_instance());
-      constantWave_->grab(Application::get_instance());
-    }
-    
-    void Graph::set_view(const IndexArray& indices)
-    {
-      indices_=indices;
-      attributesInvalid_=true;
+      std::vector<GLfloat>& dir(lightDirection_[glContext]);
+      dir.resize(3);
+      for(size_t i(0);i<3;++i)
+	dir[i]=direction[i];
     }
 
-    void Graph::set_n_points(size_t n)
+    GLfloat* Graph::light_direction(GLContext* glContext)
     {
-      nPoints_=n;
-      if(nPoints_>nDummyPoints_)
-	{
-	  glBindBuffer(GL_ARRAY_BUFFER,dummyBuffer_);
-	  glBufferData(GL_ARRAY_BUFFER,GLsizeiptr(sizeof(GLfloat)*nPoints_),NULL,GL_DYNAMIC_DRAW);
-	  glBindBuffer(GL_ARRAY_BUFFER,0);
-	  nDummyPoints_=nPoints_;
-	}
+      std::vector<GLfloat>& dir(lightDirection_[glContext]);
+      if(dir.size())
+	return &dir[0];
+      return NULL;
     }
 
-    void Graph::set_point_hover_mode(bool flag)
+    void Graph::replay()
     {
-      pointHoverIsActive_=flag;
-      if(!pointHoverIsActive_)
-	hoverPoint_=-1;
-    }
-
-#pragma clang diagnostic push
-#pragma GCC diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
-    template<> void Graph::rebuild_individual_shaders<LOKI_TYPELIST_0>(GLContext* glContext,
-								       const std::string& vertexShaderHeader,
-								       const std::string& fragmentShaderHeader,
-								       const ExpressionArray& transformations,
-								       const ExpressionArray& attributes,
-								       bool useColorMap)
-    {}
-#pragma GCC diagnostic pop
-#pragma clang diagnostic pop
-    
-    void Graph::rebuild_shaders(GLContext* glContext,
-				const ExpressionArray& expressions, 
-				const ExpressionArray& independentVariables)
-    {
-      
-      if(independentVariables.size()>MAX_VERTEX_ATTRIBUTES)
+      startTime_=glfwGetTime();
+      if(delay_>0)
 	{
-	  std::stringstream ss;
-	  ss<<"number of independent variables exceeds MAX_VERTEX_ATTRIBUTES(="<<MAX_VERTEX_ATTRIBUTES<<")";
-	  throw(ss.str());
-	}
-      
-      independentVariables_[glContext]=independentVariables;
-      
-      // Prepare GLSL header code for vertex attributes, and outputs/inputs to the fragment shader
-#ifdef SCIGMA_USE_OPENGL_3_2
-      std::string vertexIn("in");
-      std::string vertexOut("out"),fragmentIn("in");
-#else
-      std::string vertexIn("attribute");
-      std::string vertexOut("varying"),fragmentIn("varying");
-#endif
-      
-      std::string vertexShaderHeader;
-      
-      vertexShaderHeader+=vertexIn+" float dummy_;\n";
-      for(size_t j(0),size(independentVariables.size());j<size;++j)
-	{
-	  vertexShaderHeader+=vertexIn+" float "+independentVariables[j]+";\n";
-	}
-      vertexShaderHeader+="\n";
-      vertexShaderHeader+=vertexOut+" vec2 screenPos_;\n";
-      vertexShaderHeader+=vertexOut+" vec4 vertexID_;\n";
-
-      std::string fragmentShaderHeader("uniform int sprite_;\n"
-				       "uniform float size_;\n"
-				       "uniform int lighter_;\n"
-				       "uniform sampler2D sampler_;\n\n");
-      
-      fragmentShaderHeader+=fragmentIn+" vec2 screenPos_;\n";
-      fragmentShaderHeader+=fragmentIn+" vec4 vertexID_;\n\n";
-
-      bool useColorMap(false);      
-      if(expressions[C_INDEX].size()!=0) // if the color map is used 
-	{
-	  useColorMap=true;
-	  vertexShaderHeader+=vertexOut+" vec4 rgba_;\n\n";
-	  fragmentShaderHeader+=fragmentIn+" vec4 rgba_;\n\n";
+	  lastDrawn_=0;
+	  connect_before<LoopEvent>(Application::get_instance(),this);
 	}
       else
-	fragmentShaderHeader+="uniform vec4 rgba_;\n\n";
-      
-      vertexShaderHeader+=vertexOut+" float t_;\n\n";
-      fragmentShaderHeader+=fragmentIn+" float t_;\n\n";
-      
-#ifdef SCIGMA_USE_OPENGL_3_2
-      fragmentShaderHeader+="out vec4 color_;\n\n";
-#endif
-      
-      rebuild_individual_shaders<GraphTypes>(glContext,
-					     vertexShaderHeader,
-					     fragmentShaderHeader,
-					     expressions,
-					     independentVariables,
-					     useColorMap);
+	glWindow_->gl_context()->request_redraw();
+	
     }
     
-    void Graph::set_indexed_colors(const GLfloat* colors,size_t nColors)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+    bool Graph::process(LoopEvent event)
     {
-      nIndexedColors_=nColors<MAX_SHADERS?nColors:MAX_SHADERS;
-      for(size_t i(0);i<nIndexedColors_;++i)
-	indexedColors_[i]=colors[i];
+      if(!(delay_>0&&lastDrawn_<lastTotal_))
+	{
+	  disconnect<LoopEvent>(Application::get_instance(),this);
+	  lastDrawn_=-1;
+	  glWindow_->gl_context()->request_redraw();
+	  return false;
+	}
+      GLsizei newLastDrawn(GLsizei((glfwGetTime()-startTime_)/delay_));
+      if(newLastDrawn!=lastDrawn_)
+	{
+	  lastDrawn_=newLastDrawn;
+	  glWindow_->gl_context()->request_redraw();
+	}
+      return false;
     }
+
+    bool Graph::process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods)
+    {
+      if(GLFW_PRESS==action)
+	{
+	  double time(glfwGetTime());
+	  double dt(time-lastClickTime_);
+	  lastClickTime_=time;
+	  if(dt<=doubleClickTime_&&GLFW_MOUSE_BUTTON_LEFT==button)
+	    {
+	      if(pickPoint_>=0)
+		{
+		  EventSource<GraphDoubleClickEvent>::Type::emit(int(pickPoint_));
+		}
+	      else
+		{
+		  EventSource<GraphDoubleClickEvent>::Type::emit(-1);
+		}
+	    }
+	  else
+	    {
+	      const GLfloat* cursor(w->cursor_position());
+	      if(pickPoint_>=0)
+		{
+		  EventSource<GraphClickEvent>::Type::emit(button==GLFW_MOUSE_BUTTON_LEFT?0:1,int(pickPoint_),int(cursor[0]),int(cursor[1]));
+		}
+	      else
+		{
+		  EventSource<GraphClickEvent>::Type::emit(button==GLFW_MOUSE_BUTTON_LEFT?0:1,-1,int(cursor[0]),int(cursor[1]));
+		}
+	    }
+	  return true;
+	}
+      return false;
+    }
+
+#pragma GCC diagnostic pop
     
   } /* end namespace gui */
 } /* end namespace scigma */

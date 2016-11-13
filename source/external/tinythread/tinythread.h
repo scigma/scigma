@@ -21,6 +21,10 @@ freely, subject to the following restrictions:
     distribution.
 */
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wpadded"
+
 #ifndef _TINYTHREAD_H_
 #define _TINYTHREAD_H_
 
@@ -712,3 +716,5 @@ template <class T>
 #undef _TTHREAD_DISABLE_ASSIGNMENT
 
 #endif // _TINYTHREAD_H_
+
+#pragma clang diagnostic pop

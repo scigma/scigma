@@ -1,9 +1,12 @@
 #include <sstream>
-#include <iostream>
 #include <cmath>
-#include "glwindow.h"
-#include "ruler.h"
-#include "glutil.h"
+#include "glwindow.hpp"
+#include "ruler.hpp"
+#include "glutil.hpp"
+
+using scigma::common::connect;
+using scigma::common::connect_before;
+using scigma::common::disconnect;
 
 namespace scigma
 {
@@ -123,16 +126,16 @@ namespace scigma
 	{
 	  if(GLFW_PRESS==action)
 	    {
-	      w->EventSource<MouseMotionEvent>::Type::connect(this);
+	      connect<MouseMotionEvent>(w,this);
 	      sliding_=true;
 	      return true;
 	    }
 	  else
 	    {
-	      w->EventSource<MouseMotionEvent>::Type::disconnect(this);
+	      disconnect<MouseMotionEvent>(w,this);
 	      if(!hovering_)
 		{
-		  w->EventSource<MouseButtonEvent>::Type::disconnect(this);
+		  disconnect<MouseButtonEvent>(w,this);
 		  thickness_=0.5;
 		  attributesInvalid_=true;
 		  w->gl_context()->request_redraw();
@@ -237,21 +240,21 @@ namespace scigma
       context->add_drawable(&tickSpaceText_);
       context->add_drawable(&labelSpaceText_);
       context->request_redraw();
-      glWindow_->viewing_volume()->EventSource<RotateEvent>::Type::connect(this);
+      connect<RotateEvent>(glWindow_->viewing_volume(),this);
     }
     
     void Ruler::on_removal(GLContext* context)
     {
       context->remove_drawable(&tickSpaceText_);
       context->remove_drawable(&labelSpaceText_);
-      glWindow_->viewing_volume()->EventSource<RotateEvent>::Type::disconnect(this);
+      disconnect<RotateEvent>(glWindow_->viewing_volume(),this);
       if(sliding_)
 	{
-	  glWindow_->EventSource<MouseMotionEvent>::Type::disconnect(this);
-	  glWindow_->EventSource<MouseButtonEvent>::Type::disconnect(this);
+	  disconnect<MouseMotionEvent>(glWindow_,this);
+	  disconnect<MouseButtonEvent>(glWindow_,this);
 	}
       if(hovering_)
-	glWindow_->EventSource<ScrollEvent>::Type::disconnect(this);
+	disconnect<ScrollEvent>(glWindow_,this);
       context->request_redraw();
     }
 
@@ -269,7 +272,8 @@ namespace scigma
 #else
       glBindBuffer(GL_ARRAY_BUFFER,glBuffer_);   
       prepare_attributes();
-#endif    
+#endif
+      glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
       glDrawArrays(GL_TRIANGLES, 0, GLsizei(usedSize_/5));
 
       GLERR;
@@ -402,8 +406,8 @@ namespace scigma
       attributesInvalid_=true;
       hovering_=true;
       if(!sliding_)
-	glWindow_->EventSource<MouseButtonEvent>::Type::connect_before(this);
-      glWindow_->EventSource<ScrollEvent>::Type::connect_before(this);
+	connect_before<MouseButtonEvent>(glWindow_,this);
+      connect_before<ScrollEvent>(glWindow_,this);
       context->request_redraw();
     }
 
@@ -414,9 +418,9 @@ namespace scigma
       if(!sliding_)
 	{
 	  thickness_=0.5;
-	  glWindow_->EventSource<MouseButtonEvent>::Type::disconnect(this);
+	  disconnect<MouseButtonEvent>(glWindow_,this);
 	}
-      glWindow_->EventSource<ScrollEvent>::Type::disconnect(this);
+      disconnect<ScrollEvent>(glWindow_,this);
       context->request_redraw();
     }
     

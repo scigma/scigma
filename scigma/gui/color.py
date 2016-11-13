@@ -2,8 +2,8 @@ names=['red','green','blue','yellow',
         'pink','lime','azure','orange',
         'brown','forest','navy','teal',
         'rose','aqua','sky','beige',
-        'black','dark_gray','gray',
-        'light_gray','white','cyan','magenta']
+        'black','darkGray','gray',
+        'lightGray','white','cyan','magenta']
 
 values={'red':[0.8125,0.0,0.0,1.0],
         'green':[0.0,0.6875,0.0,1.0],
@@ -22,9 +22,9 @@ values={'red':[0.8125,0.0,0.0,1.0],
         'sky':[0.5625,0.6875,1.0,1.0],
         'beige':[1.0,0.875,0.5625,1.0],
         'black':[0.0,0.0,0.0,1.0],
-        'dark_gray':[0.25,0.25,0.25,1.0],
+        'darkGray':[0.25,0.25,0.25,1.0],
         'gray':[0.5,0.5,0.5,1.0],
-        'light_gray':[0.75,0.75,0.75,1.0],
+        'lightGray':[0.75,0.75,0.75,1.0],
         'white':[1.0,1.0,1.0,1.0],
         'cyan':[0.0,1.0,1.0,1.0],
         'magenta':[1.0,0.0,1.0,1.0]}

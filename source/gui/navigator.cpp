@@ -2,7 +2,10 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-#include "navigator.h"
+#include "navigator.hpp"
+
+using scigma::common::connect;
+using scigma::common::disconnect;
 
 namespace scigma
 {
@@ -26,14 +29,14 @@ namespace scigma
 	{
 	  if(GLFW_PRESS==action)
 	    {
-	      w->EventSource<MouseMotionEvent>::Type::connect(this);
+	      connect<MouseMotionEvent>(w,this);
 	      if(GLFW_MOD_SHIFT&mods)
 		shiftKeyPressed_=true;
 	      return true;
 	    }
 	  else
 	    {
-	      w->EventSource<MouseMotionEvent>::Type::disconnect(this);
+	      disconnect<MouseMotionEvent>(w,this);
 	      shiftKeyPressed_=false;
 	      return false;
 	    }
@@ -66,13 +69,14 @@ namespace scigma
 	  if(rightMouseButtonPressed_) 
 	    {
 	      const GLfloat* center=area->center();
-	      GLfloat angle(GLfloat(atan2(yOld-center[1],xOld-center[0])-atan2(y-center[1],x-center[0])));
+	      GLfloat angle(GLfloat(atan2(y-center[1],x-center[0])-atan2(yOld-center[1],xOld-center[0])));
 	      volume->rotate(Z_SCREEN_COORDINATE,180.f*angle/GLfloat(M_PI));
 	    }
 	  else
 	    {
 	      GLfloat dx(x-xOld), dy(y-yOld);
-	      volume->rotate(-dy,dx,0,GLfloat(sqrt(dx*dx+dy*dy)/N_SPATIAL_DIMENSIONS));
+	      if(dx*dx>0.0||dy*dy>0.0)
+		volume->rotate(-dy,dx,0,GLfloat(sqrt(dx*dx+dy*dy)/N_SPATIAL_DIMENSIONS));
 	    }
 	}
       else // shifts
