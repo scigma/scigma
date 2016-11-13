@@ -263,7 +263,6 @@ namespace scigma
 
     void Application::loop(double seconds)
     {
-      std::cout<<"1, ";	  
       bool noIdle(false);
       if(!(seconds>0))
 	 noIdle=true;
@@ -277,7 +276,6 @@ namespace scigma
 	  if(seconds<REFRESH_INTERVAL)
 	    {
 	      loopIsRunning_=false;
-	      std::cout<<"2, ";	  
 	      return;
 	    }
 	  double remainingSecondsAtStart(seconds);	 
@@ -285,12 +283,10 @@ namespace scigma
 	  glfwPollEvents();
 	  if(!loopIsRunning_)
 	    {
-	      std::cout<<"3, ";
 	      return;}
 
 	  if(noIdle)
 	    {
-	      std::cout<<"4, ";
 	      loopIsRunning_=false;
 	      return;
 	    }  
@@ -308,7 +304,7 @@ namespace scigma
 	      ++idleIndex_;
 	      glfwPollEvents();
 	      if(!loopIsRunning_)
-		{	  std::cout<<"5, ";
+		{	  
 		  return;}
 	      lt=t;
 	      t=glfwGetTime();
@@ -325,14 +321,13 @@ namespace scigma
 	      double d(seconds-remainingSecondsAtStart+REFRESH_INTERVAL);
 	      glfwWaitEventsWithTimeOut(d);
 	      if(!loopIsRunning_)
-		{	  std::cout<<"6, ";
+		{	  
 		  return;}
 	      lt=t;
 	      t=glfwGetTime();
 	      seconds-=(t-lt);
 	    }
 	}
-      std::cout<<"7, ";
     }
 
     void Application::break_loop()

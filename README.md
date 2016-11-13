@@ -17,6 +17,8 @@ SCIGMA is a Python package that allows you to
 * do all of the above for iterated maps, as well as
   Poincare maps and stroboscopic maps of ordinary
   differential equations.
+* do continuations from these steady states (with an
+  interface to the AUTO continuation package)
 * automate these tasks with a simple scripting language
   or directly from Python
 * read the results back into your own Python programs
@@ -38,17 +40,13 @@ you might be better served with a full fledged mathematical software suite
  **2.1 Prerequisites:**
 
  SCIGMA runs under Windows, Linux and Mac OS X. It needs graphics hardware that
- supports at least OpenGL 2.1 (any desktop computer or laptop bought after 2008
- should be fine). The Python programming language (version>=2.7) must be 
+ supports at least OpenGL 2.1. The Python programming language (version>=2.7) must be 
  installed on the system. Python is part of OS X and comes preinstalled with
- most Linux flavours. If you are using Windows and don't have Python installed,
- have a look at
+ most Linux flavours. If you are using Windows or don't have Python installed, you
+ can get it from 
 
- http://portablepython.com.
+ https://www.python.org
 
- It's a conveniently self-contained version of Python that does not require
- admin privileges to install.
-   
  **2.2 Obtaining the Python package:**
 
  There are precompiled binary packages for Windows and Mac OS X available at
@@ -67,16 +65,10 @@ you might be better served with a full fledged mathematical software suite
 
     >>> import scigma
 
- After a few seconds, the SCIGMA graphics window should appear. 
+ There will be a prompt asking you whether you want to use big fonts (on *very*
+ large screens, this is advisable). After answering the prompt the SCIGMA graphics
+ window should appear. 
  
- If you are using Portable Python in Windows, the fastest way to get things
- running is to drop the "scigma" folder into the "Portable Python ..." folder,
- double-click on `Python-Portable.exe` and type 
-   
-    >>> import scigma
-
- in the console that opens.
-
 3. Building SCIGMA
 ------------------
  **3.1 Obtaining the sources**
