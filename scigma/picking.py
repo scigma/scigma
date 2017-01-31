@@ -432,6 +432,16 @@ def update_varying_const(nParts,varying,varVals,const,constVals,names,vals):
                 varVals.append(vals[i])
                 nVars=nVars+1
 
+def set(name,value,win=None):
+    win=windowlist.fetch(win)
+
+    if name in win.eqsys.var_names() or name in win.eqsys.par_names() or name == 't':
+        equations.parse(name+'='+str(value),win)
+        on_parse(win)
+    else:
+        raise Exception(name + "is not in equation system")
+
+                
 def plug(win):
     if not win.register_plugin('picking', lambda:unplug(win),commands):
         return

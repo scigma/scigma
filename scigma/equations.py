@@ -147,8 +147,7 @@ def maxtime(maxtime=None,win=None,silent=False):
     win.equationPanel.set('maxtime',float(maxtime))
 
 commands['maxtime']=maxtime
-
-
+    
 def parse(line,win=None):
     """Used to parse differential equations and maps.
 

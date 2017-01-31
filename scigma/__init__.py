@@ -1,4 +1,5 @@
 import os, sys, inspect, ctypes
+sys.dont_write_bytecode = True
 try:
     if sys.version_info.major == 2:
         # We are using Python 2.x
@@ -13,6 +14,7 @@ from .library import lib
 from . import options
 from . import graphs
 from . import equations
+from . import graphs
 from . import view
 from . import style
 from . import iteration
@@ -41,7 +43,8 @@ def new(win=None):
     setattr(w,'script','none')
     setattr(w,'source','none')
     w.commands['q']=w.commands['qu']=w.commands['qui']=w.commands['quit']=w.commands['end']=w.commands['bye']=bye
-
+    w.commands['reset']=reset
+    
     panel=w.acquire_option_panel('Global')
     panel.define('','iconified=true')
     enum = common.Enum({'off':0,'on':1},'off')
@@ -134,6 +137,29 @@ def load(filename=None,win=None):
         raise Exception(filename+": file not found")
     win.script=filename
     win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
+
+def reset(win=None):
+    """ reset
+    Deletes all graphical objects and all equations, and
+    resets the viewing volumme
+    """
+
+    win=windowlist.fetch(win)
+    graphs.clear(win)
+    view.xexpr('x',win)
+    view.yexpr('y',win)
+    view.zexpr('z',win)
+    view.axes('xy', win)
+    view.x_range(-1,1,win)
+    view.y_range(-1,1,win)
+    view.z_range(-1,1,win)
+    view.c_range(0,1,win)
+    view.t_range(0,1,win)
+    win.glWindow.reset_rotation()
+    win.script='none'
+    win.source='internal'
+    equations.unplug(win)
+    equations.plug(win)
 
 def bye(win=None):
     """ quit
