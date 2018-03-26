@@ -47,6 +47,8 @@ you might be better served with a full fledged mathematical software suite
 
  https://www.python.org
 
+ For a step-by-step Windows guide, see [manual/windowsInstallInstructions.md](manual/windowsInstallInstructions.md).
+
  **2.2 Obtaining the Python package:**
 
  There are precompiled binary packages for Windows and Mac OS X available at
