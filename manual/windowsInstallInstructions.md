@@ -1,3 +1,4 @@
+
 # Install on Windows
 
 1. Download the latest Python 2.X "Windows x86-64 MSI installer" from [python.org](https://www.python.org/downloads/windows/).
@@ -17,7 +18,7 @@
 
     ![download SCIGMA](guideImages/scigma0.png)
 
-4. In the extracted folder, double-click runscigma.py, or otherwise open with python.exe (which was probably installed to C:\Python27\python.exe).
+4. In the extracted folder, double-click [runscigma.py](https://raw.githubusercontent.com/scigma/scigma/master/runscigma.py)3, or otherwise open with python.exe (which was probably installed to C:\Python27\python.exe).
 
     ![run scigma](guideImages/runscigma.png)
 
