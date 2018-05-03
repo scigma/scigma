@@ -1,7 +1,7 @@
 import os, sys, inspect, ctypes
 
 """ Load shared library:"""
-if sys.platform=='linux2':
+if sys.platform=='linux2' or sys.platform=='linux':
     sep='/'
     libfile="libscigma.so"
 elif sys.platform=='darwin':
