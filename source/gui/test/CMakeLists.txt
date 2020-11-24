@@ -6,5 +6,5 @@ add_executable(guiutest guiutest.cpp
 
 add_executable(guivtest guivtest.cpp)
 		     
-target_link_libraries(guiutest common gui tinythread)
-target_link_libraries(guivtest common gui tinythread)
+target_link_libraries(guiutest common gui dat tinythread libpng zlib glew glfw anttweakbar ${GLFW_LIBRARIES})
+target_link_libraries(guivtest common gui dat tinythread libpng zlib glew glfw anttweakbar ${GLFW_LIBRARIES})

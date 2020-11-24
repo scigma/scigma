@@ -75,7 +75,7 @@ namespace scigma
 	  else
 	    {
 	      GLfloat dx(x-xOld), dy(y-yOld);
-	      if(dx*dx>0.0||dy*dy>0.0)
+	      if(dx*dx>0.0f||dy*dy>0.0f)
 		volume->rotate(-dy,dx,0,GLfloat(sqrt(dx*dx+dy*dy)/N_SPATIAL_DIMENSIONS));
 	    }
 	}

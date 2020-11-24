@@ -59,6 +59,9 @@ freely, subject to the following restrictions:
 /// different sections of this documentation. A good place to start is:
 /// tinythread.h.
 
+// Generic includes
+#include <ostream>
+
 // Which platform are we on?
 #if !defined(_TTHREAD_PLATFORM_DEFINED_)
 #if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
@@ -86,9 +89,6 @@ freely, subject to the following restrictions:
   #include <sched.h>
   #include <unistd.h>
 #endif
-
-// Generic includes
-#include <ostream>
 
 /// TinyThread++ version (major number).
 #define TINYTHREAD_VERSION_MAJOR 1

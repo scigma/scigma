@@ -90,7 +90,7 @@ namespace scigma
     }
     const GLfloat* Graph::color() const{return color_;}
 
-    void Graph::set_delay(GLfloat delay){delay_=delay<0.0?0.0:delay;}
+    void Graph::set_delay(GLfloat delay){delay_=delay<0.0f?0.0f:delay;}
     GLfloat Graph::delay() const{return delay_;}
 
     void Graph::set_style(Style style){style_=style;}
@@ -137,7 +137,7 @@ namespace scigma
 	  glWindow_->gl_context()->request_redraw();
 	  return false;
 	}
-      GLsizei newLastDrawn(GLsizei((glfwGetTime()-startTime_)/delay_));
+      GLsizei newLastDrawn(GLsizei((glfwGetTime()-startTime_)/double(delay_)));
       if(newLastDrawn!=lastDrawn_)
 	{
 	  lastDrawn_=newLastDrawn;

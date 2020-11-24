@@ -18,6 +18,5 @@ add_library(gui STATIC application.cpp glutil.cpp glcontext.cpp
 		cosywrapper.cpp consolewrapper.cpp pickerwrapper.cpp
 		navigatorwrapper.cpp atwpanelwrapper.cpp graphwrapper.cpp)
 set_target_properties(gui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_link_libraries(gui common dat tinythread libpng zlib glew glfw anttweakbar ${GLFW_LIBRARIES})
 
 add_subdirectory(test)

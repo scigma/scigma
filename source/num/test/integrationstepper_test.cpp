@@ -15,7 +15,7 @@ SCENARIO("Testing IntegrationStepper against Odessa","[stepper][integration]")
   GIVEN("An IntegrationStepper initialized with an EquationSystem and "
 	"an Instance of Odessa based on the same EquationSystem")
     {
-      IntegrationStepper stepper(eqsys,0.1);
+      IntegrationStepper stepper(eqsys,.1);
       Odessa odessa(eqsys.n_variables(),eqsys.f_pt(),eqsys.dfdx_pt(),eqsys.n_variables());
 
       THEN("n_variables() returns the correct number of variables")
@@ -28,11 +28,11 @@ SCENARIO("Testing IntegrationStepper against Odessa","[stepper][integration]")
 	  odessa.t()=-2;
 	  odessa.x()[0]=0.5;
 	  odessa.x()[1]=0.6;
-	  odessa.x()[2]=1;
-	  odessa.x()[3]=0;
-	  odessa.x()[4]=0;
-	  odessa.x()[5]=1;
-	  odessa.integrate(0.1,1000);
+	  odessa.sensitivity()[0]=1;
+	  odessa.sensitivity()[1]=0;
+	  odessa.sensitivity()[2]=0;
+	  odessa.sensitivity()[3]=1;
+	  odessa.integrate(.1,1000);
 	  stepper.advance(1000);
 	  
 	  THEN("The evolved values in IntegrationStepper and Odessa are the same")

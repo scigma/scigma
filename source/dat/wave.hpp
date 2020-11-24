@@ -81,7 +81,7 @@ namespace scigma
 	{
 	  while(capacity_<size_+nValues)
 	    {
-	      capacity_*=1.5;
+	      capacity_=static_cast<size_t>(capacity_*1.5);
 	    }
 	  T* d = new T[capacity_];
 	  for(size_t i(0);i<size_;++i)

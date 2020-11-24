@@ -19,5 +19,4 @@ add_library(num STATIC function.cpp operator.cpp parser.cpp
 		sweepingwrapper.cpp
 		taskwrapper.cpp) 
 set_target_properties(num PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_link_libraries(num tinythread common odessa auto)
 add_subdirectory(test)
