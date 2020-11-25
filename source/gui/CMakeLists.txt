@@ -19,4 +19,8 @@ add_library(gui STATIC application.cpp glutil.cpp glcontext.cpp
 		navigatorwrapper.cpp atwpanelwrapper.cpp graphwrapper.cpp)
 set_target_properties(gui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
+# libpng must be built before gui, because it creates a header needed by gui
+# not the right way to do this, but it seems to work
+target_link_libraries(gui libpng)
+
 add_subdirectory(test)
