@@ -42,13 +42,13 @@ add_library(scigma SHARED empty.cpp)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 target_link_libraries(scigma "-Wl,-force_load"
   			gui "-Wl,-force_load" num "-Wl,-force_load" dat "-Wl,-force_load" common
-			lapack odessa tinythread auto
+			odessa auto lapack tinythread
 			libpng zlib glew glfw
 			anttweakbar ${GLFW_LIBRARIES})
 else()
 target_link_libraries(scigma "-Wl,--whole-archive"
 			gui num dat common "-Wl,--no-whole-archive"	
-			lapack odessa tinythread
+			odessa auto lapack tinythread
 			libpng zlib glew glfw
 			anttweakbar ${GLFW_LIBRARIES})
 endif()
