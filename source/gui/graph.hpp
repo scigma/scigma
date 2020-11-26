@@ -129,8 +129,9 @@ namespace scigma
       Graph(const Graph&);
       Graph& operator=(const Graph&);
 
-      char padding_[3];
-      
+      char padding_[7];
+
+      int escapeCount;      
     };
 
   } /* end namespace gui */

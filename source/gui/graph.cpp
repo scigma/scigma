@@ -5,6 +5,8 @@
 using scigma::common::connect_before;
 using scigma::common::disconnect;
 
+extern "C" int ESCAPE_COUNT;
+
 namespace scigma
 {
   namespace gui
@@ -115,6 +117,7 @@ namespace scigma
     void Graph::replay()
     {
       startTime_=glfwGetTime();
+      escapeCount = ESCAPE_COUNT;
       if(delay_>0)
 	{
 	  lastDrawn_=0;
@@ -130,6 +133,11 @@ namespace scigma
 
     bool Graph::process(LoopEvent event)
     {
+      if(ESCAPE_COUNT!=escapeCount)
+	{
+	  delay_=0;
+	}
+      
       if(!(delay_>0&&lastDrawn_<lastTotal_))
 	{
 	  disconnect<LoopEvent>(Application::get_instance(),this);
