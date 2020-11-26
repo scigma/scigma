@@ -66,16 +66,18 @@ def new(win=None):
     continuation.plug(w)
     return w
 
-def history(filename, win=None):
+def history(filename, lines=100000, win=None):
     win=windowlist.fetch(win)
     with open(filename,"w") as f:
-        for line in win.history:
+        for line in win.history[-int(lines):]:
             f.write(line+'\n')
             
-def session(filename, win=None):
+def session(filename, lines=100000, win=None):
     win=windowlist.fetch(win)
+    session=win.console.session.splitlines()
     with open(filename,"w") as f:
-        f.write(win.console.session)
+        for line in session[-int(lines):-1]:
+            f.write(line+'\n')
             
 def write(string, win=None):
     win=windowlist.fetch(win)
