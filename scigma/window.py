@@ -29,7 +29,7 @@ class Window(object):
         
         self.options={}
         self.optionPanels={}
-        self.commands={"pause":gui.pause, "session": (lambda filename, win: self.dump_session(filename, win))}
+        self.commands={"pause":gui.pause}
 
         self.queue=[]
         self.history=[]
@@ -196,9 +196,4 @@ class Window(object):
             else:
                 self.console.write(message)
             mtype,message=self.log.pop()
-
-    def dump_session(self, filename, win=None):
-        with open(filename,"w") as f:
-            for line in self.history:
-                f.write(line+'\n')
    

@@ -24,13 +24,15 @@ class Console(object):
         self.c_callback=C_CallbackType(lambda line_ptr: self.callback(line_ptr)) 
         self.py_callback=None
         self.objectID = lib.scigma_gui_create_console(glWindow.objectID,largeFontsFlag,self.c_callback)
+        self.session=""
 
     def destroy(self):
         lib.scigma_gui_destroy_console(self.objectID)
 
     def callback(self,line_ptr):
+        line=str(string_at(line_ptr).decode())
+        self.session+=line+'\n'
         if self.py_callback:
-            line=str(string_at(line_ptr).decode())
             self.py_callback(line)
 
     def set_callback(self,function):
@@ -43,22 +45,27 @@ class Console(object):
         lib.scigma_gui_console_set_history_fadeout(self.objectID, 1 if yesNo else 0)
 
     def write(self,text):
+        self.session+=text
         text=bytes(str(text).encode("ascii"))
         lib.scigma_gui_console_write(self.objectID, create_string_buffer(text))
 
     def write_data(self,text):
+        self.session+=text
         text=bytes(str(text).encode("ascii"))
         lib.scigma_gui_console_write_data(self.objectID, create_string_buffer(text))
 
     def write_warning(self,text):
+        self.session+=text
         text=bytes(str(text).encode("ascii"))
         lib.scigma_gui_console_write_warning(self.objectID, create_string_buffer(text))
 
-    def write_comment(self,text):
+    def write_note(self,text):
+        self.session+=text
         text=bytes(str(text).encode("ascii"))
         lib.scigma_gui_console_write_comment(self.objectID, create_string_buffer(text))
         
     def write_error(self,text):
+        self.session+=text
         text=bytes(str(text).encode("ascii"))
         lib.scigma_gui_console_write_error(self.objectID, create_string_buffer(text))
 
