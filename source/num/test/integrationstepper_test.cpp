@@ -15,8 +15,8 @@ SCENARIO("Testing IntegrationStepper against Odessa","[stepper][integration]")
   GIVEN("An IntegrationStepper initialized with an EquationSystem and "
 	"an Instance of Odessa based on the same EquationSystem")
     {
-      IntegrationStepper stepper(eqsys,.1);
-      Odessa odessa(eqsys.n_variables(),eqsys.f_pt(),eqsys.dfdx_pt(),eqsys.n_variables());
+      IntegrationStepper stepper(eqsys,.1, false, 1e-9, 1e-9, 20000, true);
+      Odessa odessa(eqsys.n_variables(), eqsys.f_t(), eqsys.dfdx_t(),false, 1e-9, 1e-9, 20000, true);
 
       THEN("n_variables() returns the correct number of variables")
 	REQUIRE(stepper.n_variables()==eqsys.n_variables());
@@ -53,7 +53,7 @@ SCENARIO("Testing IntegrationStepper against Odessa","[stepper][integration]")
 		REQUIRE(stepper.jac()[i]==(i%(stepper.n_variables()+1)?0:1));
 	    }
 	  THEN("rerunning stepper after reset(...) to the same initial "
-	       "conditions gives the same results")
+	    "conditions gives the same results")
 	    {
 	      stepper.reset(eqsys.time(),eqsys.variable_values());
 	      stepper.advance(1000);

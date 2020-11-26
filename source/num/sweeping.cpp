@@ -25,10 +25,8 @@ namespace scigma
 				     )
     {
       auto f_extended([nVar,&g,&grad_g,&f_grad_g,f,fabs,f_t]
-		      (double t, const double* x, const double* p, double* rhs) mutable
-		      {
-			p=NULL;
-			
+		      (double t, const double* x, double* rhs) mutable
+		      {	
 			/* determine value of constraint */
 			g=0;
 			for(size_t i(0);i<nVar;++i)
@@ -87,10 +85,8 @@ namespace scigma
 					  F_t dfdx_t)
     {
       auto jac_extended([nVar, &g, &grad_g, &f_grad_g, f, fabs, &dfdx1, &dfdx2, &grad_g_jac, dfdx_t]
-			(double t, const double* x, const double* p, double* dfdx) mutable
+			(double t, const double* x, double* dfdx) mutable
 			{
-			  p=NULL;
-			  
 			  /* evaluate Jacobian for first and second point */ 
 			  dfdx_t(t,x,&dfdx1[0]);
 			  dfdx_t(t,x+nVar,&dfdx2[0]);
@@ -209,7 +205,7 @@ namespace scigma
       
       for(size_t i(0);i<nInitial;++i)
 	{
-	  Odessa* odessa(new Odessa(nVar*2,f_extended,jac_extended,0,NULL,
+	  Odessa* odessa(new Odessa(nVar*2,f_extended,jac_extended,
 				    stiff,aTol,rTol,maxIter,false));
 	  odessaList.push_back(odessa);
 	  odessa->t()=initial[i*nVarying];
@@ -311,7 +307,7 @@ namespace scigma
 	      if(d2>ds) // insert point
 		{
 		  //		  std::cerr<<"+;";
-		  Odessa* o(new Odessa(nVar*2,f_extended,jac_extended,0,NULL,
+		  Odessa* o(new Odessa(nVar*2,f_extended,jac_extended,
 				       stiff,aTol,rTol,maxIter,false));
 		  for(size_t j(0);j<nVar;++j)
 		    {
@@ -437,7 +433,7 @@ namespace scigma
       
       for(size_t i(0);i<nInitial;++i)
 	{
-	  Odessa* odessa(new Odessa(nVar,f_extended,jac_extended,0,NULL,
+	  Odessa* odessa(new Odessa(nVar,f_extended,jac_extended,
 				    stiff,aTol,rTol,maxIter,false));
 	  odessaList.push_back(odessa);
 	  odessa->t()=initial[i*nVarying];
@@ -529,7 +525,7 @@ namespace scigma
 	      if(d2>ds) // insert point
 		{
 		  //		  std::cerr<<"+;";
-		  Odessa* o(new Odessa(nVar,f_extended,jac_extended,0,NULL,
+		  Odessa* o(new Odessa(nVar,f_extended,jac_extended,
 				       stiff,aTol,rTol,maxIter,false));
 		  o->t()=((*o1)->t()+(*o2)->t())/2;
 		  for(size_t j(0);j<nVar;++j)
@@ -613,11 +609,8 @@ namespace scigma
 	   auto f_t(eqsys->f_t());
 	   auto dfdx_t(eqsys->dfdx_t());
 	   auto f_extended([nVar,ff,&f,f_t]
-			   (double t, const double* x, const double* p, double* rhs) mutable
+			   (double t, const double* x, double* rhs) mutable
 			   {
-			     /* get rid of warnings about unused parameters */
-			     p=NULL;
-			     
 			     /* determine value of constraint */
 			     f_t(t,x,rhs);
 			     
@@ -635,11 +628,8 @@ namespace scigma
 			   }
 			   );
 	   auto jac_extended([nVar, &f, ff,&dfdx1, dfdx_t]
-			     (double t, const double* x, const double* p, double* dfdx) mutable
+			     (double t, const double* x, double* dfdx) mutable
 			     {
-			       /* get rid of warnings about unused parameters */
-			       p=NULL;
-			       
 			       /* values of g, grad_g, f_grad_g and f are carried over from f_extended! */
 			       
 			       /* evaluate Jacobian for first and second point */ 

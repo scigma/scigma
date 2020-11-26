@@ -40,15 +40,12 @@ namespace scigma
       Odessa odessa_;
       
       double* x_;
-      double* p_;
       double* jac_;
 
       double dt_;
-      
-      F_t func_t_;
-      std::vector<double> funcVals_;
 
-      char padded_[8];
+      std::vector<double> funcVals_;
+      F_t func_t_;
     };
 
   } /* end namespace num */

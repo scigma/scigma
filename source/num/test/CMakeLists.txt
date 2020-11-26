@@ -9,7 +9,8 @@ add_executable(numutest numutest.cpp
 		     externalequationsystem_test_shared.cpp
 		     odessa_test.cpp
 		     integrationstepper_test.cpp
-		     mapstepper_test.cpp)
+		     mapstepper_test.cpp
+)
 
 add_executable(numvtest numvtest.cpp externalequationsystem_test_shared.cpp)
 		     

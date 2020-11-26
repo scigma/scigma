@@ -12,25 +12,19 @@ namespace scigma
     {
     public:
 
-      typedef std::function<void(double, const double*, const double*, double*)> F; 
-      typedef std::function<void(double, const double*, const double*, double*)> DFDX; 
-      typedef std::function<void(double, const double*, const double*, double*, int)> DFDP; 
+      typedef std::function<void(double, const double*, double*)> F; 
+      typedef std::function<void(double, const double*, double*)> DFDX; 
 
-      /* note that the parameter dfdp is ignored for now!! it is not used for sensitivity analysis */
-      Odessa(size_t nVar, F f, DFDX dfdx=NULL, size_t nPar=0, DFDP dfdp=NULL, bool stiff=true,
+      Odessa(size_t nVar, F f, DFDX dfdx=NULL, bool stiff=true,
 	     double aTol=1e-9, double rTol=1e-9, size_t steps=20000, bool computeSensitivity=false);
       ~Odessa();
 
       double& t();
       double* x();
-
-      // are these two really needed?
-      double* p();
       double* sensitivity();
 
       const double& t() const;
       const double* x() const;
-      const double* p() const;
       const double* sensitivity() const;
 
       void integrate(double dt, size_t steps=1);
@@ -42,10 +36,8 @@ namespace scigma
 
       static void odessa_F(int* n, double* t, double* x, double* p, double* rhs);
       static void odessa_JAC(int* n, double* t, double* x, double* p, int* ml, int* mu, double* dfdx, int* nrowpd);
-      static void odessa_DF(int* n, double* t, double* x, double* p, double* dfdp, int* jpar);
-      
+
       size_t nVar_;
-      size_t nPar_;
 
       int nOdessa_[2];
 
@@ -54,10 +46,11 @@ namespace scigma
       int* iwork_;
       double* rwork_;
       double rcomm_[222];
+
+      char padding_[8];
       
       F f_;
       DFDX dfdx_;
-      DFDP dfdp_;
       
       double t_;
       double tNext_;

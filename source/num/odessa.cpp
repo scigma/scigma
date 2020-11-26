@@ -23,14 +23,15 @@ namespace scigma
     tthread::mutex Odessa::instanceMutex_;
 #pragma clang diagnostic pop    
 
-    Odessa::Odessa(size_t nVar, F f, DFDX dfdx, size_t nPar,
-		   DFDP dfdp, bool stiff, double aTol, double rTol, size_t steps, bool computeSensitivity):
-      nVar_(nVar),nPar_(nPar),atol_(aTol),rtol_(rTol),
-      f_(f),dfdx_(dfdx),dfdp_(dfdp),
-      t_(0),x_(new double[nVar*(nVar+1)]),p_(new double[nPar+nVar]),sensitivity_(&x_[nVar])
+    Odessa::Odessa(size_t nVar, F f, DFDX dfdx, bool stiff, double aTol, double rTol, size_t steps, bool computeSensitivity):
+      nVar_(nVar),atol_(aTol),rtol_(rTol),
+      f_(f),dfdx_(dfdx),
+      t_(0),x_(new double[nVar*(1+(computeSensitivity?nVar:0))]),p_(computeSensitivity?new double[nVar]:NULL),sensitivity_(computeSensitivity?&x_[nVar]:NULL)
     {
+      auto const nPar = computeSensitivity?nVar:0;
+      
       nOdessa_[0]=int(nVar_);
-      nOdessa_[1]=int(nVar_); // sensitivity analyis is done to obtain the fundamental matrix!
+      nOdessa_[1]=int(nPar); // sensitivity analyis is done to obtain the fundamental matrix!
       
       // tolerances are scalars (see odessa.f line 159 for documentation)
       itol_=1;
@@ -39,14 +40,14 @@ namespace scigma
       // optional inputs (odessa.f line 720/866)
       iopt_[0]=1; // set to one because we change the number of internal solver steps (iwork_[5])
 
-      if(dfdx_)
+      if(computeSensitivity)
 	{
-	  if(computeSensitivity)
-	    iopt_[1]=1;
-	  else
-	    iopt_[1]=0;
-	  liw_=int(21+nVar_+nPar_);
+	  iopt_[1]=1;
+	  liw_=int(21+nVar_+nPar);
 	  iwork_=new int[size_t(liw_)];
+
+	  for(size_t i(0);i<nPar;++i)
+	    p_[i]=0;
 	}
       else
 	{
@@ -55,19 +56,7 @@ namespace scigma
 	  iwork_=new int[size_t(liw_)];
 	}
 
-      /* first nVar values of p_ are fake parameters for sensitivity analysis (always zero)
-	 next nPar values of are actual parameters */
-      for(size_t i(0);i<nVar_+nPar_;++i)
-	p_[i]=0;
-	  
-
-      /* this part may be included later, if we do actual sensitivity analysis as well */
-      /*
-      if(dfdp_) // inhomogeneity function provided 
-      iopt_[2]=1;
-      else
-      */
-      iopt_[2]=0;
+      iopt_[2]=0;   // never using dfdp
       
       if(stiff)
 	{
@@ -75,7 +64,7 @@ namespace scigma
 	    mf_=21;
 	  else
 	    mf_=22;
-	  lrw_=int(22+8*(nPar_+1)*nVar_+nVar_*nVar_+nVar_);
+	  lrw_=int(22+8*(nPar+1)*nVar_+nVar_*nVar_+nVar_);
 	  rwork_=new double[size_t(lrw_)];
 	}
       else
@@ -84,7 +73,7 @@ namespace scigma
 	    mf_=11;
 	  else
 	    mf_=12;
-	  lrw_=int(22+15*(nPar_+1)*nVar_+nVar_*nVar_+nVar_);
+	  lrw_=int(22+15*(nPar+1)*nVar_+nVar_*nVar_+nVar_);
 	  rwork_=new double[size_t(lrw_)];
 	}
       for(size_t i(4);i<9;++i)
@@ -97,7 +86,7 @@ namespace scigma
       delete[] rwork_;
       delete[] iwork_;
       delete[] x_;
-      delete[] p_;
+      if(p_)delete[] p_;
     }
 
     void Odessa::integrate(double dt, size_t steps)
@@ -116,7 +105,7 @@ namespace scigma
 	    else
 	      tNext_=t_+dt;
 
-	    odessa_(odessa_F,odessa_DF,nOdessa_,x_,p_,&t_,&tNext_,&itol_,&rtol_,&atol_,&itask_,&istate_,iopt_,rwork_,&lrw_,iwork_,&liw_,odessa_JAC,&mf_,rcomm_,icomm_);
+	    odessa_(odessa_F,NULL, nOdessa_,x_,p_,&t_,&tNext_,&itol_,&rtol_,&atol_,&itask_,&istate_,iopt_,rwork_,&lrw_,iwork_,&liw_,odessa_JAC,&mf_,rcomm_,icomm_);
 	    svcom_(rcomm_,icomm_);
 	    instanceMutex_.unlock();
 	  if(istate_<0) // an error occurred
@@ -157,12 +146,10 @@ namespace scigma
 
     double& Odessa::t(){return t_;}
     double* Odessa::x(){return x_;}
-    double* Odessa::p(){return &p_[nVar_];}
     double* Odessa::sensitivity() {return sensitivity_;}    
 
     const double& Odessa::t() const {return t_;}
     const double* Odessa::x() const {return x_;}
-    const double* Odessa::p() const {return p_;}
     const double* Odessa::sensitivity() const {return sensitivity_;}
 
 #pragma GCC diagnostic push
@@ -170,19 +157,14 @@ namespace scigma
 
     void Odessa::odessa_F(int* n, double* t, double* x, double* p, double* rhs) 
     {
-      instance_->f_(*t,x,instance_->p(),rhs);
+      instance_->f_(*t,x,rhs);
     }
 
     void Odessa::odessa_JAC(int* n, double* t, double* x, double* p, int* ml, int* mu, double* dfdx, int* nrowpd)
     {
-      instance_->dfdx_(*t,x,instance_->p(),dfdx);
+      instance_->dfdx_(*t,x,dfdx);
     }
 
-    void Odessa::odessa_DF(int* n, double* t, double* x, double* p, double* dfdp, int* jpar)
-    {
-      /* not used at the moment */
-      instance_->dfdp_(*t,x,p,dfdp,*jpar-1);
-    }
 #pragma GCC diagnostic pop
 
   } /* end namespace num */
