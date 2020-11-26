@@ -120,9 +120,9 @@ def dict_single_path(identifier,parent,typeid='path', isnode=stdisnode):
     paths=[]
 
     dict_full_paths(identifier,parent,paths,isnode)
-    if len(paths) is 0:
+    if len(paths) == 0:
         raise Exception(identifier+": "+ typeid+" not found")
-    elif not len(paths) is 1:
+    elif len(paths) != 1:
         error = "ambiguous "+typeid+"; use qualified name, e.g. " + paths[0] + " or " + paths[1]
         raise Exception(error)
     return paths[0]

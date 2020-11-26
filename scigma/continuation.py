@@ -151,7 +151,7 @@ def add_branch(cont,varWave,constWave,stab,typ,win):
     else: # two parameter continuation of special points
         drawingStyle = gui.DRAWING_TYPE[win.options['Drawing']['style'].label]
         pointStyle = gui.POINT_TYPE[win.options['Drawing']['style'].label]
-        pointSize = win.options['Drawing']['point'['size']].value
+        pointSize = win.options['Drawing']['point']['size'].value
 
     color = win.options['Drawing']['color']
 

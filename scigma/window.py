@@ -136,7 +136,7 @@ class Window(object):
         except:
             paths=[]
 
-        if len(paths) is 0: # this is possibly an equation or the attempt to set/query an option
+        if len(paths) == 0: # this is possibly an equation or the attempt to set/query an option
             try:
                 equations.parse(line,self)
                 if line[0]!='$':
@@ -164,7 +164,7 @@ class Window(object):
                     self.console.write_error(error+'\n')
                     raise Exception(error)
                    
-        elif not len(paths) is 1: # there is more than one command with the same name or path
+        elif not len(paths) == 1: # there is more than one command with the same name or path
             error = "ambiguous command; use qualified name, e.g. " + paths[0] + " or " + paths[1]
             self.console.write_error(error+'\n')
             raise Exception(error)
@@ -178,7 +178,7 @@ class Window(object):
 
     def process_messages(self):
         mtype, message=self.log.pop()
-        while message is not "":
+        while message != "":
             if mtype==common.Log.DATA:
                 self.console.write_data(message)
             elif mtype==common.Log.WARNING:

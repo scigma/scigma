@@ -33,7 +33,7 @@ def blob(win):
         secval=win.equationPanel.get("secval")
         blob.set("secval", secval)
         secdir=win.equationPanel.get("secdir")
-        blob.set("secdir", 1 if secdir is '+' else -1)
+        blob.set("secdir", 1 if secdir == '+' else -1)
         maxtime=win.equationPanel.get("maxtime")
         blob.set("maxtime",maxtime)
 
