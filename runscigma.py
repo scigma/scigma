@@ -6,6 +6,11 @@ except:
     
     print()
     print("Could not import scigma.")
-raw_input("Press enter to exit.")
+
+try:
+    input = raw_input
+except NameError: pass
+
+input("Press enter to exit.")
 
 print("Exiting.")
