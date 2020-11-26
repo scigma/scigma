@@ -83,8 +83,8 @@ is idle.
 c_hook=ctypes.PYFUNCTYPE(ctypes.c_int)(hook)
 ctypes.c_void_p.in_dll(ctypes.pythonapi,"PyOS_InputHook").value=ctypes.cast(c_hook,ctypes.c_void_p).value
 
-def sleep(seconds=0.0,win=None):
-    if seconds > 0:
-        application.idle(seconds)
+def pause(seconds=0.0,win=None):
+    if float(seconds) > 0:
+        application.idle(ctypes.c_double(float(seconds)))
     else:
         application.sleep()
