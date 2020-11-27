@@ -1456,7 +1456,7 @@ yyreduce:
   case 5:
 /* Line 1787 of yacc.c  */
 #line 37 "parser.y"
-    {std::stringstream ss;ss<<(yyvsp[(1) - (2)].value);ss>>parserResult;requiredFunctions.clear();YYACCEPT;}
+    {std::stringstream ss;ss<<std::setprecision(10)<<(yyvsp[(1) - (2)].value);ss>>parserResult;requiredFunctions.clear();YYACCEPT;}
     break;
 
   case 6:
