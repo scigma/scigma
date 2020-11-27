@@ -68,13 +68,13 @@ def manifold(stable,nSteps,g=None,path=None,win=None,showall=False):
 
     if len(idx)==1:
         if stable:
-            picking.perts(1,g,win)
+            picking.perts(2,g,win)
             if mode == 'ode':
                 iteration.plot(-nSteps,path,win,showall)
             elif nSteps>1:
                 map_manifold(-nSteps+1,g,path,win,showall)
         else:
-            picking.pertu(1,g,win)
+            picking.pertu(2,g,win)
             if mode == 'ode':
                 iteration.plot(nSteps,path,win,showall)
             elif nSteps>1:
@@ -142,7 +142,7 @@ def two_d_manifold(nSteps,g,path,win):
     sweeping.sweep(nSteps,g,path,win,mesh)
     
 lib.scigma_num_map_manifold.restype=c_int
-lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_bool,c_bool]
+lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_int,c_bool,c_bool]
 
 def map_manifold(nSteps,g,path,win,showall):
 
@@ -151,12 +151,18 @@ def map_manifold(nSteps,g,path,win,showall):
     const = win.cursor['const']
     constVals=win.cursor['constwave'][:]
 
-    # add periodic point itself to the initial segment of the cursor
-    varVals = g['varwave'][:]+varVals
-
+    # add periodic point itself to the initial segment(s) of the cursor point(s)
+    nVarying = len(varying)
+    nSegments = win.cursor['nparts']
+    segments=[]
+    for i in range(nSegments):
+        steadyState = g['varwave'][-nVarying:]   # if g is result of guess* command, pick last point (this is what pert acts upon)
+        firstPoint = varVals[i*nVarying:(i+1)*nVarying]
+        segments = segments + steadyState + firstPoint
+    
     mode = win.equationPanel.get("mode")
     nperiod = win.equationPanel.get("nperiod")
-    nPoints = nperiod*abs(nSteps) if (showall and mode!='ode') else abs(nSteps)
+    nPoints = nSegments*nperiod*abs(nSteps) if (showall and mode!='ode') else nSegments*abs(nSteps)
 
     blob = iteration.blob(win)
     
@@ -166,7 +172,7 @@ def map_manifold(nSteps,g,path,win,showall):
         if win.invsys.var_names() != win.eqsys.var_names():
             raise Exception("map and inverse map have different variables")
 
-    g=graphs.new(win,abs(nSteps)+1,1,varying,const,varVals,constVals,path)
+    g=graphs.new(win,abs(nSteps)+1,nSegments,varying,const,segments,constVals,path)
                      
     g['mode']=mode
     g['callbacks']= {'success':lambda args:iteration.success(g,win,args),
@@ -184,7 +190,7 @@ def map_manifold(nSteps,g,path,win,showall):
     noThread = (win.options['Global']['threads'].label =='off')
     
     g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps,
-                                            varWaveID,blobID,showall,noThread)
+                                            nSegments,varWaveID,blobID,showall,noThread)
 
     g['cgraph']=gui.Bundle(win.glWindow,g['npoints'],g['nparts'],
                            len(g['varying']),g['varwave'],g['constwave'],

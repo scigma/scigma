@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <string>
 #include <algorithm>
@@ -10,28 +11,29 @@ namespace scigma
   namespace num
   {
     
-    MapManifoldStepper::MapManifoldStepper(Stepper* mapStepper, Wave* initial,double dsmax, double dsmin, double alpha, double dalpha,size_t nPeriod):
+    MapManifoldStepper::MapManifoldStepper(Stepper* mapStepper, double const * steadyState, double const * firstSegment ,double dsmax, double dsmin, double alpha, double dalpha,size_t nPeriod):
       mapStepper_(mapStepper),t0_(mapStepper_->t()),ds_(dsmax),dsmax_(dsmax),dsmin_(dsmin),alpha_(alpha),dalpha_(dalpha),
       nPeriod_(nPeriod),current_(0),nVar_(mapStepper->n_variables()),nFunc_(mapStepper->n_functions()),xBackup_(mapStepper->n_variables())
     {
-      initial->lock();
-      // insert fixed point
       points_.push_back(std::vector<double>(nVar_+1));
       for(size_t i(0);i<nVar_;++i)
-	points_.back()[i]=initial->data()[1+i];
+	{
+	  points_.back()[i]=steadyState[i];
+	}
+
       points_.back()[nVar_]=0;
 
-      // insert end point of initial segment
       points_.push_back(std::vector<double>(nVar_+1));
       for(uint32_t i(0);i<nVar_;++i)
-	points_.back()[i]=initial->data()[1+nVar_+nFunc_+1+i];
+	{
+	  points_.back()[i]=firstSegment[i];
+	}
       points_.back()[nVar_]=arc(&(points_.front()[0]),&(points_.back()[0]));
 
       /*      for(size_t i(0);i<nVar;++i)
 	      xBackup_[i]=mapStepper->x(i);*/
 
       preImage_=points_.begin();
-      initial->unlock();
     }
     
     MapManifoldStepper::~MapManifoldStepper()
@@ -39,7 +41,7 @@ namespace scigma
       delete mapStepper_;
     }
     
-    double MapManifoldStepper::t() const {return points_.back()[nVar_];}
+    double MapManifoldStepper::t() const {return t0_; /* arclength in t was a bad idea: points_.back()[nVar_]; */}
     const double* MapManifoldStepper::x() const {return mapStepper_->x();}
     const double* MapManifoldStepper::func() const {return mapStepper_->func();}
     const double* MapManifoldStepper::jac() const {return NULL;}
