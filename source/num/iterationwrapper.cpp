@@ -97,7 +97,7 @@ namespace scigma
 		 break;
 	     }
 
-	   if(i>0)
+	   if(i>0||nSteps==0)
 	     log->push<LOG_SUCCESS>(identifier);
 	   else
 	     log->push<LOG_FAIL>(identifier);
