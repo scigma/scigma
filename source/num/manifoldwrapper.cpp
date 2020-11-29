@@ -25,13 +25,12 @@ namespace scigma
 				size_t nSteps, size_t nRays, size_t nConst,
 				Stepper** stepperList, Wave* varyingWave,
 				size_t nPeriod, size_t showAllIterates,
-				size_t existingPointsPerRay, size_t initialPointIndex);
+				size_t existingPoints, size_t initialPointIndex);
   }
 }
 
 extern "C"
 {
-  
   PythonID scigma_num_map_manifold(const char* identifier, PythonID equationSystemID,PythonID logID,
 				   int nSteps, int nRays, PythonID varyingWaveID, PythonID blobID, bool showAllIterates, bool noThread)
   {
@@ -106,6 +105,53 @@ extern "C"
     Task* task(create_iteration_task(identifier,log,size_t(nSteps),size_t(nRays),0, outerStepperList, varyingWave, size_t(nPeriod),showAllIterates?1:0, 2, 1));
     task->run(noThread);
     return task->get_python_id();
+  }
+
+  PythonID scigma_num_ode_manifold(const char* identifier, PythonID equationSystemID, PythonID logID,
+			   int nSteps, int nRays, PythonID varyingWaveID, PythonID blobID, bool noThread)
+  {
+    PYOBJ(EquationSystem,eqsys,equationSystemID);if(!eqsys)return -1;
+    PYOBJ(Log,log,logID);if(!log)return -1;
+    PYOBJ(Wave,varyingWave,varyingWaveID);if(!varyingWave)return -1;
+    PYOBJ(Blob,blob,blobID);if(!blob)return -1;
+    
+    Mode m((Mode(blob->get_int("mode"))));
+    double dt(blob->get_double("dt"));
+    bool stiff(blob->get_string("odessa.type")=="stiff"?true:false);
+    double aTol(blob->get_double("odessa.atol"));
+    double rTol(blob->get_double("odessa.rtol"));
+    size_t maxIter((size_t(blob->get_int("odessa.mxiter"))));
+    
+    if(nSteps<0)
+      {
+	nSteps=-nSteps;
+	dt=-dt;
+      }
+
+    Stepper** stepperList(new Stepper*[size_t(nRays)]);
+
+    switch(m)
+      {
+      case MAP:
+	log->push<LOG_ERROR>("calling ode manifold in MAP mode\n");
+	break;
+      case ODE:
+	for(size_t i(0);i<size_t(nRays);++i)
+	  {
+	    stepperList[i]=new IntegrationStepper(*eqsys,dt,stiff,aTol,rTol,size_t(maxIter));
+	  }
+	break;
+      case STROBE:
+	log->push<LOG_ERROR>("calling ode manifold in STROBE mode\n");
+	break;
+      case POINCARE:
+	log->push<LOG_ERROR>("calling ode manifold in POINCARE mode\n");
+      }
+    Task* task(create_iteration_task(identifier,log,size_t(nSteps), size_t(nRays),0,
+				     stepperList,varyingWave,1,0,2,1));
+    task->run(noThread);
+    return task->get_python_id();
+    
   }
   
 } /* end extern "C" block */

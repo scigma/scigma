@@ -69,16 +69,10 @@ def manifold(stable,nSteps,g=None,path=None,win=None,showall=False):
     if len(idx)==1:
         if stable:
             picking.perts(2,g,win)
-            if mode == 'ode':
-                iteration.plot(-nSteps,path,win,showall)
-            else:
-                map_manifold(-nSteps,g,path,win,showall)
+            one_d_manifold(-nSteps,g,path,win,showall)
         else:
             picking.pertu(2,g,win)
-            if mode == 'ode':
-                iteration.plot(nSteps,path,win,showall)
-            else:
-                map_manifold(nSteps,g,path,win,showall)
+            one_d_manifold(nSteps,g,path,win,showall)
     else:
         # pick points on a ring with radius eps around the fixed point
         # use the circumference divided by ds as number of initial points
@@ -127,7 +121,6 @@ def mstableall(nSteps=1,g=None,path=None,win=None):
 
 commands['ms*']=commands['mst*']=commands['msta*']=commands['mstab*']=commands['mstabl*']=commands['mstable*']=mstableall
 
-
 def two_d_manifold(nSteps,g,path,win):
     varying=win.cursor['varying']
     varVals=win.cursor['varwave'][:]
@@ -143,22 +136,24 @@ def two_d_manifold(nSteps,g,path,win):
     
 lib.scigma_num_map_manifold.restype=c_int
 lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_int,c_bool,c_bool]
+lib.scigma_num_ode_manifold.restype=c_int
+lib.scigma_num_ode_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_int,c_bool]
 
-def map_manifold(nSteps,g,path,win,showall):
+def one_d_manifold(nSteps,g,path,win,showall):
 
     varying=win.cursor['varying']
     varVals=win.cursor['varwave'][:]
     const = win.cursor['const']
     constVals=win.cursor['constwave'][:]
 
-    # add periodic point itself to the initial segment(s) of the cursor point(s)
+    # add steadyState point itself to the initial segment(s) of the cursor point(s)
     nVarying = len(varying)
+    steadyState = g['varwave'][-nVarying:]   # if g is result of guess* command, pick last point (this is what pert acts upon)
     nSegments = win.cursor['nparts']
-    segments=[]
+    segments=steadyState*nSegments
     for i in range(nSegments):
-        steadyState = g['varwave'][-nVarying:]   # if g is result of guess* command, pick last point (this is what pert acts upon)
         firstPoint = varVals[i*nVarying:(i+1)*nVarying]
-        segments = segments + steadyState + firstPoint
+        segments = segments + firstPoint
     
     mode = win.equationPanel.get("mode")
     nperiod = win.equationPanel.get("nperiod")
@@ -171,7 +166,7 @@ def map_manifold(nSteps,g,path,win,showall):
         eqsysID=win.invsys.objectID
         if win.invsys.var_names() != win.eqsys.var_names():
             raise Exception("map and inverse map have different variables")
-        
+
     g=graphs.new(win,abs(nSteps)+1,nSegments,varying,const,segments,constVals,path)
 
     g['mode']=mode
@@ -188,9 +183,15 @@ def map_manifold(nSteps,g,path,win,showall):
     blobID=blob.objectID
 
     noThread = (win.options['Global']['threads'].label =='off')
-    
-    g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
-                                            nSegments,varWaveID,blobID,showall,noThread)
+
+    if mode !='ode':
+        g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
+                                                nSegments,varWaveID,blobID,showall,noThread)
+    else:
+        print segments
+        print g['varwave'][:]
+        g['taskID']=lib.scigma_num_ode_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
+                                                nSegments,varWaveID,blobID,noThread)
 
     g['cgraph']=gui.Bundle(win.glWindow,g['npoints'],g['nparts'],
                            len(g['varying']),g['varwave'],g['constwave'],
