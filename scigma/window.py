@@ -29,12 +29,12 @@ class Window(object):
         
         self.options={}
         self.optionPanels={}
-        self.commands={"pause":gui.pause}
+        self.commands={"pause": gui.pause}
 
         self.queue=[]
         self.history=[]
         self.sleeping=False
-        
+
     def destroy(self):
         for key in self.unplugFunctions.keys():
             self.unplugFunctions[key]()
@@ -93,10 +93,10 @@ class Window(object):
             if (self.options['Global']['echo'].label=='on' and
                 line[:5] != 'write' and line[:7]!='writeln' and
                 line[:4] != 'data' and line[:6]!='dataln' and
-                line[:7] != 'comment' and line[:9]!='commentln' and
+                line[:4] != 'note' and
                 line[:4] != 'warn' and line[:6]!='warnln' and
                 line[:5] != 'error' and line[:7]!='errorln' and
-                line[:5]!='sleep'):
+                line[:5]!='pause'):
                 self.console.write(line+'\n')
             self.process_command(line)
             if not self in windows: #return if the last command was 'quit'
