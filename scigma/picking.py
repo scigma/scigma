@@ -294,8 +294,12 @@ def select(identifier,point=-1,win=None,silent=False):
     else:
         return
 
-    names=['t']+win.eqsys.var_names()+win.eqsys.par_names()
-
+    # t is never reset to the end value of an orbit
+    # because this causes too much trouble with
+    # stroboscopic maps due to inaccuracies for large t
+    # => do not include 't' in list of names
+    names=win.eqsys.var_names()+win.eqsys.par_names()
+    
     try:
         win.eqsys.stall()
         nVarying=len(varying)

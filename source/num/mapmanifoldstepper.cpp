@@ -41,7 +41,7 @@ namespace scigma
       delete mapStepper_;
     }
     
-    double MapManifoldStepper::t() const {return t0_; /* arclength in t was a bad idea: points_.back()[nVar_]; */}
+    double MapManifoldStepper::t() const {return points_.back()[nVar_];}
     const double* MapManifoldStepper::x() const {return mapStepper_->x();}
     const double* MapManifoldStepper::func() const {return mapStepper_->func();}
     const double* MapManifoldStepper::jac() const {return NULL;}
