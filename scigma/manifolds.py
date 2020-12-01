@@ -155,13 +155,8 @@ def one_d_manifold(nSteps,g,path,win,showall):
         firstPoint = varVals[i*nVarying:(i+1)*nVarying]
         segments = segments + firstPoint
     
-    mode = win.equationPanel.get("mode")
-    nperiod = win.equationPanel.get("nperiod")
-    nPoints = nSegments*nperiod*abs(nSteps) if (showall and mode!='ode') else nSegments*abs(nSteps)
-
-    blob = iteration.blob(win)
-    
     eqsysID=win.eqsys.objectID
+    mode = win.equationPanel.get("mode")
     if mode == 'map' and nSteps<0:
         eqsysID=win.invsys.objectID
         if win.invsys.var_names() != win.eqsys.var_names():
@@ -180,6 +175,7 @@ def one_d_manifold(nSteps,g,path,win,showall):
     
     varWaveID=g['varwave'].objectID
     logID=win.log.objectID
+    blob = iteration.blob(win)
     blobID=blob.objectID
 
     noThread = (win.options['Global']['threads'].label =='off')
@@ -193,6 +189,9 @@ def one_d_manifold(nSteps,g,path,win,showall):
         g['taskID']=lib.scigma_num_ode_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
                                                 nSegments,varWaveID,blobID,noThread)
 
+    nperiod = win.equationPanel.get("nperiod")
+    nPoints = nSegments*nperiod*abs(nSteps+1) if (showall and mode!='ode') else nSegments*abs(nSteps+1)
+        
     g['cgraph']=gui.Bundle(win.glWindow,g['npoints'],g['nparts'],
                            len(g['varying']),g['varwave'],g['constwave'],
                            lambda double,button,point,x,y:
