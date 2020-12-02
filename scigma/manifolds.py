@@ -162,7 +162,10 @@ def one_d_manifold(nSteps,g,path,win,showall):
         if win.invsys.var_names() != win.eqsys.var_names():
             raise Exception("map and inverse map have different variables")
 
-    g=graphs.new(win,abs(nSteps)+1,nSegments,varying,const,segments,constVals,path)
+    nperiod = win.equationPanel.get("nperiod")
+    nPoints = nSegments*nperiod*abs(nSteps+1) if (showall and mode!='ode') else nSegments*abs(nSteps+1)
+        
+    g=graphs.new(win,abs(nPoints)+1,nSegments,varying,const,segments,constVals,path)
 
     g['mode']=mode
     g['callbacks']= {'success':lambda args:iteration.success(g,win,args),
@@ -188,10 +191,7 @@ def one_d_manifold(nSteps,g,path,win,showall):
         print g['varwave'][:]
         g['taskID']=lib.scigma_num_ode_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
                                                 nSegments,varWaveID,blobID,noThread)
-
-    nperiod = win.equationPanel.get("nperiod")
-    nPoints = nSegments*nperiod*abs(nSteps+1) if (showall and mode!='ode') else nSegments*abs(nSteps+1)
-        
+    
     g['cgraph']=gui.Bundle(win.glWindow,g['npoints'],g['nparts'],
                            len(g['varying']),g['varwave'],g['constwave'],
                            lambda double,button,point,x,y:
