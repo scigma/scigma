@@ -238,20 +238,22 @@ def plug(win=None):
         return
     
     # fill option panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    enum = common.Enum({'non-stiff':0,'stiff':1},'stiff')
-    panel.add('dt',1e-2)
-    panel.add('odessa.type',enum)
-    panel.add('odessa.atol',1e-9)
-    panel.define('odessa.atol',"min=0.0")
-    panel.add('odessa.rtol',1e-9)
-    panel.define('odessa.rtol',"min=0.0")
-    panel.add('odessa.mxiter',int(500))
-    panel.define('odessa.mxiter',"min=1")
-    enum = common.Enum({'numeric':0,'symbolic':1},'symbolic')
-    panel.add('odessa.Jacobian',enum,True,"readonly=true")
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        enum = common.Enum({'non-stiff':0,'stiff':1},'stiff')
+        panel.add('dt',1e-2)
+        panel.add('odessa.type',enum)
+        panel.add('odessa.atol',1e-9)
+        panel.define('odessa.atol',"min=0.0")
+        panel.add('odessa.rtol',1e-9)
+        panel.define('odessa.rtol',"min=0.0")
+        panel.add('odessa.mxiter',int(500))
+        panel.define('odessa.mxiter',"min=1")
+        enum = common.Enum({'numeric':0,'symbolic':1},'symbolic')
+        panel.add('odessa.Jacobian',enum,True,"readonly=true")
+    finally:
+        win.glWindow.flush()
     
 def unplug(win=None):
     win = windowlist.fetch(win)
@@ -260,13 +262,15 @@ def unplug(win=None):
         return
     
     # remove options from panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.remove('dt')
-    panel.remove('odessa.type')
-    panel.remove('odessa.atol')
-    panel.remove('odessa.rtol')
-    panel.remove('odessa.mxiter')
-    panel.remove('odessa.Jacobian')
-    win.release_option_panel('Numerical')
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.remove('dt')
+        panel.remove('odessa.type')
+        panel.remove('odessa.atol')
+        panel.remove('odessa.rtol')
+        panel.remove('odessa.mxiter')
+        panel.remove('odessa.Jacobian')
+        win.release_option_panel('Numerical')
+    finally:
+        win.glWindow.flush()
