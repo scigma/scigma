@@ -97,7 +97,7 @@ extern "C"
     auto const * steadyState = &varyingWave->data()[1];
     for(size_t i(0);i<size_t(nRays);++i)
       {
-	auto const * firstSegment = &varyingWave->data()[(nRays + i) * nVarying + 1];
+	auto const * firstSegment = &varyingWave->data()[(size_t(nRays) + i) * nVarying + 1];
 	outerStepperList[i]=new MapManifoldStepper(innerStepperList[i], steadyState, firstSegment, ds,1e-12,alpha,1e-4,size_t(nPeriod));
       }
     varyingWave->unlock();
