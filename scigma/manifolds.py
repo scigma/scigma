@@ -187,8 +187,6 @@ def one_d_manifold(nSteps,g,path,win,showall):
         g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
                                                 nSegments,varWaveID,blobID,showall,noThread)
     else:
-        print segments
-        print g['varwave'][:]
         g['taskID']=lib.scigma_num_ode_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
                                                 nSegments,varWaveID,blobID,noThread)
     
