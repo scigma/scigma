@@ -24,10 +24,11 @@ def pert(n,idx,g=None,win=None):
     evecs=[g['evecs'][i] for i in idx]
 
     eps=win.options['Numerical']['Manifolds']['eps']
+
     evecs=num.gsortho(evecs)
 
     nDim = len(evecs)-1
-    
+
     if n > maxpts.nMax[nDim][0]:
         win.console.write_warning("n="+str(n)+ " is too large for "+str(nDim)+"-dimensional grid;" +
                                   " capping to n="+str(maxpts.nMax[nDim][0])+" for "+str(maxpts.nMax[nDim][1])+ " grid points\n")
@@ -39,11 +40,11 @@ def pert(n,idx,g=None,win=None):
     constVals=win.cursor['constwave'][:]
 
     nVar=len(evecs[0])
-    # this is slightly inaccurate: we assign the values at the selected point to
-    # all varying values that are not variables ...
-
+    # the line below adds the second point along opposite directions of the eigenvector for nDim=0 and n=2
+    # for dependent functions this is slightly inaccurate: we assign the values at the selected point to all
+    # varying values that are not variables to the perturbed point as well
     newVarVals = [] if (nDim > 0 or n==1 ) else [varVals[0]]+[varVals[i+1]-eps*evecs[0][i] for i in range(nVar)]+varVals[1+nVar:]
-    
+
     # build up a regular grid on the surface of the n-sphere with radius eps in
     # the selected subspace; use n points for the largest circle on this surface
     # example:
@@ -54,11 +55,10 @@ def pert(n,idx,g=None,win=None):
         for i in range(nDim+1):
             for j in range(i):
                 coeffs[i]*=math.sin(phiset[j])
-
-        # this is slightly inaccurate: we assign the values at the selected point to
-        # all varying values that are not variables ... 
+                                
+        # again, this is slightly inaccurate: we assign the values at the selected point all varying values that are not variables ... 
         newVarVals+=[varVals[0]]+[varVals[i+1]+sum([coeffs[j]*evecs[j][i] for j in range(nDim+1)]) for i in range(nVar)]+varVals[1+nVar:]
-
+        
     graphs.move_cursor(win,varying,const,newVarVals,constVals)
     win.selection=None
     
@@ -294,8 +294,12 @@ def select(identifier,point=-1,win=None,silent=False):
     else:
         return
 
-    names=['t']+win.eqsys.var_names()+win.eqsys.par_names()
-
+    # t is never reset to the end value of an orbit
+    # because this causes too much trouble with
+    # stroboscopic maps due to inaccuracies for large t
+    # => do not include 't' in list of names
+    names=win.eqsys.var_names()+win.eqsys.par_names()
+    
     try:
         win.eqsys.stall()
         nVarying=len(varying)

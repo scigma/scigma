@@ -119,7 +119,7 @@ namespace scigma
     
     bool Ruler::process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods)
     {
-      if(thickness_<1.5)
+      if(thickness_<1.5f)
 	return false;
 
       if(GLFW_MOUSE_BUTTON_LEFT==button)

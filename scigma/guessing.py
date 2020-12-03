@@ -279,7 +279,7 @@ def success(g,win,args):
     win.console.write_data(g['identifier'])
     win.console.write(":\n")
     vardata=g['varwave'].data()
-    nPeriod=g['varwave'].size()//(nVar+1)
+    nPeriod=g['varwave'].size()//nVarying
     names=g['varying']
     for i in range(nVar):
         win.console.write(names[i+1]+' = ')
@@ -363,13 +363,15 @@ def plug(win=None):
         return
     
     # fill option panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.add('Newton.tol',1e-9)
-    panel.define('Newton.tol',"min=0.0")
-    enum = common.Enum({'numeric':0,'symbolic':1},'symbolic')
-    panel.add('Newton.Jacobian',enum,True,"readonly=true")
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.add('Newton.tol',1e-9)
+        panel.define('Newton.tol',"min=0.0")
+        enum = common.Enum({'numeric':0,'symbolic':1},'symbolic')
+        panel.add('Newton.Jacobian',enum,True,"readonly=true")
+    finally:
+        win.glWindow.flush()
     
 def unplug(win=None):
     win = windowlist.fetch(win)
@@ -378,9 +380,11 @@ def unplug(win=None):
         return
     
     # remove options from panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.remove('Newton.tol')
-    panel.remove('Newton.Jacobian')
-    win.release_option_panel('Numerical')
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.remove('Newton.tol')
+        panel.remove('Newton.Jacobian')
+        win.release_option_panel('Numerical')
+    finally:
+        win.glWindow.flush()

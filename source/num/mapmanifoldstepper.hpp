@@ -4,7 +4,6 @@
 #include <list>
 #include <vector>
 #include "stepper.hpp"
-#include "../dat/wave.hpp"
 
 namespace scigma
 {
@@ -13,11 +12,9 @@ namespace scigma
     
     class MapManifoldStepper:public Stepper
     {
-    private:
-      typedef scigma::dat::AbstractWave<double> Wave;
-      
+
     public:
-      MapManifoldStepper(Stepper* mapStepper, Wave* initial, double dsmax, double dsmin, double alpha, double dalpha, size_t nPeriod);
+      MapManifoldStepper(Stepper* mapStepper, double const * steadyState, double const * firstSegment, double dsmax, double dsmin, double alpha, double dalpha, size_t nPeriod);
       ~MapManifoldStepper();
 
       virtual double t() const;

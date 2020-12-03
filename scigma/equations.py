@@ -28,37 +28,38 @@ def mode(mode=None,win=None,silent=False):
         mode = abbrev[mode.lower()]
     if mode not in MODE:
         raise Exception(mode+": unknown mode specification")
-    win.glWindow.stall()
-    win.equationPanel.set('mode',mode)
-    if mode == 'map':
-        win.equationPanel.define('nperiod','visible=true')
-        win.equationPanel.define('inverse','visible=true')
-        win.valuePanel.define('time','visible=false')
-        win.valuePanel.define('step','visible=true')
-    else:
-        win.equationPanel.define('inverse','visible=false')
-        win.valuePanel.define('time','visible=true')
-        win.valuePanel.define('step','visible=false')
-    if mode == 'ode':
-        win.equationPanel.define('nperiod','visible=false')
-    if mode == 'strobe':
-        win.equationPanel.define('nperiod','visible=true')
-        win.equationPanel.define('period','visible=true')
-    else:
-        win.equationPanel.define('period','visible=false')
-    if mode == 'Poincare':
-        win.equationPanel.define('nperiod','visible=true')
-        win.equationPanel.define('secvar','visible=true')
-        win.equationPanel.define('secval','visible=true')
-        win.equationPanel.define('secdir','visible=true')
-        win.equationPanel.define('maxtime','visible=true')
-    else:
-        win.equationPanel.define('secvar','visible=false')
-        win.equationPanel.define('secval','visible=false')
-        win.equationPanel.define('secdir','visible=false')
-        win.equationPanel.define('maxtime','visible=false')
-        
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        win.equationPanel.set('mode',mode)
+        if mode == 'map':
+            win.equationPanel.define('nperiod','visible=true')
+            win.equationPanel.define('inverse','visible=true')
+            win.valuePanel.define('time','visible=false')
+            win.valuePanel.define('step','visible=true')
+        else:
+            win.equationPanel.define('inverse','visible=false')
+            win.valuePanel.define('time','visible=true')
+            win.valuePanel.define('step','visible=false')
+        if mode == 'ode':
+            win.equationPanel.define('nperiod','visible=false')
+        if mode == 'strobe':
+            win.equationPanel.define('nperiod','visible=true')
+            win.equationPanel.define('period','visible=true')
+        else:
+            win.equationPanel.define('period','visible=false')
+        if mode == 'Poincare':
+            win.equationPanel.define('nperiod','visible=true')
+            win.equationPanel.define('secvar','visible=true')
+            win.equationPanel.define('secval','visible=true')
+            win.equationPanel.define('secdir','visible=true')
+            win.equationPanel.define('maxtime','visible=true')
+        else:
+            win.equationPanel.define('secvar','visible=false')
+            win.equationPanel.define('secval','visible=false')
+            win.equationPanel.define('secdir','visible=false')
+            win.equationPanel.define('maxtime','visible=false')
+    finally:
+        win.glWindow.flush()
 
 commands['m']=commands['mo']=commands['mode']=commands['mode']=mode
 
@@ -237,45 +238,47 @@ def on_equation_change(identifier,rhs, win):
         raise
 
 def rebuild_panels(win):
-    win.glWindow.stall()
+    try:
+        win.glWindow.stall()
         
-    win.valuePanel.remove('time.t = ')
-    win.valuePanel.remove('step.t = ')
-    ids=[]
-    for group in win.equationPanel.data:
-        if group in ['mode','period','nperiod','secvar','secval','secdir','maxtime']:
-            continue
-        for entry in win.equationPanel.data[group]:
-            if not entry == '__anchor__':
-                ids.append(group+'.'+entry)
-    for identifier in ids:
-        win.equationPanel.remove(identifier)   
-    ids=[]
-    for group in win.valuePanel.data:
-        for entry in win.valuePanel.data[group]:
-            if not entry == '__anchor__':
-                ids.append(group+'.'+entry)
-    for identifier in ids:
-        win.valuePanel.remove(identifier)   
+        win.valuePanel.remove('time.t = ')
+        win.valuePanel.remove('step.t = ')
+        ids=[]
+        for group in win.equationPanel.data:
+            if group in ['mode','period','nperiod','secvar','secval','secdir','maxtime']:
+                continue
+            for entry in win.equationPanel.data[group]:
+                if not entry == '__anchor__':
+                    ids.append(group+'.'+entry)
+        for identifier in ids:
+            win.equationPanel.remove(identifier)   
+        ids=[]
+        for group in win.valuePanel.data:
+            for entry in win.valuePanel.data[group]:
+                if not entry == '__anchor__':
+                    ids.append(group+'.'+entry)
+        for identifier in ids:
+            win.valuePanel.remove(identifier)   
         
-    win.valuePanel.add('time.t = ',str(win.eqsys.time()))
-    win.valuePanel.add('step.t = ',str(win.eqsys.time()))
+        win.valuePanel.add('time.t = ',str(win.eqsys.time()))
+        win.valuePanel.add('step.t = ',str(win.eqsys.time()))
         
-    groups = ['variables','inverse','functions','constants','variables','parameters']
-    defs = [win.eqsys.var_defs(),win.invsys.var_defs()]
-    panels = [win.equationPanel,win.equationPanel,win.equationPanel]
+        groups = ['variables','inverse','functions','constants','variables','parameters']
+        defs = [win.eqsys.var_defs(),win.invsys.var_defs()]
+        panels = [win.equationPanel,win.equationPanel,win.equationPanel]
         
-    defs +=[win.eqsys.func_defs(),win.eqsys.const_defs(),win.eqsys.vars(),win.eqsys.pars()]
+        defs +=[win.eqsys.func_defs(),win.eqsys.const_defs(),win.eqsys.vars(),win.eqsys.pars()]
         
-    panels += [win.equationPanel,win.valuePanel,win.valuePanel]
+        panels += [win.equationPanel,win.valuePanel,win.valuePanel]
         
-    for i in range(len(groups)):
-        for definition in defs[i]:
-            parts=definition.partition('=')
-            var=parts[0].strip()
-            rhs=parts[2].strip()
-            panels[i].add(groups[i]+'.'+var+' = ',rhs, False)
-    win.glWindow.flush()
+        for i in range(len(groups)):
+            for definition in defs[i]:
+                parts=definition.partition('=')
+                var=parts[0].strip()
+                rhs=parts[2].strip()
+                panels[i].add(groups[i]+'.'+var+' = ',rhs, False)
+    finally:
+        win.glWindow.flush()
         
 def plug(win):
     if not win.register_plugin('equations', lambda:unplug(win),commands):
@@ -283,39 +286,42 @@ def plug(win):
 
     setattr(win,'eqsys',num.EquationSystem())
     setattr(win,'invsys',num.EquationSystem())
-    
-    setattr(win,'equationPanel',gui.ATWPanel(win.glWindow,'Equations'))
+        
+    try:
+        win.glWindow.stall()
 
-    win.glWindow.stall()
+        setattr(win,'equationPanel',gui.ATWPanel(win.glWindow,'Equations'))
+        win.equationPanel.define('','iconified=true')
+        enum=common.Enum(MODE,'ode')
+        win.equationPanel.add('mode',enum)
+        win.equationPanel.add('period','1.0',True,'visible=false')
+        win.equationPanel.add('nperiod',1,True,'visible=false')
+        win.equationPanel.define('nperiod','min=1')
+        win.equationPanel.add('secvar','x',True,'visible=false')
+        win.equationPanel.add('secval', 0.0,True,'visible=false')
+        win.equationPanel.add('maxtime',100.0,True,'visible=false')
+        enum=common.Enum({'+':0,'-':1},'+')
+        win.equationPanel.add('secdir',enum,True,'visible=false')
+        win.equationPanel.add('variables.__anchor__',False,True,"visible=false")
+        win.equationPanel.add('inverse.__anchor__',False,True,"visible=false")
+        win.equationPanel.define('inverse','visible=false')
+        win.equationPanel.add('functions.__anchor__',False,True,"visible=false")
+        win.equationPanel.add('constants.__anchor__',False,True,"visible=false")
+        win.equationPanel.set_callback(lambda identifier,rhs: on_panel_change(identifier,rhs,win))
 
-    enum=common.Enum(MODE,'ode')
-    win.equationPanel.add('mode',enum)
-    win.equationPanel.add('period','1.0',True,'visible=false')
-    win.equationPanel.add('nperiod',1,True,'visible=false')
-    win.equationPanel.define('nperiod','min=1')
-    win.equationPanel.add('secvar','x',True,'visible=false')
-    win.equationPanel.add('secval', 0.0,True,'visible=false')
-    win.equationPanel.add('maxtime',100.0,True,'visible=false')
-    enum=common.Enum({'+':0,'-':1},'+')
-    win.equationPanel.add('secdir',enum,True,'visible=false')
-    win.equationPanel.add('variables.__anchor__',False,True,"visible=false")
-    win.equationPanel.add('inverse.__anchor__',False,True,"visible=false")
-    win.equationPanel.define('inverse','visible=false')
-    win.equationPanel.add('functions.__anchor__',False,True,"visible=false")
-    win.equationPanel.add('constants.__anchor__',False,True,"visible=false")
-    win.equationPanel.set_callback(lambda identifier,rhs: on_panel_change(identifier,rhs,win))
+        setattr(win,'valuePanel',gui.ATWPanel(win.glWindow,'Values'))
+        win.valuePanel.define('','iconified=true')
+        win.valuePanel.add('time.t = ','0.0')
+        win.valuePanel.add('step.t = ','0')
+        win.valuePanel.define('step', 'visible=false')
+        win.valuePanel.add('time.__anchor__',False,True,"visible=false")
+        win.valuePanel.add('step.__anchor__',False,True,"visible=false")
+        win.valuePanel.add('variables.__anchor__',False,True,"visible=false")
+        win.valuePanel.add('parameters.__anchor__',False,True,"visible=false")
+        win.valuePanel.set_callback(lambda identifier,rhs: on_panel_change(identifier,rhs,win))
 
-    setattr(win,'valuePanel',gui.ATWPanel(win.glWindow,'Values'))
-    win.valuePanel.add('time.t = ','0.0')
-    win.valuePanel.add('step.t = ','0')
-    win.valuePanel.define('step', 'visible=false')
-    win.valuePanel.add('time.__anchor__',False,True,"visible=false")
-    win.valuePanel.add('step.__anchor__',False,True,"visible=false")
-    win.valuePanel.add('variables.__anchor__',False,True,"visible=false")
-    win.valuePanel.add('parameters.__anchor__',False,True,"visible=false")
-    win.valuePanel.set_callback(lambda identifier,rhs: on_panel_change(identifier,rhs,win))
-
-    win.glWindow.flush()
+    finally:
+        win.glWindow.flush()
     
 def unplug(win):
     if not win.unregister_plugin('equations'):

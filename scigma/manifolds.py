@@ -68,17 +68,11 @@ def manifold(stable,nSteps,g=None,path=None,win=None,showall=False):
 
     if len(idx)==1:
         if stable:
-            picking.perts(1,g,win)
-            if mode == 'ode':
-                iteration.plot(-nSteps,path,win,showall)
-            elif nSteps>1:
-                map_manifold(-nSteps+1,g,path,win,showall)
+            picking.perts(2,g,win)
+            one_d_manifold(-nSteps,g,path,win,showall)
         else:
-            picking.pertu(1,g,win)
-            if mode == 'ode':
-                iteration.plot(nSteps,path,win,showall)
-            elif nSteps>1:
-                map_manifold(nSteps-1,g,path,win,showall)
+            picking.pertu(2,g,win)
+            one_d_manifold(nSteps,g,path,win,showall)
     else:
         # pick points on a ring with radius eps around the fixed point
         # use the circumference divided by ds as number of initial points
@@ -127,7 +121,6 @@ def mstableall(nSteps=1,g=None,path=None,win=None):
 
 commands['ms*']=commands['mst*']=commands['msta*']=commands['mstab*']=commands['mstabl*']=commands['mstable*']=mstableall
 
-
 def two_d_manifold(nSteps,g,path,win):
     varying=win.cursor['varying']
     varVals=win.cursor['varwave'][:]
@@ -142,32 +135,38 @@ def two_d_manifold(nSteps,g,path,win):
     sweeping.sweep(nSteps,g,path,win,mesh)
     
 lib.scigma_num_map_manifold.restype=c_int
-lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_bool,c_bool]
+lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_int,c_bool,c_bool]
+lib.scigma_num_ode_manifold.restype=c_int
+lib.scigma_num_ode_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_int,c_bool]
 
-def map_manifold(nSteps,g,path,win,showall):
+def one_d_manifold(nSteps,g,path,win,showall):
 
     varying=win.cursor['varying']
     varVals=win.cursor['varwave'][:]
     const = win.cursor['const']
     constVals=win.cursor['constwave'][:]
 
-    # add periodic point itself to the initial segment of the cursor
-    varVals = g['varwave'][:]+varVals
-
-    mode = win.equationPanel.get("mode")
-    nperiod = win.equationPanel.get("nperiod")
-    nPoints = nperiod*abs(nSteps) if (showall and mode!='ode') else abs(nSteps)
-
-    blob = iteration.blob(win)
-    
+    # add steadyState point itself to the initial segment(s) of the cursor point(s)
+    nVarying = len(varying)
+    steadyState = g['varwave'][-nVarying:]   # if g is result of guess* command, pick last point (this is what pert acts upon)
+    nSegments = win.cursor['nparts']
+    segments=steadyState*nSegments
+    for i in range(nSegments):
+        firstPoint = varVals[i*nVarying:(i+1)*nVarying]
+        segments = segments + firstPoint
+        
     eqsysID=win.eqsys.objectID
+    mode = win.equationPanel.get("mode")
     if mode == 'map' and nSteps<0:
         eqsysID=win.invsys.objectID
         if win.invsys.var_names() != win.eqsys.var_names():
             raise Exception("map and inverse map have different variables")
 
-    g=graphs.new(win,abs(nSteps)+1,1,varying,const,varVals,constVals,path)
-                     
+    nperiod = win.equationPanel.get("nperiod")
+    nPoints = nSegments*nperiod*(abs(nSteps)+1) if (showall and mode!='ode') else nSegments*(abs(nSteps)+1)
+
+    g=graphs.new(win,abs(nPoints)+1,nSegments,varying,const,segments,constVals,path)
+
     g['mode']=mode
     g['callbacks']= {'success':lambda args:iteration.success(g,win,args),
                      'fail':lambda args:iteration.fail(g,win,args),
@@ -179,13 +178,18 @@ def map_manifold(nSteps,g,path,win,showall):
     
     varWaveID=g['varwave'].objectID
     logID=win.log.objectID
+    blob = iteration.blob(win)
     blobID=blob.objectID
 
     noThread = (win.options['Global']['threads'].label =='off')
-    
-    g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps,
-                                            varWaveID,blobID,showall,noThread)
 
+    if mode !='ode':
+        g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
+                                                nSegments,varWaveID,blobID,showall,noThread)
+    else:
+        g['taskID']=lib.scigma_num_ode_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
+                                                nSegments,varWaveID,blobID,noThread)
+    
     g['cgraph']=gui.Bundle(win.glWindow,g['npoints'],g['nparts'],
                            len(g['varying']),g['varwave'],g['constwave'],
                            lambda double,button,point,x,y:
@@ -215,14 +219,16 @@ def plug(win=None):
         return
     
     # fill option panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.add('Manifolds.eps',1e-5)
-    panel.add('Manifolds.arc',0.1)
-    panel.add('Manifolds.alpha',0.3)
-    panel.add('Manifolds.ninit',int(20))
-    panel.add('Manifolds.fudge',1.05)
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.add('Manifolds.eps',1e-5)
+        panel.add('Manifolds.arc',0.1)
+        panel.add('Manifolds.alpha',0.3)
+        panel.add('Manifolds.ninit',int(20))
+        panel.add('Manifolds.fudge',1.05)
+    finally:
+        win.glWindow.flush()
     
 def unplug(win=None):
     win = windowlist.fetch(win)
@@ -231,12 +237,14 @@ def unplug(win=None):
         return
     
     # remove options from panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.remove('Manifolds.eps')
-    panel.remove('Manifolds.arc')
-    panel.remove('Manifolds.alpha')
-    panel.remove('Manifolds.ninit')
-    panel.remove('Manifolds.fudge')
-    win.release_option_panel('Numerical')
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.remove('Manifolds.eps')
+        panel.remove('Manifolds.arc')
+        panel.remove('Manifolds.alpha')
+        panel.remove('Manifolds.ninit')
+        panel.remove('Manifolds.fudge')
+        win.release_option_panel('Numerical')
+    finally:
+        win.glWindow.flush()

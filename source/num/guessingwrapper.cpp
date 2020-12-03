@@ -35,7 +35,7 @@ namespace scigma
 	   size_t nFunc(stepper->n_functions());	   
 	   double t(stepper->t());
 	   
-	   auto f = [nVar,nFunc,stepper,nPeriod,tol,t](const double* x, double* rhs)
+	   auto f = [nVar,stepper,nPeriod,t](const double* x, double* rhs)
 	   {
 	     stepper->reset(t,x);
 	     stepper->advance(nPeriod);

@@ -25,7 +25,7 @@ namespace scigma
 
     Task* create_iteration_task(std::string identifier, Log* log,
 				size_t nSteps, size_t nRays, size_t nConst, Stepper** stepperList, Wave* varyingWave,
-			        size_t nPeriod, size_t showAllIterates)
+			        size_t nPeriod, size_t showAllIterates, size_t existingPoints = 1, size_t initialPointIndex = 0)
     {
       auto runFunction = 
 	([=]() mutable
@@ -35,17 +35,26 @@ namespace scigma
 	   size_t nVar(stepperList[0]->n_variables());
 	   size_t nFunc(stepperList[0]->n_functions());	   
 	   varyingWave->lock();
-	   size_t nVarying=varyingWave->size()/nRays;
+	   size_t nVarying=varyingWave->size()/nRays/existingPoints;
 
 	   // set initial conditions
-	   const double* data = varyingWave->data(); 
+	   auto const initialPointBaseIndex = nVarying*nRays*initialPointIndex;
+	   const double* data = varyingWave->data(); 	   
 	   for(size_t i(0);i<nRays;++i)
-	       stepperList[i]->reset(data[i*nVarying],&data[i*nVarying+1]);
+	     {
+	       auto const rayBaseIndexForPoint = initialPointBaseIndex + nVarying*i;
+	       stepperList[i]->reset(data[rayBaseIndexForPoint],&data[rayBaseIndexForPoint+1]);
+	     }
 
 	   double* constData=new double[nRays*nConst];
 	   for(size_t i(0);i<nRays;++i)
-	     for(size_t j(0);j<nConst;++j)
-	       constData[i*nConst+j]=data[(i+1)*nVarying-nConst+j];
+	     {
+	       auto const rayBaseIndexForPoint = initialPointBaseIndex + nVarying*i;
+	       for(size_t j(0);j<nConst;++j)
+	       {
+		 constData[i*nConst+j]=data[rayBaseIndexForPoint+nVarying-nConst+j];
+	       }
+	     }
 	   
 	   varyingWave->unlock();
 
@@ -87,7 +96,7 @@ namespace scigma
 		 break;
 	     }
 
-	   if(i>0)
+	   if(i>0||nSteps==0)
 	     log->push<LOG_SUCCESS>(identifier);
 	   else
 	     log->push<LOG_FAIL>(identifier);

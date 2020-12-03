@@ -26,7 +26,7 @@ namespace scigma
 	}
       catch(std::string exception)
 	{
-	  throw(exception);
+	  throw(std::move(exception));
 	}
     }
     

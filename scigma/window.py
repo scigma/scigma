@@ -29,11 +29,12 @@ class Window(object):
         
         self.options={}
         self.optionPanels={}
-        self.commands={"sleep":gui.sleep}
+        self.commands={"pause": gui.pause}
 
         self.queue=[]
+        self.history=[]
         self.sleeping=False
-        
+
     def destroy(self):
         for key in self.unplugFunctions.keys():
             self.unplugFunctions[key]()
@@ -67,6 +68,7 @@ class Window(object):
     def acquire_option_panel(self, identifier):
         if not identifier in self.options:
             self.optionPanels[identifier]=gui.ATWPanel(self.glWindow,identifier)
+            self.optionPanels[identifier].define('','iconified=true')
             self.options[identifier]=self.optionPanels[identifier].data
             self.glWindow.request_redraw()
         return self.optionPanels[identifier] 
@@ -92,10 +94,10 @@ class Window(object):
             if (self.options['Global']['echo'].label=='on' and
                 line[:5] != 'write' and line[:7]!='writeln' and
                 line[:4] != 'data' and line[:6]!='dataln' and
-                line[:7] != 'comment' and line[:9]!='commentln' and
+                line[:4] != 'note' and
                 line[:4] != 'warn' and line[:6]!='warnln' and
                 line[:5] != 'error' and line[:7]!='errorln' and
-                line[:5]!='sleep'):
+                line[:5]!='pause'):
                 self.console.write(line+'\n')
             self.process_command(line)
             if not self in windows: #return if the last command was 'quit'
@@ -136,7 +138,7 @@ class Window(object):
         except:
             paths=[]
 
-        if len(paths) is 0: # this is possibly an equation or the attempt to set/query an option
+        if len(paths) == 0: # this is possibly an equation or the attempt to set/query an option
             try:
                 equations.parse(line,self)
                 if line[0]!='$':
@@ -164,7 +166,7 @@ class Window(object):
                     self.console.write_error(error+'\n')
                     raise Exception(error)
                    
-        elif not len(paths) is 1: # there is more than one command with the same name or path
+        elif not len(paths) == 1: # there is more than one command with the same name or path
             error = "ambiguous command; use qualified name, e.g. " + paths[0] + " or " + paths[1]
             self.console.write_error(error+'\n')
             raise Exception(error)
@@ -175,10 +177,11 @@ class Window(object):
             except Exception as e:
                 self.console.write_error(str(e.args[0])+'\n')
                 raise e
-
+        self.history.append(line)
+        
     def process_messages(self):
         mtype, message=self.log.pop()
-        while message is not "":
+        while message != "":
             if mtype==common.Log.DATA:
                 self.console.write_data(message)
             elif mtype==common.Log.WARNING:
@@ -194,3 +197,4 @@ class Window(object):
             else:
                 self.console.write(message)
             mtype,message=self.log.pop()
+   

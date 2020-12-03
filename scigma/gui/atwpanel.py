@@ -71,7 +71,7 @@ class ATWPanel(object):
             d[key]=value[0]
         elif type(oldval) is list:
             value=cast(entry_ptr,POINTER(c_float))
-            if len(oldval) is 3:   # direction
+            if len(oldval) == 3:   # direction
                 d[key]=[value[0],value[1],value[2]]
             else:   # color
                 d[key]=[value[0],value[1],value[2],value[3]]

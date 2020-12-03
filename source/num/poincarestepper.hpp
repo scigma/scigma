@@ -41,10 +41,7 @@ namespace scigma
       Odessa odessa_;
       
       double* x_;
-      double* p_;
       double* jac_;
-
-      char padded_[8];
       
       F_t f_t_;
       F_t func_t_;

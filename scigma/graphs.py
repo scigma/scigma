@@ -37,10 +37,12 @@ commands['hide']=hide
 def replay(g=None, win=None):
     win=windowlist.fetch(win)
     g=get(g,win)
-    win.glWindow.stall()
-    show(g,win)
-    g['cgraph'].set_delay(win.options['Drawing']['delay'].value)
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        show(g,win)
+        g['cgraph'].set_delay(win.options['Drawing']['delay'].value)
+    finally:
+        win.glWindow.flush()
     g['cgraph'].replay()
 
 commands['rep']=commands['repl']=commands['repla']=commands['replay']=replay

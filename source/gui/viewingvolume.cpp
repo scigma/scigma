@@ -139,7 +139,7 @@ namespace scigma
     {
       GLfloat length(GLfloat(sqrt(ax*ax+ay*ay+az*az))); 
       ax/=length;ay/=length;az/=length;                            // normalize axis vector
-      GLfloat s(GLfloat(sin(angle/180*M_PI))),c(GLfloat(cos(angle/180*M_PI)));
+      GLfloat s(GLfloat(sin(angle/180*GLfloat(M_PI)))),c(GLfloat(cos(angle/180*GLfloat(M_PI))));
       GLfloat t(1-c);
       GLfloat additionalRotationMatrix[]={ax*ax*t+c, ax*ay*t+az*s, ax*az*t-ay*s, 0,
 					  ay*ax*t-az*s, ay*ay*t+c, ay*az*t+ax*s, 0,

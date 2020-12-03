@@ -29,16 +29,17 @@ def new(win=None):
 
     #initialize global commands
     w.commands['n']=w.commands['ne']=w.commands['new']=new    
+    w.commands['history']=history
+    w.commands['session']=session
     w.commands['write']=write
     w.commands['data']=data
     w.commands['warn']=warn
-    w.commands['comment']=comment
     w.commands['error']=error
     w.commands['writeln']=writeln
     w.commands['dataln']=dataln
     w.commands['warnln']=warnln
-    w.commands['commentln']=commentln
     w.commands['errorln']=errorln
+    w.commands['note']=note
     w.commands['l']=w.commands['lo']=w.commands['loa']=w.commands['load']=load
     setattr(w,'script','none')
     setattr(w,'source','none')
@@ -65,6 +66,19 @@ def new(win=None):
     continuation.plug(w)
     return w
 
+def history(filename, lines=100000, win=None):
+    win=windowlist.fetch(win)
+    with open(filename,"w") as f:
+        for line in win.history[-int(lines):]:
+            f.write(line+'\n')
+            
+def session(filename, lines=100000, win=None):
+    win=windowlist.fetch(win)
+    session=win.console.session.splitlines()
+    with open(filename,"w") as f:
+        for line in session[-int(lines):-1]:
+            f.write(line+'\n')
+            
 def write(string, win=None):
     win=windowlist.fetch(win)
     win.console.write(string)
@@ -76,10 +90,6 @@ def data(string, win=None):
 def warn(string, win=None):
     win=windowlist.fetch(win)
     win.console.write_warning(string)
-
-def comment(string, win=None):
-    win=windowlist.fetch(win)
-    win.console.write_comment(string)
 
 def error(string, win=None):
     win=windowlist.fetch(win)
@@ -97,13 +107,13 @@ def warnln(string, win=None):
     win=windowlist.fetch(win)
     win.console.write_warning(string+'\n')
 
-def commentln(string, win=None):
-    win=windowlist.fetch(win)
-    win.console.write_comment(string+'\n')
-
 def errorln(string, win=None):
     win=windowlist.fetch(win)
     win.console.write_error(string+'\n')
+
+def note(string, win=None):
+    win=windowlist.fetch(win)
+    win.console.write_note(string+'\n')
     
 def load(filename=None,win=None):
     """ load <filename>

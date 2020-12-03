@@ -175,7 +175,7 @@ namespace scigma
 	  usedFullChunk_=false;
 	  GLsizei newCapacity(capacity_);
 	  while(dataMax>newCapacity)
-	    newCapacity*=1.5;
+	    newCapacity=static_cast<GLsizei>(newCapacity*1.5);
 	  GLuint newBufferID;
 	  glGenBuffers(1,&newBufferID);
 	  glBindBuffer(GL_ARRAY_BUFFER,newBufferID);

@@ -34,7 +34,7 @@ input:
 ;
 line:
         '\n' {YYACCEPT;}
-	| exp '\n' {std::stringstream ss;ss<<$1;ss>>parserResult;requiredFunctions.clear();YYACCEPT;}	/* returns the value of an expression */
+| exp '\n' {std::stringstream ss;ss<<std::setprecision(10)<<$1;ss>>parserResult;requiredFunctions.clear();YYACCEPT;}	/* returns the value of an expression */
 	| FUNC '=' exp '\n' {redefine_function(*$1,Function($3),currentExpression,*currentFunctionSet);YYACCEPT;}	/* a = 1 */
 	| FUNC '=' func '\n' {try{redefine_function(*$1,*$3,currentExpression,*currentFunctionSet);}catch(std::string error){yyerror(error.c_str());YYABORT;};YYACCEPT;} /* y = x + 1 */
 //	| FUNC '(' fseq ')'  '=' exp '\n' {try{redefine_function_with_arguments(*$1,Function($6),currentExpression,$3,*currentFunctionSet);}catch(std::string error){yyerror(error.c_str());YYABORT;}YYACCEPT;} /* y(x) =  1 (although it does not make particularly much sense)*/    

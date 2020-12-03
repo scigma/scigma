@@ -26,7 +26,7 @@ SCENARIO("Log: writing messages with different flags in a single thread","[Log][
 	  THEN("they are ignored")
 	    REQUIRE(log.pop()==(std::pair<LogType,std::string>(LOG_DEFAULT,message1)));
 	}
-      WHEN("The messages are passed with different flags push<LOG_Type>(...)")
+      WHEN("The messages are passed with different flags push<LogType>(...)")
 	{
 	  log.push(message1);
 	  log.push<LOG_ERROR>(error1);
@@ -41,27 +41,21 @@ SCENARIO("Log: writing messages with different flags in a single thread","[Log][
 	  log.push<LOG_DATA>(message1);
 	  log.push<LOG_DATA>(message2);
 	  
-	  THEN("The messages are retrieved correctly with pop<LOG_Type>(), in the order"
-	       "they were submitted per LOG_Type")
+	  THEN("The messages are retrieved correctly with pop(), in the order"
+	       "they were submitted, with the correct LogType")
 	    {
-	      /*  REQUIRE(log.pop()==message1);
-	      REQUIRE(log.pop()==message2);
-	      REQUIRE(log.pop()=="");
-	      REQUIRE(log.pop<LOG_SUCCESS>()==message1);
-	      REQUIRE(log.pop<LOG_SUCCESS>()==message2);
-	      REQUIRE(log.pop<LOG_SUCCESS>()=="");
-	      REQUIRE(log.pop<LOG_FAIL>()==message1);
-	      REQUIRE(log.pop<LOG_FAIL>()==message2);
-	      REQUIRE(log.pop<LOG_FAIL>()=="");
-	      REQUIRE(log.pop<LOG_ERROR>()==error1);
-	      REQUIRE(log.pop<LOG_ERROR>()==error2);
-	      REQUIRE(log.pop<LOG_ERROR>()=="");
-	      REQUIRE(log.pop<LOG_WARNING>()==warning1);
-	      REQUIRE(log.pop<LOG_WARNING>()==warning2);
-	      REQUIRE(log.pop<LOG_WARNING>()=="");
-	      REQUIRE(log.pop<LOG_DATA>()==message1);
-	      REQUIRE(log.pop<LOG_DATA>()==message2);
-	      REQUIRE(log.pop<LOG_DATA>()=="");*/
+	      REQUIRE(log.pop()==std::make_pair(LOG_DEFAULT,message1));
+	      REQUIRE(log.pop()==std::make_pair(LOG_ERROR,error1));
+	      REQUIRE(log.pop()==std::make_pair(LOG_WARNING,warning1));
+	      REQUIRE(log.pop()==std::make_pair(LOG_SUCCESS,message1));
+	      REQUIRE(log.pop()==std::make_pair(LOG_SUCCESS,message2));
+	      REQUIRE(log.pop()==std::make_pair(LOG_FAIL,message1));
+	      REQUIRE(log.pop()==std::make_pair(LOG_FAIL,message2));
+	      REQUIRE(log.pop()==std::make_pair(LOG_DEFAULT,message2));
+	      REQUIRE(log.pop()==std::make_pair(LOG_ERROR,error2));
+	      REQUIRE(log.pop()==std::make_pair(LOG_WARNING,warning2));
+	      REQUIRE(log.pop()==std::make_pair(LOG_DATA,message1));
+	      REQUIRE(log.pop()==std::make_pair(LOG_DATA,message2));
 	    }
 	}
     }
@@ -83,16 +77,11 @@ bool push_back(std::string s)
 void read(void* data)
 {
   Log* log = static_cast<Log*>(data);
-  /*
+  
   while(true)
     {
-      if(push_back(log->pop<LOG_SUCCESS>()))return;
-      if(push_back(log->pop<LOG_FAIL>()))return;
-      if(push_back(log->pop<LOG_ERROR>()))return;
-      if(push_back(log->pop<LOG_WARNING>()))return;
-      if(push_back(log->pop<LOG_DATA>()))return;
-      if(push_back(log->pop()))return;
-      }*/
+      if(push_back(log->pop().second))return;
+    }
 }
 
 void write1(void* data)

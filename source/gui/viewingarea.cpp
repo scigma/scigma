@@ -110,7 +110,7 @@ namespace scigma
 	 correspond to a viewing distance of 1). In the expression below, zCamera_ determines
 	 whether the front face (-1), center (0) or backface (1) is fitted into the window.
       */
-      zShift_ = GLfloat(1/tan(angle_/360*M_PI)-zCamera_); 
+      zShift_ = 1/tan(angle_/360*GLfloat(M_PI))-zCamera_; 
     }
 
     void ViewingArea::set_z_camera(GLfloat z)
@@ -122,9 +122,9 @@ namespace scigma
 
     void ViewingArea::set_viewing_angle(GLfloat angle)
     {
-      if(angle<5.0)
+      if(angle<5.0f)
 	{
-	  angle_=0.0;
+	  angle_=0.0f;
 	  /* for orthogonal projection, more entries of the projection matrices are zero
 	     than for perspective projection; reset those, and also set the 4,4 element to 1
 	  */
@@ -136,8 +136,8 @@ namespace scigma
 	}
       else 
 	{
-	  if(angle>175.0)
-	    angle_=175.0;
+	  if(angle>175.0f)
+	    angle_=175.0f;
 	  else
 	    angle_=angle;
 	  determine_z_shift();
