@@ -187,8 +187,6 @@ def one_d_manifold(nSteps,g,path,win,showall):
         g['taskID']=lib.scigma_num_map_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
                                                 nSegments,varWaveID,blobID,showall,noThread)
     else:
-        print segments
-        print g['varwave'][:]
         g['taskID']=lib.scigma_num_ode_manifold(identifier,eqsysID,logID,nSteps - abs(nSteps)//nSteps,
                                                 nSegments,varWaveID,blobID,noThread)
     
@@ -221,14 +219,16 @@ def plug(win=None):
         return
     
     # fill option panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.add('Manifolds.eps',1e-5)
-    panel.add('Manifolds.arc',0.1)
-    panel.add('Manifolds.alpha',0.3)
-    panel.add('Manifolds.ninit',int(20))
-    panel.add('Manifolds.fudge',1.05)
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.add('Manifolds.eps',1e-5)
+        panel.add('Manifolds.arc',0.1)
+        panel.add('Manifolds.alpha',0.3)
+        panel.add('Manifolds.ninit',int(20))
+        panel.add('Manifolds.fudge',1.05)
+    finally:
+        win.glWindow.flush()
     
 def unplug(win=None):
     win = windowlist.fetch(win)
@@ -237,12 +237,14 @@ def unplug(win=None):
         return
     
     # remove options from panels
-    win.glWindow.stall()
-    panel=win.acquire_option_panel('Numerical')
-    panel.remove('Manifolds.eps')
-    panel.remove('Manifolds.arc')
-    panel.remove('Manifolds.alpha')
-    panel.remove('Manifolds.ninit')
-    panel.remove('Manifolds.fudge')
-    win.release_option_panel('Numerical')
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        panel=win.acquire_option_panel('Numerical')
+        panel.remove('Manifolds.eps')
+        panel.remove('Manifolds.arc')
+        panel.remove('Manifolds.alpha')
+        panel.remove('Manifolds.ninit')
+        panel.remove('Manifolds.fudge')
+        win.release_option_panel('Numerical')
+    finally:
+        win.glWindow.flush()

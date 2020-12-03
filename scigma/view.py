@@ -48,55 +48,52 @@ def axes(axes,win=None):
     """
     win = windowlist.fetch(win)
 
-    win.glWindow.stall()
-    oldaxes=win.options['View']['axes'].label
-    axes=axes.lower()
     try:
-        for i in range(gui.N_COORDINATES):
-            if gui.VIEW_TYPE[axes]&gui.COORDINATE_FLAG[gui.COORDINATE_NAME[i]]:
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=true')
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=true')
-            else:
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=false')
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=false')
-        options.set("View.axes",axes,win)
-    except:
-        win.glWindow.flush()
-        raise Exception(axes+": unknown axes specification")
-    try:
-        graphs.on_view_change(win)
-    except Exception as e:
-        for i in range(gui.N_COORDINATES):
-            if gui.VIEW_TYPE[oldaxes]&gui.COORDINATE_FLAG[gui.COORDINATE_NAME[i]]:
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=true')
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=true')
-            else:
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=false')
-                win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=false')
-        options.set("View.axes",oldaxes,win)
-        graphs.on_view_change(win)
-        instance.glWindow.flush()
-        raise e
-    if 'z' in axes:
-        win.glWindow.set_viewing_angle(20)
-    else: 
-        win.glWindow.set_viewing_angle(0)
-        win.glWindow.reset_rotation()
-    win.cosy.set_view(gui.VIEW_TYPE[axes])
-    win.glWindow.disconnect(win.navigator)
-    win.navigator.destroy()
-    win.navigator=gui.Navigator(gui.VIEW_TYPE[axes])
-    win.glWindow.connect(win.navigator)
-    try:
+        win.glWindow.stall()
+        oldaxes=win.options['View']['axes'].label
+        axes=axes.lower()
+        try:
+            for i in range(gui.N_COORDINATES):
+                if gui.VIEW_TYPE[axes]&gui.COORDINATE_FLAG[gui.COORDINATE_NAME[i]]:
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=true')
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=true')
+                else:
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=false')
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=false')
+            options.set("View.axes",axes,win)
+        except:
+            raise Exception(axes+": unknown axes specification")
+        try:
+            graphs.on_view_change(win)
+        except Exception as e:
+            for i in range(gui.N_COORDINATES):
+                if gui.VIEW_TYPE[oldaxes]&gui.COORDINATE_FLAG[gui.COORDINATE_NAME[i]]:
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=true')
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=true')
+                else:
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i],'visible=false')
+                    win.optionPanels['View'].define(gui.COORDINATE_NAME[i]+'range','visible=false')
+            options.set("View.axes",oldaxes,win)
+            graphs.on_view_change(win)
+            raise e
+        if 'z' in axes:
+            win.glWindow.set_viewing_angle(20)
+        else: 
+            win.glWindow.set_viewing_angle(0)
+            win.glWindow.reset_rotation()
+        win.cosy.set_view(gui.VIEW_TYPE[axes])
+        win.glWindow.disconnect(win.navigator)
+        win.navigator.destroy()
+        win.navigator=gui.Navigator(gui.VIEW_TYPE[axes])
+        win.glWindow.connect(win.navigator)
         getattr(win,'picker')
-    except:
+        win.glWindow.disconnect(win.picker)
+        win.picker.destroy()
+        win.picker=gui.Picker(gui.VIEW_TYPE[axes])
+        win.glWindow.connect_before(win.picker)
+        win.picker.set_callback(lambda ctrl,x,y,z: picking.on_pick(win,ctrl,x,y,z))
+    finally:
         win.glWindow.flush()
-    win.glWindow.disconnect(win.picker)
-    win.picker.destroy()
-    win.picker=gui.Picker(gui.VIEW_TYPE[axes])
-    win.glWindow.connect_before(win.picker)
-    win.picker.set_callback(lambda ctrl,x,y,z: picking.on_pick(win,ctrl,x,y,z))
-    win.glWindow.flush()
 
 commands['a']=commands['ax']=commands['axe']=commands['axes']=axes
 
@@ -135,30 +132,33 @@ def fit(identifier=None,win=None):
                     or exp in win.eqsys.const_names()):
                 raise Exception("cannot fit while "+gui.COORDINATE_NAME[i]+"-axis shows " + exp)
             visvar[exp]=gui.COORDINATE_NAME[i]
-    win.glWindow.stall()
-    for symbol in visvar:
-        mi=1e300
-        ma=-1e300
-        dictionary = win.graphs
-        if identifier:
-            dictionary={'entry':common.dict_entry(identifier,win.graphs)}
 
-        glist=[]
-        common.dict_leaves(dictionary,glist,lambda entry: isinstance(entry, dict) and 'cgraph' not in entry,
-                           lambda entry:isinstance(entry,dict) and 'cgraph' in entry)
-        for g in glist:
-            if g['visible']:
-                value = g['min'][symbol] if (('min' in g) and (symbol in g['min'])) else 1e300
-                mi = value if value < mi else mi
-                value = g['max'][symbol] if (('max' in g) and (symbol in g['max'])) else -1e300
-                ma = value if value > ma else ma
-        mi=0.0 if mi==1e300 else mi
-        ma=0.0 if ma==-1e300 else ma
-        if mi==ma:
-            mi=mi-1
-            ma=ma+1
-        set_range(visvar[symbol],mi,ma,win)
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        for symbol in visvar:
+            mi=1e300
+            ma=-1e300
+            dictionary = win.graphs
+            if identifier:
+                dictionary={'entry':common.dict_entry(identifier,win.graphs)}
+                
+            glist=[]
+            common.dict_leaves(dictionary,glist,lambda entry: isinstance(entry, dict) and 'cgraph' not in entry,
+                               lambda entry:isinstance(entry,dict) and 'cgraph' in entry)
+            for g in glist:
+                if g['visible']:
+                    value = g['min'][symbol] if (('min' in g) and (symbol in g['min'])) else 1e300
+                    mi = value if value < mi else mi
+                    value = g['max'][symbol] if (('max' in g) and (symbol in g['max'])) else -1e300
+                    ma = value if value > ma else ma
+            mi=0.0 if mi==1e300 else mi
+            ma=0.0 if ma==-1e300 else ma
+            if mi==ma:
+                mi=mi-1
+                ma=ma+1
+            set_range(visvar[symbol],mi,ma,win)
+    finally:
+        win.glWindow.flush()
 
 commands['f']=commands['fi']=commands['fit']=fit
     
@@ -247,6 +247,8 @@ def set_range(coord,low,high,win):
     high = float(high)
     if low>=high:
         raise Exception("lower bound must be smaller than upper bound")
+    if low<-3e38 or high > 3e38:
+        raise Exception("will not set range, boundaries too large")        
     win.glWindow.set_range(gui.COORDINATE_FLAG[coord],low,high)
 
 def plug(win=None):
@@ -257,39 +259,41 @@ def plug(win=None):
         return
 
     # only redraw once after load is complete
-    win.glWindow.stall()
-    
-    # add coordinate system, navigator and picking
-    cosy=gui.Cosy(win.glWindow,gui.VIEW_TYPE['xy'],library.largeFontsFlag)
-    navigator=gui.Navigator(gui.VIEW_TYPE['xy'])
-    setattr(win,'cosy',cosy)
-    setattr(win,'navigator',navigator)
-
-    win.glWindow.set_viewing_angle(0)
-    win.glWindow.connect(navigator)
+    try:
+        win.glWindow.stall()
         
-    # add viewing option panel
-    panel=win.acquire_option_panel('View')
-    panel.define('','iconified=true')
-    panel.set_callback(lambda identifier,value: on_entry_change(identifier,value,win))
-    enum = common.Enum(gui.VIEW_TYPE,'xy')
-    panel.add('axes',enum)
-    panel.add('sep1',gui.Separator())
-    for coord in gui.COORDINATE_NAME:
-        panel.add(coord,coord.lower(),False)
-    panel.add('sep2',gui.Separator())
-    for coord in gui.COORDINATE_NAME:
-        panel.add(coord+'range.min',common.Float(-1.0),False)
-        panel.add(coord+'range.max',common.Float(1.0),False)
-    panel.add('trange.duration', common.Float(10.0))
-    panel.define('trange.duration', 'min=0.0')
-    for coord in gui.COORDINATE_NAME[gui.Z_INDEX:]:
-        panel.set(coord,'')
-        panel.define(coord,'visible=false')
-        panel.define(coord+'range','visible=false')
+        # add coordinate system, navigator and picking
+        cosy=gui.Cosy(win.glWindow,gui.VIEW_TYPE['xy'],library.largeFontsFlag)
+        navigator=gui.Navigator(gui.VIEW_TYPE['xy'])
+        setattr(win,'cosy',cosy)
+        setattr(win,'navigator',navigator)
         
-    # redraw here
-    win.glWindow.flush()
+        win.glWindow.set_viewing_angle(0)
+        win.glWindow.connect(navigator)
+        
+        # add viewing option panel
+        panel=win.acquire_option_panel('View')
+        panel.define('','iconified=true')
+        panel.set_callback(lambda identifier,value: on_entry_change(identifier,value,win))
+        enum = common.Enum(gui.VIEW_TYPE,'xy')
+        panel.add('axes',enum)
+        panel.add('sep1',gui.Separator())
+        for coord in gui.COORDINATE_NAME:
+            panel.add(coord,coord.lower(),False)
+        panel.add('sep2',gui.Separator())
+        for coord in gui.COORDINATE_NAME:
+            panel.add(coord+'range.min',common.Float(-1.0),False)
+            panel.add(coord+'range.max',common.Float(1.0),False)
+        panel.add('trange.duration', common.Float(10.0))
+        panel.define('trange.duration', 'min=0.0')
+        for coord in gui.COORDINATE_NAME[gui.Z_INDEX:]:
+            panel.set(coord,'')
+            panel.define(coord,'visible=false')
+            panel.define(coord+'range','visible=false')
+            
+        # redraw here
+    finally:
+        win.glWindow.flush()
         
 def unplug(win=None):
     win = windowlist.fetch(win)
@@ -299,27 +303,29 @@ def unplug(win=None):
         return
 
     # redraw only once after unload is complete
-    win.glWindow.stall()
-    
-    # remove options from panels
-    panel=win.acquire_option_panel('View')
-    panel.remove('axes')
-    panel.remove('sep1')
-    for coord in gui.COORDINATE_NAME:
-        panel.remove(coord)
-    panel.remove('sep2')
-    for coord in gui.COORDINATE_NAME:
-        panel.remove(coord+'range.min')
-        panel.remove(coord+'range.max')
-    panel.remove('trange.duration')
-    
-    win.release_option_panel('View')
-
-    win.glWindow.disconnect(win.navigator)
-    win.navigator.destroy()
-    delattr(win,'navigator')
-    win.cosy.destroy()
-    delattr(win,'cosy')
-
-    # redraw here
-    win.glWindow.flush()
+    try:
+        win.glWindow.stall()
+        
+        # remove options from panels
+        panel=win.acquire_option_panel('View')
+        panel.remove('axes')
+        panel.remove('sep1')
+        for coord in gui.COORDINATE_NAME:
+            panel.remove(coord)
+        panel.remove('sep2')
+        for coord in gui.COORDINATE_NAME:
+            panel.remove(coord+'range.min')
+            panel.remove(coord+'range.max')
+        panel.remove('trange.duration')
+        
+        win.release_option_panel('View')
+        
+        win.glWindow.disconnect(win.navigator)
+        win.navigator.destroy()
+        delattr(win,'navigator')
+        win.cosy.destroy()
+        delattr(win,'cosy')
+        
+        # redraw here
+    finally:
+        win.glWindow.flush()
