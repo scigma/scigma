@@ -251,6 +251,7 @@ def plug(win=None):
     try:
         win.glWindow.stall()
         panel=win.acquire_option_panel('AUTO')
+        panel.define('','iconified=true')
         panel.add('NPR',0)
         panel.add('stepsize.ds', 0.01)
         panel.add('stepsize.dsmin', 1e-6)

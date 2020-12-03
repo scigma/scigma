@@ -286,12 +286,12 @@ def plug(win):
 
     setattr(win,'eqsys',num.EquationSystem())
     setattr(win,'invsys',num.EquationSystem())
-    
-    setattr(win,'equationPanel',gui.ATWPanel(win.glWindow,'Equations'))
-
+        
     try:
         win.glWindow.stall()
 
+        setattr(win,'equationPanel',gui.ATWPanel(win.glWindow,'Equations'))
+        win.equationPanel.define('','iconified=true')
         enum=common.Enum(MODE,'ode')
         win.equationPanel.add('mode',enum)
         win.equationPanel.add('period','1.0',True,'visible=false')
@@ -310,6 +310,7 @@ def plug(win):
         win.equationPanel.set_callback(lambda identifier,rhs: on_panel_change(identifier,rhs,win))
 
         setattr(win,'valuePanel',gui.ATWPanel(win.glWindow,'Values'))
+        win.valuePanel.define('','iconified=true')
         win.valuePanel.add('time.t = ','0.0')
         win.valuePanel.add('step.t = ','0')
         win.valuePanel.define('step', 'visible=false')

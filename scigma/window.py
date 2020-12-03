@@ -68,6 +68,7 @@ class Window(object):
     def acquire_option_panel(self, identifier):
         if not identifier in self.options:
             self.optionPanels[identifier]=gui.ATWPanel(self.glWindow,identifier)
+            self.optionPanels[identifier].define('','iconified=true')
             self.options[identifier]=self.optionPanels[identifier].data
             self.glWindow.request_redraw()
         return self.optionPanels[identifier] 
