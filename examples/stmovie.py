@@ -23,7 +23,7 @@ for i in range(31):
     console.write("lambda = ")
     console.write_data(str(l)+"\n")
     win.process_messages()
-    gui.sleep(0.01)
+    gui.pause(0.01)
     window.flush()
     l+=0.1
 options.set("threads","on")
