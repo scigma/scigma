@@ -154,7 +154,7 @@ def one_d_manifold(nSteps,g,path,win,showall):
     for i in range(nSegments):
         firstPoint = varVals[i*nVarying:(i+1)*nVarying]
         segments = segments + firstPoint
-    
+        
     eqsysID=win.eqsys.objectID
     mode = win.equationPanel.get("mode")
     if mode == 'map' and nSteps<0:
@@ -163,8 +163,8 @@ def one_d_manifold(nSteps,g,path,win,showall):
             raise Exception("map and inverse map have different variables")
 
     nperiod = win.equationPanel.get("nperiod")
-    nPoints = nSegments*nperiod*abs(nSteps+1) if (showall and mode!='ode') else nSegments*abs(nSteps+1)
-        
+    nPoints = nSegments*nperiod*(abs(nSteps)+1) if (showall and mode!='ode') else nSegments*(abs(nSteps)+1)
+
     g=graphs.new(win,abs(nPoints)+1,nSegments,varying,const,segments,constVals,path)
 
     g['mode']=mode

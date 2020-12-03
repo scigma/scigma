@@ -279,7 +279,7 @@ def success(g,win,args):
     win.console.write_data(g['identifier'])
     win.console.write(":\n")
     vardata=g['varwave'].data()
-    nPeriod=g['varwave'].size()//(nVar+1)
+    nPeriod=g['varwave'].size()//nVarying
     names=g['varying']
     for i in range(nVar):
         win.console.write(names[i+1]+' = ')
