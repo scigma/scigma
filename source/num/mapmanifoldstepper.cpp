@@ -92,10 +92,13 @@ namespace scigma
 	  double* r(&work[2*nVar_+2]);
 	  double* Q(&work[3*nVar_+3]);
 
-	  double l(0.0);
-
-	  while(true)
+	  double addedArcLengthInAllIterations(0.0);  // keep track of total added arc lenght
+	  
+	  while(addedArcLengthInAllIterations<dsmax_-ds_/2)
 	    {
+	      double l(0.0);
+	      double addedArcLengthInThisIteration(0.0);
+	      
 	      // find a line segment with |f(p2)-f(preImage)=back|>ds and |f(p1)-f(preImage)=back| <ds
 	      SegPt pre(preImage_);
 	      if((*pre)[nVar_]>0)//do not increment for initial segment
@@ -121,7 +124,7 @@ namespace scigma
 	      if(l<dsmin_)
 		throw(std::string("reached minimum arclength step\n"));
 
-	      if(!(l<1.2*ds_)) // otherwise go immediately to angle-checking
+	      if(l>=1.2*ds_) // otherwise go immediately to angle-checking
 		{
 		  for(size_t j(0);j<nVar_+1;++j)
 		    {
@@ -139,7 +142,6 @@ namespace scigma
 
 		  //perform bisection algorithm
 		  size_t count(0);
-		  double L(0);
 		  while(++count<100)
 		    {
 		      //		      std::cerr<<"bisecting, starting at "<<q[nVar_]<<std::endl;
@@ -147,12 +149,12 @@ namespace scigma
 		      mapStepper_->advance(nPeriod_);
 		      for(size_t j(0);j<nVar_;++j)
 			Q[j]=mapStepper_->x()[j];
-		      L=arc(&Q[0],&(points_.back()[0]));
-		      Q[nVar_]=points_.back()[nVar_]+L;
+		      addedArcLengthInThisIteration=arc(&Q[0],&(points_.back()[0]));
+		      Q[nVar_]=points_.back()[nVar_]+addedArcLengthInThisIteration;
 		      //std::cerr<<"arc: "<<l<<" ds: "<<ds_<<std::endl;
-		      if(L<0.8*ds_)
+		      if(addedArcLengthInThisIteration<0.8*ds_)
 			std::swap(q,p);
-		      else if(L>1.2*ds_)
+		      else if(addedArcLengthInThisIteration>1.2*ds_)
 			std::swap(q,r);
 		      else
 			break;
@@ -165,6 +167,10 @@ namespace scigma
 		    {
 		      throw(std::string("reached maximum number of bisection steps"));
 		    }
+		}
+	      else
+		{
+		  addedArcLengthInThisIteration = l;
 		}
 
 	      // check if angle is ok:
@@ -194,7 +200,7 @@ namespace scigma
 		  std::cerr<<newPt[j]<<", ";
 		  std::cerr<<std::endl<<".........."<<std::endl;*/
 
-	      if(l>=1.2*ds_)
+	      if(l>=1.2*ds_) // need to insert a new pre-image
 		{
 		  std::vector<double> prePt(nVar_+1);
 		  for(size_t j(0);j<nVar_+1;++j)
@@ -212,7 +218,9 @@ namespace scigma
 		  if(ds_>dsmax_)
 		    ds_/=2;
 		}
-	      break;
+
+
+	      addedArcLengthInAllIterations+=addedArcLengthInThisIteration;
 	    }
 	}
     }
