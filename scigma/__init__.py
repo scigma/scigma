@@ -44,7 +44,7 @@ def new(win=None):
     setattr(w,'script','none')
     setattr(w,'source','none')
     w.commands['q']=w.commands['qu']=w.commands['qui']=w.commands['quit']=w.commands['end']=w.commands['bye']=bye
-    w.commands['reset']=reset
+    w.commands['res']=w.commands['rese']=w.commands['reset']=reset
     
     panel=w.acquire_option_panel('Global')
     panel.define('','iconified=true')
