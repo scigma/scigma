@@ -80,6 +80,7 @@ def clear(win=None):
     for key in keys:
         delete(key,win)
     win.selection=None
+    win.graphIDs = {}
         
 commands['cl']=commands['cle']=commands['clea']=commands['clear']=clear
 
