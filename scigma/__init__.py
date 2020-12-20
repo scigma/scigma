@@ -124,7 +124,12 @@ def load(filename=None,win=None):
     win=windowlist.fetch(win)
 
     if not filename:
-        raise Exception("no filename specified")
+        try:
+            filename=tkfile.askopenfilename()
+            if not filename:
+                return
+        except:
+            raise Exception("no filename specified")
     if filename[-2:]=='py':
         if sys.version_info.major==2:
             execfile(filename)
