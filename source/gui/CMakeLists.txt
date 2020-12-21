@@ -13,10 +13,10 @@ add_library(gui STATIC application.cpp glutil.cpp glcontext.cpp
 		font.cpp marker.cpp screentext.cpp spacetext.cpp
 		ruler.cpp picker.cpp drawable.cpp navigator.cpp
 		cosy.cpp graph.cpp bundle.cpp sheet.cpp
-		console.cpp atwpanel.cpp
+		console.cpp atwpanel.cpp mouse.cpp
 		applicationwrapper.cpp glwindowwrapper.cpp
 		cosywrapper.cpp consolewrapper.cpp pickerwrapper.cpp
-		navigatorwrapper.cpp atwpanelwrapper.cpp graphwrapper.cpp)
+		navigatorwrapper.cpp mousewrapper.cpp atwpanelwrapper.cpp graphwrapper.cpp)
 set_target_properties(gui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # libpng must be built before gui, because it creates a header needed by gui

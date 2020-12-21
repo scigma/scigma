@@ -444,7 +444,6 @@ def set(name,value,win=None):
         on_parse(win)
     else:
         raise Exception(name + "is not in equation system")
-
                 
 def plug(win):
     if not win.register_plugin('picking', lambda:unplug(win),commands):

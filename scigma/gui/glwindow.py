@@ -1,6 +1,7 @@
 from ctypes import *
 from .. import lib
 from .navigator import Navigator
+from .mouse import Mouse
 from .picker import Picker
 from .console import Console
 from .atwpanel import ATWPanel
@@ -49,9 +50,10 @@ class GLWindow(object):
             lib.scigma_gui_gl_window_connect_console(self.objectID,eventSink.objectID)
         elif(isinstance(eventSink,ATWPanel)):
             lib.scigma_gui_gl_window_connect_atw_panel(self.objectID,eventSink.objectID)
+        elif(isinstance(eventSink,Mouse)):
+            lib.scigma_gui_gl_window_connect_mouse(self.objectID,eventSink.objectID)
         elif(isinstance(eventSink,Picker)):
             lib.scigma_gui_gl_window_connect_picker(self.objectID,eventSink.objectID)
-
 
     def connect_before(self, eventSink):
         if(isinstance(eventSink,Navigator)):
@@ -60,6 +62,8 @@ class GLWindow(object):
             lib.scigma_gui_gl_window_connect_console_before(self.objectID,eventSink.objectID)
         elif(isinstance(eventSink,ATWPanel)):
             lib.scigma_gui_gl_window_connect_atw_panel_before(self.objectID,eventSink.objectID)
+        elif(isinstance(eventSink,Mouse)):
+            lib.scigma_gui_gl_window_connect_mouse_before(self.objectID,eventSink.objectID)
         elif(isinstance(eventSink,Picker)):
             lib.scigma_gui_gl_window_connect_picker_before(self.objectID,eventSink.objectID)
 
@@ -71,6 +75,8 @@ class GLWindow(object):
             lib.scigma_gui_gl_window_disconnect_console(self.objectID,eventSink.objectID)
         elif(isinstance(eventSink,ATWPanel)):
             lib.scigma_gui_gl_window_disconnect_atw_panel(self.objectID,eventSink.objectID)
+        elif(isinstance(eventSink,Mouse)):
+            lib.scigma_gui_gl_window_disconnect_mouse(self.objectID,eventSink.objectID)
         elif(isinstance(eventSink,Picker)):
             lib.scigma_gui_gl_window_disconnect_picker(self.objectID,eventSink.objectID)
 

@@ -43,16 +43,7 @@ namespace scigma
 	}
       else if(GLFW_MOUSE_BUTTON_RIGHT==button)
 	{
-	  if(GLFW_PRESS==action)
-	    {
-	      rightMouseButtonPressed_=true;
-	      return true;
-	    }
-	  else
-	    {
-	      rightMouseButtonPressed_=false;
-	      return false;
-	    }
+	  rightMouseButtonPressed_=(GLFW_PRESS==action);
 	}
       return false;
     }

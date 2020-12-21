@@ -21,6 +21,7 @@ from . import iteration
 from . import guessing
 from . import manifolds
 from . import continuation
+from . import popups
 from . import window
 from . import windowlist
 
@@ -64,6 +65,8 @@ def new(win=None):
     manifolds.plug(w)
     sweeping.plug(w)
     continuation.plug(w)
+    popups.plug(w)
+    
     return w
 
 def history(filename=None, lines=100000, win=None):

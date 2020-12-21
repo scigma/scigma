@@ -9,6 +9,7 @@ from .navigator import Navigator
 from .console import Console
 from .bundle import Bundle
 from .sheet import Sheet
+from .mouse import Mouse
 from .picker import Picker
 from .cosy import Cosy
 

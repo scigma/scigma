@@ -3,6 +3,7 @@
 #include "viewingarea.hpp"
 #include "glcontext.hpp"
 #include "navigator.hpp"
+#include "mouse.hpp"
 #include "picker.hpp"
 #include "bundle.hpp"
 #include "sheet.hpp"
@@ -131,6 +132,28 @@ extern "C"
 	disconnect<MouseButtonEvent>(window,picker);
 	disconnect<MouseMotionEvent>(window,picker);
       }
+  }
+
+  void scigma_gui_gl_window_connect_mouse(PythonID windowID, PythonID mouseID)
+  {
+    PYOBJ(GLWindow,window,windowID);
+    PYOBJ(Mouse,mouse,mouseID);
+    if(window&&mouse)
+      connect<MouseButtonEvent>(window,mouse);
+  }
+  void scigma_gui_gl_window_connect_mouse_before(PythonID windowID, PythonID mouseID)
+  {
+    PYOBJ(GLWindow,window,windowID);
+    PYOBJ(Mouse,mouse,mouseID);
+    if(window&&mouse)
+      connect_before<MouseButtonEvent>(window,mouse);
+  }
+  void scigma_gui_gl_window_disconnect_mouse(PythonID windowID, PythonID mouseID)
+  {
+    PYOBJ(GLWindow,window,windowID);
+    PYOBJ(Mouse,mouse,mouseID);
+    if(window&&mouse)
+      disconnect<MouseButtonEvent>(window,mouse);
   }
 
   void scigma_gui_gl_window_set_title(PythonID objectID, const char* title)

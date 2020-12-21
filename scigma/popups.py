@@ -21,15 +21,13 @@ def window(win):
             "reset",
             "load...", 
             "save history...",
-            "save session...",
-            "quit"]
+            "save session..."]
     commands=[lambda:view.fit(None, win),
               lambda:graphs.clear(win),
-              lambda:reset(win),
-              lambda:load(None,win),
-              lambda:history(None,win),
-              lambda:session(None,win),
-              lambda:bye(win)]
+              lambda:win.commands['reset'](win),
+              lambda:win.commands['load'](win=win),
+              lambda:win.commands['history'](win=win),
+              lambda:win.commands['session'](win=win)]
 
     separators = [1,3,4,6]
 
@@ -51,3 +49,20 @@ def graph(g,extra_labels,extra_commands,extra_separators,win):
 
     generic_popup(labels,commands,separators,win)
 
+def plug(win):
+    if not win.register_plugin('popups', lambda:unplug(win), {}):
+        return
+
+    mouse=gui.Mouse(lambda: window(win))
+    win.glWindow.connect(mouse)
+
+    setattr(win,'mouse',mouse)
+
+def unplug(win):
+    if not win.unregister_plugin('popups'):
+        return
+
+    win.glWindow.disconnect(win.mouse)
+    win.mouse.destroy()
+    
+    delattr(win,'mouse')
