@@ -151,19 +151,13 @@ namespace scigma
       if(GLFW_PRESS!=action)
 	return false;
 
-      if(GLFW_MOUSE_BUTTON_RIGHT==button)
-	{
-	  if(visible_)
-	    visible_=false;
-	
-	  w->gl_context()->request_redraw();
-	  return true;
-	}
-      
       if(GLFW_MOUSE_BUTTON_LEFT!=button)
 	{
 	  if(visible_&&(view_&Z_COORDINATE))
-	    w->gl_context()->remove_drawable(this);
+	    {
+	      w->gl_context()->remove_drawable(this);
+	      visible_=false;
+	    }
 	  return false;
 	}
       
