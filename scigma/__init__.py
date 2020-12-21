@@ -66,13 +66,27 @@ def new(win=None):
     continuation.plug(w)
     return w
 
-def history(filename, lines=100000, win=None):
+def history(filename=None, lines=100000, win=None):
+    if not filename:
+        try:
+            filename=tkfile.asksaveasfilename(initialfile="history.txt")
+            if not filename:
+                return
+        except:
+            raise Exception("no filename specified")
     win=windowlist.fetch(win)
     with open(filename,"w") as f:
         for line in win.history[-int(lines):]:
             f.write(line+'\n')
             
-def session(filename, lines=100000, win=None):
+def session(filename=None, lines=100000, win=None):
+    if not filename:
+        try:
+            filename=tkfile.asksaveasfilename(initialfile="session.txt")
+            if not filename:
+                return
+        except:
+            raise Exception("no filename specified")
     win=windowlist.fetch(win)
     session=win.console.session.splitlines()
     with open(filename,"w") as f:

@@ -30,10 +30,11 @@ namespace scigma
 	QCROSS=10,
 	HASH=11,
 	STAR=12,
-	NONE=13
+	CROSSHAIR=13,
+	NONE=14
       };
       
-      static const size_t N_MARKERS=13;
+      static const size_t N_MARKERS=14;
 
       static void initialize();
       static bool is_initialized();

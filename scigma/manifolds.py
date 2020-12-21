@@ -8,6 +8,7 @@ from . import library
 from . import windowlist
 from . import graphs
 from . import picking
+from . import popups
 from . import equations
 from . import iteration
 from . import sweeping
@@ -209,8 +210,8 @@ def mouse_callback(g,double,button,point,x,y,win):
     identifier = g['identifier']
     if(double):
         picking.select(identifier,point,win)
-    else:
-        pass
+    elif button==1 and gui.tk:
+        popups.graph(g,[],[],[],win)
     
 def plug(win=None):
     win = windowlist.fetch(win)

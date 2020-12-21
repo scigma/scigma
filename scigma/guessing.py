@@ -7,6 +7,7 @@ from . import lib
 from . import windowlist
 from . import graphs
 from . import picking
+from . import popups
 from . import iteration
 
 commands={}
@@ -347,15 +348,11 @@ def mouse_callback(g,double,button,point,x,y,win):
     if(double):
         picking.select(identifier,point,win)
     elif button==1 and gui.tk:
-        x=gui.tkroot.winfo_pointerx()#-gui.tkroot.winfo_rootx()
-        y=gui.tkroot.winfo_pointery()#-gui.tkroot.winfo_rooty()
-        menu=gui.tk.Menu(gui.tkroot, tearoff=0)
-        menu.add_command(label='fit', command=lambda:view.fit(identifier,win))
-        menu.add_command(label='delete', command=lambda:graphs.delete(identifier,win))
-        menu.add_command(label='evals', command=lambda:evals(identifier,win))
-        menu.add_command(label='evecs', command=lambda:evecs(identifier,win))
-        menu.tk_popup(x,y)
-
+        extra_labels = ['evals', 'evecs']
+        extra_commands = [lambda:evals(identifier, win), lambda:evecs(identifier, win)]
+        extra_separators = [0]
+        popups.graph(g, extra_labels, extra_commands, extra_separators, win)
+        
 def plug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not load twice into the same window

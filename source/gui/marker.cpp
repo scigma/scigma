@@ -25,14 +25,14 @@ namespace scigma
       return;
 
       unsigned char* spriteData[]={dot_png,plus_png,cross_png,
-				   ring_png,rdot_png,rplus_png,crosshair_png,
+				   ring_png,rdot_png,rplus_png,rcross_png,
 				   quad_png,qdot_png,qplus_png,qcross_png,
-				   hash_png,star_png};
+				   hash_png,star_png, crosshair_png};
 
       glActiveTexture(GL_TEXTURE0);
       for(size_t i(0);i<N_MARKERS;++i)
 	textureIDs_[i]=get_texture_from_png_data(spriteData[i]);
-      crossHairTextureID_=get_texture_from_png_data(crosshair_png);
+      crossHairTextureID_=textureIDs_[N_MARKERS-1];
       isInitialized_=true;
       GLERR;
 

@@ -6,6 +6,7 @@ from . import library
 from . import windowlist
 from . import graphs
 from . import picking
+from . import popups
 from . import equations
 from . import view
 
@@ -152,12 +153,7 @@ def mouse_callback(g,double,button,point,x,y,win):
     if(double):
         picking.select(identifier,point,win)
     elif button==1 and gui.tk:
-        x=gui.tkroot.winfo_pointerx()#-gui.tkroot.winfo_rootx()
-        y=gui.tkroot.winfo_pointery()#-gui.tkroot.winfo_rooty()
-        menu=gui.tk.Menu(gui.tkroot, tearoff=0)
-        menu.add_command(label='fit', command=lambda:view.fit(identifier,win))
-        menu.add_command(label='delete', command=lambda:graphs.delete(identifier,win))
-        menu.tk_popup(x,y)
+        popups.graph(g, [], [], [],win)
 
 def cursor(g,point,win):
     

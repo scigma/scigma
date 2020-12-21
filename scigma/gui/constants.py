@@ -63,10 +63,11 @@ QPLUS=9
 QCROSS=10
 HASH=11
 STAR=12
-NONE=13
+CROSSHAIR=13
+NONE=14
 
 POINT_TYPE={'dot':DOT,'plus':PLUS,'cross':CROSS,'ring':RING,
             'rdot':RDOT,'rplus':RPLUS,'rcross':RCROSS,'quad':QUAD,
             'qdot':QDOT,'qplus':QPLUS,'qcross':QCROSS,'hash':HASH,
-            'star':STAR, 'none':NONE}
+            'star':STAR, 'crosshair':CROSSHAIR, 'none':NONE}
 

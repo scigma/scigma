@@ -207,7 +207,7 @@ def move_cursor(win,varying=None,const=None,varVals=None,constVals=None,nParts=N
     win.cursor = new(win,1,nParts,varying,const,varVals,constVals)
     win.cursor['cgraph']=gui.Bundle(win.glWindow,1,win.cursor['nparts'],len(win.cursor['varying']),
                                         win.cursor['varwave'],win.cursor['constwave'])
-    win.cursor['cgraph'].set_point_style(gui.RCROSS)
+    win.cursor['cgraph'].set_point_style(gui.CROSSHAIR)
     win.cursor['cgraph'].set_point_size(50 if library.largeFontsFlag else 25)
     win.cursor['cgraph'].set_color([1.0,1.0,1.0,1.0])
     win.cursor['cgraph'].finalize()
@@ -373,7 +373,6 @@ def stdminmax(g):
     for i in range(constWave.size()):
         mi[const[i]]=constWave[i]
         ma[const[i]]=constWave[i]
-
         
 def plug(win):
     if not win.register_plugin('graphs', lambda:unplug(win),commands):

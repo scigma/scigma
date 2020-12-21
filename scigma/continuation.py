@@ -8,10 +8,11 @@ from . import windowlist
 from . import graphs
 from . import view
 from . import picking
+from . import popups
 from . import equations
 
-AUTO_TYPES={1:'bp', 2:'lp',3:'hb', 0:'fp',10:'fp'}
-POINT_STYLES={1:gui.STAR,2:gui.PLUS,3:gui.CROSS,0:gui.RDOT,10:gui.RING}
+AUTO_TYPES={1:'bp', 2:'lp',3:'hb', 0:'fp',10:'fp', -22:'cp', -32:'gh'}
+POINT_STYLES={1:gui.STAR,2:gui.PLUS,3:gui.CROSS,0:gui.RDOT,10:gui.RING, -22:gui.RPLUS, -32:gui.RCROSS}
 
 commands={}
 
@@ -90,7 +91,7 @@ def cont(nSteps=1, parameters=None, g=None, path=None,win=None,noThread=False):
     prepare_auto_folder(oldPath,path)
 
     cont={'identifier': path, 'npoints':nSteps,
-          'points':{'fp':0,'bp':0,'lp':0,'hb':0},
+          'points':{'fp':0,'bp':0,'lp':0,'hb':0,'cp':0,'gh':0},
           'branches':{'fp':0,'bp':0,'lp':0,'hb':0},
           'timestamp':win.eqsys.timestamp()}
     cont['varying']=win.eqsys.var_names()+parameters
@@ -129,10 +130,13 @@ def success(cont,win,args):
         typ=int(args[3])
         lab=int(args[4])
 
+        brtype = abs(typ//10)
+        pttype = abs(typ)%10
+        
         if typ==0:
-            add_branch(cont,varWave,constWave,stab,typ//10,win)
+            add_branch(cont,varWave,constWave,stab,brtype,win)
         else:
-            add_point(cont,varWave,constWave,stab,typ//10 if typ%10==9 else typ,lab,win)
+            add_point(cont,varWave,constWave,stab, brtype if typ%10==9 else typ, lab, win)
 
 def minmax(cont):
     glist=[]
@@ -230,17 +234,8 @@ def mouse_callback(g,double,button,point,x,y,win):
     if(double):
         picking.select(identifier,point,win)
     elif button==1 and gui.tk:
-        x=gui.tkroot.winfo_pointerx()#-gui.tkroot.winfo_rootx()
-        y=gui.tkroot.winfo_pointery()#-gui.tkroot.winfo_rooty()
-        menu=gui.tk.Menu(gui.tkroot, tearoff=0)
-        menu.add_command(label='fit', command=lambda:view.fit(identifier,win))
-        menu.add_command(label='fit all',
-                         command=lambda:view.fit(identifier.rpartition('.')[0],win))
-        menu.add_command(label='delete', command=lambda:graphs.delete(identifier,win))
-        menu.add_command(label='delete all',
-                         command=lambda:graphs.delete(identifier.rpartition('.')[0],win))
-        menu.tk_popup(x,y)
-    
+        popups.graph(g, [], [], [],win)
+
 def plug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not load twice into the same window
