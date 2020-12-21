@@ -66,7 +66,7 @@ namespace scigma
 #endif
     
     Picker::Picker(int view):PythonObject<Picker>(this),doubleClickTime_(0.25),lastClickTime_(-1.0),
-			     marker_(Marker::RCROSS), markerSize_(25.0),view_(view),visible_(false)
+			     marker_(Marker::CROSSHAIR), markerSize_(25.0),view_(view),visible_(false)
     {
       glGenBuffers(1,&glBuffer_);
       glBindBuffer(GL_ARRAY_BUFFER,glBuffer_);
