@@ -2,6 +2,7 @@ from . import num
 from . import gui
 from . import common
 from . import windowlist
+from . import tkfile
 
 commands={}
 
@@ -148,7 +149,34 @@ def maxtime(maxtime=None,win=None,silent=False):
     win.equationPanel.set('maxtime',float(maxtime))
 
 commands['maxtime']=maxtime
+
+def python(filename=None,win=None):
+    """ equations [filename]
+
+    Loads a python file with equations
+    """
+    win=windowlist.fetch(win)
+
+    if not filename:
+        try:
+            filename=tkfile.askopenfilename()
+            if not filename:
+                return
+        except:
+            raise Exception("no filename specified")
+
+    try:
+        win.eqsys=num.EquationSystem(filename)
+        win.invsys=num.EquationSystem()
+        win.equationPanel.define("","visible=false")
+        rebuild_panels(win)
+        win.source=filename
+        win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
+    except IOError:
+        raise Exception(filename+": file not found")
     
+commands['eq']=commands['equ']=commands['equa']=commands['equat']=commands['equati']=commands['equatio']=commands['equation']=commands['equations']=python
+
 def parse(line,win=None):
     """Used to parse differential equations and maps.
 
@@ -182,7 +210,7 @@ def parse(line,win=None):
     win=windowlist.fetch(win)
 
     oldts=win.eqsys.timestamp()
-    
+
     # use invsys if it's an inverse equation
     result = win.invsys.parse(line.replace(',=',"'=")) if ',=' in line else win.eqsys.parse(line)
     
@@ -202,8 +230,7 @@ def parse(line,win=None):
         if(result != ''):
             win.console.write_data(result+'\n')
             return float(result)
-
-        
+    
 def point(win=None):
     win=windowlist.fetch(win)
     
@@ -265,14 +292,16 @@ def rebuild_panels(win):
         
         groups = ['variables','inverse','functions','constants','variables','parameters']
         defs = [win.eqsys.var_defs(),win.invsys.var_defs()]
-        panels = [win.equationPanel,win.equationPanel,win.equationPanel]
+        panels = [win.equationPanel,win.equationPanel]
         
         defs +=[win.eqsys.func_defs(),win.eqsys.const_defs(),win.eqsys.vars(),win.eqsys.pars()]
         
-        panels += [win.equationPanel,win.valuePanel,win.valuePanel]
-        
+        panels += [win.equationPanel,win.equationPanel,win.valuePanel,win.valuePanel]
+
         for i in range(len(groups)):
             for definition in defs[i]:
+                if definition == "external":
+                    continue
                 parts=definition.partition('=')
                 var=parts[0].strip()
                 rhs=parts[2].strip()
@@ -286,7 +315,10 @@ def plug(win):
 
     setattr(win,'eqsys',num.EquationSystem())
     setattr(win,'invsys',num.EquationSystem())
-        
+    setattr(win,'source','internal')
+
+    win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
+    
     try:
         win.glWindow.stall()
 
@@ -332,3 +364,4 @@ def unplug(win):
     delattr(win,'valuePanel')
     delattr(win,'eqsys')
     delattr(win,'invsys')
+    delattr(win,'source')

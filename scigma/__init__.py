@@ -43,10 +43,9 @@ def new(win=None):
     w.commands['note']=note
     w.commands['l']=w.commands['lo']=w.commands['loa']=w.commands['load']=load
     setattr(w,'script','none')
-    setattr(w,'source','none')
     w.commands['q']=w.commands['qu']=w.commands['qui']=w.commands['quit']=w.commands['end']=w.commands['bye']=bye
     w.commands['res']=w.commands['rese']=w.commands['reset']=reset
-    
+
     panel=w.acquire_option_panel('Global')
     panel.define('','iconified=true')
     enum = common.Enum({'off':0,'on':1},'off')
@@ -147,29 +146,29 @@ def load(filename=None,win=None):
                 return
         except:
             raise Exception("no filename specified")
-    if filename[-2:]=='py':
-        if sys.version_info.major==2:
-            execfile(filename)
-        elif sys.version_info.major==3:
-            with open(filename) as f:
-                code = compile(f.read(), filename, 'exec')
-                exec(code, globals(), locals())
-        return
-   
     try:
-        with open(filename) as f:
-            script = f.readlines()
-        q=[line.strip() for line in script]
-        threads=win.options['Global']['threads'].label
-        win.queue=(['threads off']
-                   +q
-                   +(['threads on'] if threads=='on' else [])
-                   +win.queue)
+        if filename[-2:]=='py':
+            if sys.version_info.major==2:
+                execfile(filename)
+            elif sys.version_info.major==3:
+                with open(filename) as f:
+                    code = compile(f.read(), filename, 'exec')
+                    exec(code, globals(), locals())
+        else:
+            with open(filename) as f:
+                script = f.readlines()
+            q=[line.strip() for line in script]
+            threads=win.options['Global']['threads'].label
+            win.queue=(['threads off']
+                       +q
+                       +(['threads on'] if threads=='on' else [])
+                       +win.queue)
+            
+        win.script=filename
+        win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
     except IOError:
         raise Exception(filename+": file not found")
-    win.script=filename
-    win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
-
+    
 def reset(win=None):
     """ reset
     Deletes all graphical objects and all equations, and
@@ -188,10 +187,10 @@ def reset(win=None):
     view.c_range(0,1,win)
     view.t_range(0,1,win)
     win.glWindow.reset_rotation()
-    win.script='none'
-    win.source='internal'
     equations.unplug(win)
     equations.plug(win)
+    win.script='none'
+    win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
 
 def bye(win=None):
     """ quit

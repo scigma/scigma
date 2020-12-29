@@ -200,8 +200,8 @@ namespace scigma
       std::string exp(trim(expression));
       if(exp.size()>0&&exp[0]=='$')
 	{
-	  exp[0]=' ';
-	  double result(get(exp));
+	  std::string ex = exp.substr(1,exp.size()-2);
+	  double result(get(ex));
 	  std::stringstream ss;
 	  ss<<result;
 	  return ss.str();

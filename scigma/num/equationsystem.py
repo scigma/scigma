@@ -1,3 +1,4 @@
+import sys
 import inspect
 from ctypes import *
 from .. import lib
@@ -38,7 +39,7 @@ def get_function(defs,name,argspec):
 def set_values(eqsys,defs,names,values):
     nameList = defs[names] if names in defs else None
     valueList = defs[values] if values in defs else None
-    if not values and names:
+    if not nameList or not valueList:
         return
     if len(nameList)!=len(valueList):
         raise Exception(names + " and " + values +" must have equal length")
@@ -84,7 +85,12 @@ class EquationSystem(object):
     def __init_from_script__(self,script):
         try:
             self.defs={}
-            execfile(script,self.defs)
+            if sys.version_info.major==2:
+                execfile(script, self.defs)
+            elif sys.version_info.major==3:
+                with open(script) as f:
+                    code = compile(f.read(), script, 'exec')
+                    exec(code, self.defs)
             varstring=get_names(self.defs,'v_names')
             parstring=get_names(self.defs,'p_names')
             funcstring=get_names(self.defs,'f_names')
