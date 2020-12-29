@@ -176,7 +176,11 @@ def expr(coord,*args,**kwargs):
     if not len(args):
         win.console.write_data(win.options['View'][coord])
     else:
-        expression = ''.join(args)
+        # comma-separated lists are passed as one argument,
+        # we have to join those first, then join all arguments
+        # again to get the complete expression
+        noListArgs = [','.join(arg) if isinstance(arg,list) else arg for arg in args]
+        expression = ''.join(noListArgs)
         if expression == '':
             win.console.write_data(win.options['View'][coord])
         else:
