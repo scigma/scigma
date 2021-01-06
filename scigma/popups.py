@@ -53,16 +53,16 @@ def plug(win):
     if not win.register_plugin('popups', lambda:unplug(win), {}):
         return
 
-    mouse=gui.Mouse(lambda: window(win))
-    win.glWindow.connect(mouse)
-
-    setattr(win,'mouse',mouse)
+    if gui.tk:
+        mouse=gui.Mouse(lambda: window(win))
+        win.glWindow.connect(mouse)
+        setattr(win,'mouse',mouse)
 
 def unplug(win):
     if not win.unregister_plugin('popups'):
         return
 
-    win.glWindow.disconnect(win.mouse)
-    win.mouse.destroy()
-    
-    delattr(win,'mouse')
+    if gui.tk:
+        win.glWindow.disconnect(win.mouse)
+        win.mouse.destroy()
+        delattr(win,'mouse')

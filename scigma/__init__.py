@@ -8,6 +8,7 @@ try:
         # We are using Python 3.x
         import tkinter.filedialog as tkfile
 except:
+        tkfile = None
         print("tkinter not found / not using tk")
         
 from .library import lib
