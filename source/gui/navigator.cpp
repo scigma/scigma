@@ -74,10 +74,11 @@ namespace scigma
 	{
 	  if(rightMouseButtonPressed_)
 	    {
-	      GLfloat distance=(y-yOld)/(area->inset_relative()[1]);
-	      volume->shift(Z_COORDINATE,-distance);
 	      if(!(view_&Z_COORDINATE))
 		return true;
+
+	      GLfloat distance=(y-yOld)/(area->inset_relative()[1]);
+	      volume->shift(Z_COORDINATE,-distance);
 	    }
 	  else
 	    {
