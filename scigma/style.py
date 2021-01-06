@@ -67,10 +67,10 @@ def plug(win=None):
         panel.define('marker.size', 'min=1.0')
         panel.define('marker.size', 'max=64.0')
         panel.define('delay', 'min=0.0')
-        panel.add('sep2',gui.Separator())
-        enum = common.Enum({'dark':0,'light':1},'dark')
-        panel.add('theme',enum)
-        panel.add('GUI', True)    
+        #panel.add('sep2',gui.Separator())
+        #enum = common.Enum({'dark':0,'light':1},'dark')
+        #panel.add('theme',enum)
+        #panel.add('GUI', True)    
         # redraw here
     finally:
         win.glWindow.flush()
@@ -96,9 +96,9 @@ def unplug(win=None):
         panel.remove('point.size')
         panel.remove('marker.style')
         panel.remove('marker.size')
-        panel.remove('sep2')
-        panel.remove('theme')
-        panel.remove('GUI')
+        #panel.remove('sep2')
+        #panel.remove('theme')
+        #panel.remove('GUI')
         win.release_option_panel('Drawing')
         
         # redraw here
