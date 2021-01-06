@@ -17,13 +17,13 @@ console=win.console
 options.set("threads","off")
 for i in range(31):
     picking.set("lambda",l)
-    window.stall()
+    window.stall()  # synchronize graphics output with clear/redraw cycle
     graphs.clear(win)
     grid()
     console.write("lambda = ")
     console.write_data(str(l)+"\n")
-    win.process_messages()
-    gui.pause(0.01)
-    window.flush()
+    win.process_messages() 
+    gui.pause(0.01) # need some idle time to move data to GPU  
+    window.flush()  # synchronize graphics output with clear/redraw cycle
     l+=0.1
 options.set("threads","on")

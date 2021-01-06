@@ -2,7 +2,6 @@ import math
 
 def grid(win):
     for i in range(101):
-#        win.glWindow.stall()
         options.set("color",[1-0.02*abs(i-50),max(0,0.02*(i-50)),max(0,0.02*(50-i))])
         if i<=50:
             picking.set("p",0.01*i)
@@ -11,8 +10,7 @@ def grid(win):
             picking.set("p",0.01*i)
             picking.set("q",1-0.001*i)
         iteration.plot(1000)
-        gui.pause(0.01)
-#        win.glWindow.flush()
+        gui.pause(0.01) # need some idle time to move data to GPU
 
 options.set("threads","off")
 graphs.clear(win)
