@@ -230,7 +230,7 @@ def collect_varying_const(win,nParts,varying,const,varVals,constVals):
 def plug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not load twice into the same window
-    if not win.register_plugin('Iteration', lambda:unplug(win), commands):
+    if not win.register_plugin('iteration', lambda:unplug(win), commands):
         return
     
     # fill option panels
@@ -254,7 +254,7 @@ def plug(win=None):
 def unplug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not unload twice from the same window
-    if not win.unregister_plugin('Iteration'):
+    if not win.unregister_plugin('iteration'):
         return
     
     # remove options from panels

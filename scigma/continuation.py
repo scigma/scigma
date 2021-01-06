@@ -239,7 +239,7 @@ def mouse_callback(g,double,button,point,x,y,win):
 def plug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not load twice into the same window
-    if not win.register_plugin('Continuation', lambda:unplug(win), commands):
+    if not win.register_plugin('continuation', lambda:unplug(win), commands):
         return
     
     # fill option panels
@@ -287,7 +287,7 @@ def plug(win=None):
 def unplug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not unload twice from the same window
-    if not win.unregister_plugin('Continuation'):
+    if not win.unregister_plugin('continuation'):
         return
     
     # remove options from panels

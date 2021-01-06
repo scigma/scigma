@@ -72,12 +72,12 @@ commands['sw']=commands['swe']=commands['swee']=commands['sweep']=sweep
 def plug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not load twice into the same window
-    if not win.register_plugin('Sweeping', lambda:unplug(win), commands):
+    if not win.register_plugin('sweeping', lambda:unplug(win), commands):
         return
     
 def unplug(win=None):
     win = windowlist.fetch(win)
     # make sure that we do not unload twice from the same window
-    if not win.unregister_plugin('Sweeping'):
+    if not win.unregister_plugin('sweeping'):
         return
     
