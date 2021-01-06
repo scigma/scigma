@@ -36,10 +36,10 @@ class Window(object):
         self.sleeping=False
 
     def destroy(self):
-        for key in self.unplugFunctions.keys():
+        for key in list(self.unplugFunctions):
             self.unplugFunctions[key]()
             
-        for key in self.optionPanels.keys():
+        for key in list(self.optionPanels):
             self.optionPanels[key].destroy()
             
         self.glWindow.destroy()

@@ -76,8 +76,7 @@ commands['del']=commands['dele']=commands['delet']=commands['delete']=delete
 
 def clear(win=None):
     win=windowlist.fetch(win)
-    keys = win.graphs.keys()
-    for key in keys:
+    for key in list(win.graphs):
         delete(key,win)
     win.selection=None
     win.graphIDs = {}

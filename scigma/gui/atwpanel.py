@@ -260,8 +260,7 @@ class ATWPanel(object):
             d0=common.dict_entry(parts[0],self.data)
 
         if isinstance(entry,dict): # if entry is a node, 
-            keys=entry.keys()
-            for key in keys: # recursively delete subnodes
+            for key in list(entry): # recursively delete subnodes
                 self.remove(identifier+'.'+key)
         else: # if entry is not a node, remove it from the TWBar
             lib.scigma_gui_atw_panel_remove(self.objectID,create_string_buffer(bytes(identifier.encode("ascii"))))
