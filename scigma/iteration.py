@@ -119,11 +119,13 @@ def plot(nSteps=1,path=None,win=None,showall=False):
     graphs.show(g,win)
     g['cgraph'].replay()
     graphs.hide(win.cursor)
+
+    return g
     
 commands['p']=commands['pl']=commands['plo']=commands['plot']=plot 
 
 def plotall(nSteps=1,path=None,win=None):
-    plot(nSteps,path,win,True)
+    return plot(nSteps,path,win,True)
 
 commands['p*']=commands['pl*']=commands['plo*']=commands['plot*']=plotall
 

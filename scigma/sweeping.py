@@ -67,6 +67,8 @@ def sweep(nSteps,g=None,path=None,win=None,mesh=None):
     g['cgraph'].replay()
     graphs.hide(win.cursor)
 
+    return g
+
 commands['sw']=commands['swe']=commands['swee']=commands['sweep']=sweep
     
 def plug(win=None):

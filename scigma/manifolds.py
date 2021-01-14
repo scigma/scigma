@@ -70,10 +70,10 @@ def manifold(stable,nSteps,g=None,path=None,win=None,showall=False):
     if len(idx)==1:
         if stable:
             picking.perts(2,g,win)
-            one_d_manifold(-nSteps,g,path,win,showall)
+            return one_d_manifold(-nSteps,g,path,win,showall)
         else:
             picking.pertu(2,g,win)
-            one_d_manifold(nSteps,g,path,win,showall)
+            return one_d_manifold(nSteps,g,path,win,showall)
     else:
         # pick points on a ring with radius eps around the fixed point
         # use the circumference divided by ds as number of initial points
@@ -85,10 +85,10 @@ def manifold(stable,nSteps,g=None,path=None,win=None,showall=False):
 
         if stable:
             picking.perts(nInitial,g,win)
-            two_d_manifold(-nSteps,g,path,win)
+            return two_d_manifold(-nSteps,g,path,win)
         else:
             picking.pertu(nInitial,g,win)
-            two_d_manifold(nSteps,g,path,win)
+            return two_d_manifold(nSteps,g,path,win)
 
 def munstable(nSteps=1,g=None,path=None,win=None):
     """munstable [nSteps] [origin] [name]                                                                              
@@ -103,22 +103,22 @@ def munstable(nSteps=1,g=None,path=None,win=None):
     name of the form 'mfN', if no name is given.                                                                   
     The behavior is analog for mstable.                                                                            
     """
-    manifold(False,nSteps,g,path,win,False)
+    return manifold(False,nSteps,g,path,win,False)
 
 commands['mu']=commands['mun']=commands['muns']=commands['munst']=commands['munsta']=commands['munstab']=commands['munstabl']=commands['munstable']=munstable
 
 def mstable(nSteps=1,g=None,path=None,win=None):
-    manifold(True,nSteps,g,path,win,False)
+    return manifold(True,nSteps,g,path,win,False)
 
 commands['ms']=commands['mst']=commands['msta']=commands['mstab']=commands['mstabl']=commands['mstable']=mstable
 
 def munstableall(nSteps=1,g=None,path=None,win=None,):
-    manifold(False,nSteps,g,path,win,True)
+    return manifold(False,nSteps,g,path,win,True)
 
 commands['mu*']=commands['mun*']=commands['muns*']=commands['munst*']=commands['munsta*']=commands['munstab*']=commands['munstabl*']=commands['munstable*']=munstableall
 
 def mstableall(nSteps=1,g=None,path=None,win=None):
-    manifold(True,nSteps,g,path,win,True)
+    return manifold(True,nSteps,g,path,win,True)
 
 commands['ms*']=commands['mst*']=commands['msta*']=commands['mstab*']=commands['mstabl*']=commands['mstable*']=mstableall
 
@@ -133,7 +133,7 @@ def two_d_manifold(nSteps,g,path,win):
 
     mesh = dat.Mesh(len(varying),varVals)
 
-    sweeping.sweep(nSteps,g,path,win,mesh)
+    return sweeping.sweep(nSteps,g,path,win,mesh)
     
 lib.scigma_num_map_manifold.restype=c_int
 lib.scigma_num_map_manifold.argtypes=[c_char_p,c_int,c_int,c_int,c_int,c_int,c_int,c_bool,c_bool]
@@ -205,6 +205,8 @@ def one_d_manifold(nSteps,g,path,win,showall):
     graphs.show(g,win)
     g['cgraph'].replay()
     graphs.hide(win.cursor)
+
+    return g
 
 def mouse_callback(g,double,button,point,x,y,win):
     identifier = g['identifier']

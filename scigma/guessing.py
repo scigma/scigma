@@ -78,6 +78,8 @@ def guess(path=None,win=None,showall=False):
     const=win.eqsys.par_names()+win.eqsys.const_names()
 
     nParts = win.cursor['nparts']
+
+    result = []
     
     for varVals, constVals in picking.points(win, varying, const):
         if nParts>1 or not path:
@@ -85,13 +87,17 @@ def guess(path=None,win=None,showall=False):
         else:
             adjpath=rootpath+prefix
 
-        guess_single(adjpath,blob,varying,const,varVals,constVals,win,showall) 
-        
+        result.append(guess_single(adjpath,blob,varying,const,varVals,constVals,win,showall)) 
+
+    if len(result) == 1:
+        return result[0]
+    else:
+        return result
 
 commands['g']=commands['gu']=commands['gue']=commands['gues']=commands['guess']=guess
 
 def guessall(path=None,win=None):
-    guess(path, win, True)
+    return guess(path, win, True)
 
 commands['g*']=commands['gu*']=commands['gue*']=commands['gues*']=commands['guess*']=guessall
 
@@ -264,6 +270,8 @@ def guess_single(path,blob,varying,const,varVals,constVals,win,showall):
 
     graph['taskID']=lib.scigma_num_guess(identifier,eqsysID,logID,varWaveID,evWaveID,blobID,showall,True)
     graph['cgraph']=None
+
+    return graph
     
 def success(g,win,args):
     # finish the cpp Task
