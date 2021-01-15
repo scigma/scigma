@@ -1,0 +1,20 @@
+mode strobe
+pi=atan2(0,-1)
+eps=0.35
+ds 0.025
+f=1
+T=1/f
+period $T
+omega=2*pi*f
+alpha=exp(eps*cos(omega*t)-eps)
+r1=x**2+y**2
+r2=x**2+(y+2*alpha)**2
+x'=-y/r1+(y+2*alpha)/r2+eps*sin(omega*t)*x/T-0.5/alpha
+y'=x/r1-x/r2-eps*sin(omega*t)*y/T
+x=-1
+y=-1
+point.style dot
+point.size 2
+delay 0.3
+
+
