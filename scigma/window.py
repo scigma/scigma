@@ -115,6 +115,9 @@ class Window(object):
     def on_console(self,line):
         self.queue.append(line)
 
+    def on_parse(self):
+        picking.on_parse(self)
+        
     def process_command(self,line):
         line=line.partition('#')[0]         # remove any comment
         if len(line) and line[-1]=='"':     # string command (write/writeln)
@@ -141,8 +144,6 @@ class Window(object):
         if len(paths) == 0: # this is possibly an equation or the attempt to set/query an option
             try:
                 equations.parse(line,self)
-                if line[0]!='$':
-                    picking.on_parse(self)
             except Exception as e: # if parsing fails, check if we are trying to set/query option
                 try:
                     if len(args)==0:

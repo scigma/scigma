@@ -172,6 +172,7 @@ def python(filename=None,win=None):
         rebuild_panels(win)
         win.source=filename
         win.glWindow.set_title("SCIGMA - script: "+win.script+" - equations: "+win.source)
+        win.on_parse()
     except IOError:
         raise Exception(filename+": file not found")
     
@@ -230,6 +231,8 @@ def parse(line,win=None):
         if(result != ''):
             win.console.write_data(result+'\n')
             return float(result)
+        else:
+            win.on_parse()
     
 def point(win=None):
     win=windowlist.fetch(win)

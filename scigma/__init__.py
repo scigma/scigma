@@ -148,18 +148,20 @@ def load(filename=None,win=None):
         except:
             raise Exception("no filename specified")
     try:
+        threads=win.options['Global']['threads'].label
         if filename[-2:]=='py':
             if sys.version_info.major==2:
                 execfile(filename)
             elif sys.version_info.major==3:
                 with open(filename) as f:
+                    win.options.set("threads", "off");
                     code = compile(f.read(), filename, 'exec')
                     exec(code, globals(), locals())
+                    win.options.set("threads", threads);
         else:
             with open(filename) as f:
                 script = f.readlines()
             q=[line.strip() for line in script]
-            threads=win.options['Global']['threads'].label
             win.queue=(['threads off']
                        +q
                        +(['threads on'] if threads=='on' else [])
