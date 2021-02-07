@@ -23,7 +23,6 @@ try:
 
 except:
     tk=None
-    print("tkinter not found / not using tk")
 
 if os.name== 'posix':
     import select
