@@ -72,13 +72,17 @@ namespace scigma
 	}
       else // shifts
 	{
+	  const GLfloat* rot=volume->rotation_matrix();
+	  const GLfloat* scale=volume->scaling_matrix();
+
 	  if(rightMouseButtonPressed_)
 	    {
 	      if(!(view_&Z_COORDINATE))
 		return true;
 
-	      GLfloat distance=(y-yOld)/(area->inset_relative()[1]);
-	      volume->shift(Z_COORDINATE,-distance);
+              GLfloat distance=(y-yOld)/(area->inset_relative()[1]);
+
+ 	      volume->shift(-distance*rot[2]/scale[0], -distance*rot[6]/scale[5], -distance*rot[10]/scale[10]);
 	    }
 	  else
 	    {
@@ -87,9 +91,6 @@ namespace scigma
 	      GLfloat dx=ratio>1?ratio*(x-xOld)/insetRelative[0]:(x-xOld)/insetRelative[0];
 	      GLfloat dy=ratio>1?(y-yOld)/insetRelative[1]:(y-yOld)/insetRelative[1]/ratio;
 
-	      const GLfloat* rot=volume->rotation_matrix();
-	      const GLfloat* scale=volume->scaling_matrix();
-	      
 	      volume->shift((dx*rot[0]+dy*rot[1])/scale[0],
 			    (dx*rot[4]+dy*rot[5])/scale[5],
 			    (dx*rot[8]+dy*rot[9])/scale[10]);
