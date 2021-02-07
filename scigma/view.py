@@ -174,7 +174,9 @@ def expr(coord,*args,**kwargs):
         args=args[0:-1]
 
     if not len(args):
-        win.console.write_data(win.options['View'][coord])
+        result = win.options['View'][coord]
+        win.console.write_data(result)
+        return result
     else:
         # comma-separated lists are passed as one argument,
         # we have to join those first, then join all arguments
@@ -212,13 +214,13 @@ def xexpr(*args,**kwargs):
     xexpr(myExpression,myInstance) or xexpr(myExpression,instance=myInstance)
     yexpr etc. work analogously.
     """
-    expr('x',*args,**kwargs)
+    return expr('x',*args,**kwargs)
 def yexpr(*args,**kwargs):
-    expr('y',*args,**kwargs)
+    return expr('y',*args,**kwargs)
 def zexpr(*args,**kwargs):
-    expr('z',*args,**kwargs)
+    return expr('z',*args,**kwargs)
 def cexpr(*args,**kwargs):
-    expr('c',*args,**kwargs)
+    return expr('c',*args,**kwargs)
 #def texpr(*args,**kwargs):
 #    expr('t',*args,**kwargs)
 
