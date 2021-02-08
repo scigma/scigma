@@ -12,32 +12,6 @@ namespace scigma
   namespace gui
   {
 
-    const char* Graph::colorMapFunction_=
-      "vec4 colormap_(in float p)\n"
-      "{\n"
-      "vec4 color;\n"
-      "\tif(p<0.0||p>1.0)\n"
-      "\t\tcolor= vec4(1,0.0,1,1.0);\n"
-      "\telse if (p<0.5)\n"
-      "\t\tcolor= mix(vec4(0,0,1.0,1.0),vec4(0.0,1.0,0,1.0),p*2);\n"
-      "\telse\n"
-      "\t\tcolor= mix(vec4(0,1.0,0.0,1.0),vec4(1.0,0.0,0.0,1.0),p*2-1);\n"
-      "\treturn color\n;"
-      "}\n\n";
-    //+*/mix(vec4(0,1.0,0.0,1.0),vec4(1.0,0.0,0,1.0),p*2-1)*/*step(p,0.5)*/;\n"
-    
-    
-    /*      "vec4 colormap_(in float p)\n"
-	    "{\n"
-	    "\tif(p<0.0||p>1.0)\n"
-	    "\t\treturn vec4(0.72,0.0,0.72,1.0);\n"
-	    "\treturn vec4(\n"
-	    "\t\tclamp(-0.95*p*p+0.86*p+0.43+2.2*abs(p-0.35),0,1),\n"
-	    "\t\t-1.1*p*p+0.58*p+0.75-0.56*abs(p-0.75),\n"
-	    "\t\t-0.32*p*p+0.64*p+0.4-1.2*abs(p-0.5),\n"
-	    "\t\t1.0);\n"
-	    "}\n\n";*/
-
     GLuint Graph::dummyBuffer_(0);
     
  #pragma clang diagnostic push
