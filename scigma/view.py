@@ -37,7 +37,7 @@ commands['zr']=commands['zra']=commands['zran']=commands['zrang']=commands['zran
 commands['cr']=commands['cra']=commands['cran']=commands['crang']=commands['crange']=c_range
 commands['tr']=commands['tra']=commands['tran']=commands['trang']=commands['trange']=t_range
 
-def axes(axes,win=None):
+def axes(axes=None, win=None):
     """ axes <axes>
 
     Changes how phase space is displayed (switches between
@@ -47,7 +47,12 @@ def axes(axes,win=None):
     'xyz','xyzc','xyzt','xyztc'
     """
     win = windowlist.fetch(win)
-
+    oldaxes=win.options['View']['axes'].label
+    
+    if axes == None:
+        win.console.write_data(oldaxes)
+        return oldaxes
+    
     try:
         win.glWindow.stall()
         oldaxes=win.options['View']['axes'].label
@@ -235,14 +240,14 @@ def on_entry_change(identifier,value,win):
         axes(value.label,win)
     elif identifier in gui.COORDINATE_NAME:
         expr(identifier,value,win)
-        if identifier in [x+'range.min' for x in gui.COORDINATE_NAME]:
-            coord=identifier[0]
-            min,max = value.value, self.options['View'][coord+'range']['max'].value
-            set_range(coord,min,max,win)
-        if identifier in [x+'range.max' for x in gui.COORDINATE_NAME]:
-            coord=identifier[0]
-            min,max = self.options['View'][coord+'range']['min'].value,value.value
-            set_range(coord,min,max,win)
+    elif identifier in [x+'range.min' for x in gui.COORDINATE_NAME]:
+        coord=identifier[0]
+        min,max = value.value, win.options['View'][coord+'range']['max'].value
+        set_range(coord,min,max,win)
+    elif identifier in [x+'range.max' for x in gui.COORDINATE_NAME]:
+        coord=identifier[0]
+        min,max = win.options['View'][coord+'range']['min'].value,value.value
+        set_range(coord,min,max,win)
     
 def set_range(coord,low,high,win):
     """ sets the range of the specified coordinate
@@ -256,6 +261,8 @@ def set_range(coord,low,high,win):
     if low<-3e38 or high > 3e38:
         raise Exception("will not set range, boundaries too large")        
     win.glWindow.set_range(gui.COORDINATE_FLAG[coord],low,high)
+    options.set('View.'+coord+'range.min',low,win)
+    options.set('View.'+coord+'range.max',high,win)
 
 def plug(win=None):
     win = windowlist.fetch(win)
