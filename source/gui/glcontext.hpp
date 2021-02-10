@@ -46,9 +46,10 @@ namespace scigma
 	/*!6*/ DEVICE_TO_SCREEN_MATRIX,
 	/*!7*/ BACKGROUND_COLOR,
 	/*!8*/ FOREGROUND_COLOR,
+	/*!9*/ CTMINMAX_VECTOR
       };
       //!Number of globally available uniforms
-      static const size_t N_GLOBAL_UNIFORMS=9;
+      static const size_t N_GLOBAL_UNIFORMS=10;
 
       void destroy();
      
@@ -337,9 +338,9 @@ namespace scigma
             
       // buffer accomodates 7 4x4 matrices: translation, scaling, rotation,
       // projection, inverse projection, screen-to-device and device-to-screen
-      // and two 4 vectors: background color and foreground color
+      // and three 4 vectors: background color, foreground color and ctminmax vector
       static const GLuint GLOBAL_UNIFORM_BUFFER_SIZE=(7*N_4X4_ELEMENTS+
-						      2*N_ROWS)*sizeof(GLfloat);
+						      3*N_ROWS)*sizeof(GLfloat);
   
       static const GLuint GLOBAL_UNIFORM_OFFSETS[];
 

@@ -50,6 +50,8 @@ namespace scigma
       EventSource<RangeEvent>::Type::emit(this);
       glContext_->update_global_uniform_4x4(GLContext::TRANSLATION_MATRIX,translationMatrix_);
       glContext_->update_global_uniform_4x4(GLContext::SCALING_MATRIX,scalingMatrix_);
+      GLfloat ctMinMax[] = {min_[C_INDEX], max_[C_INDEX], min_[T_INDEX], max_[T_INDEX]};
+      glContext_->update_global_uniform_4(GLContext::CTMINMAX_VECTOR, ctMinMax);
       glContext_->request_redraw();
     }
     
@@ -195,6 +197,9 @@ namespace scigma
       glContext_->update_global_uniform_4x4(GLContext::SCALING_MATRIX,scalingMatrix_);
       glContext_->update_global_uniform_4x4(GLContext::TRANSLATION_MATRIX,translationMatrix_);
       glContext_->update_global_uniform_4x4(GLContext::ROTATION_MATRIX,currentRotationMatrix_);
+      GLfloat ctMinMax[] = {min_[C_INDEX], max_[C_INDEX], min_[T_INDEX], max_[T_INDEX]};
+      glContext_->update_global_uniform_4(GLContext::CTMINMAX_VECTOR, ctMinMax);
+      
       glContext_->request_redraw();
     }
     

@@ -20,7 +20,8 @@ namespace scigma
       5*N_4X4_ELEMENTS*sizeof(GLfloat),
       6*N_4X4_ELEMENTS*sizeof(GLfloat),
       7*N_4X4_ELEMENTS*sizeof(GLfloat),
-      (7*N_4X4_ELEMENTS+N_ROWS)*sizeof(GLfloat)};
+      (7*N_4X4_ELEMENTS+N_ROWS)*sizeof(GLfloat),
+      (7*N_4X4_ELEMENTS+2*N_ROWS)*sizeof(GLfloat)};
     
 #ifdef SCIGMA_USE_OPENGL_3_2
     const char* GLContext::VERTEX_SHADER_HEADER=
@@ -36,6 +37,7 @@ namespace scigma
       "\tmat4 deviceToScreenMatrix;\n"
       "\tvec4 backgroundColor;\n"
       "\tvec4 foregroundColor;\n"
+      "\tvec4 ctMinMax;\n"
       "};\n";
     const char* GLContext::GEOMETRY_SHADER_HEADER=
       "#version 150 core\n"
@@ -50,6 +52,7 @@ namespace scigma
       "\tmat4 deviceToScreenMatrix;\n"
       "\tvec4 backgroundColor;\n"
       "\tvec4 foregroundColor;\n"
+      "\tvec4 ctMinMax;\n"
       "};\n";
     const char* GLContext::FRAGMENT_SHADER_HEADER=
       "#version 150 core\n"
@@ -64,6 +67,7 @@ namespace scigma
       "\tmat4 deviceToScreenMatrix;\n"
       "\tvec4 backgroundColor;\n"
       "\tvec4 foregroundColor;\n"
+      "\tvec4 ctMinMax;\n"
       "};\n"
       "uniform vec3 uniqueID;\n";
 #else
@@ -78,7 +82,8 @@ namespace scigma
       "uniform mat4 screenToDeviceMatrix;\n"
       "uniform mat4 deviceToScreenMatrix;\n"
       "uniform vec4 backgroundColor;\n"
-      "uniform vec4 foregroundColor;\n";
+      "uniform vec4 foregroundColor;\n"
+      "uniform vec4 ctMinMax;\n";
     const char* GLContext::GEOMETRY_SHADER_HEADER=NULL;
     const char* GLContext::FRAGMENT_SHADER_HEADER=
       "#version 120\n"
@@ -92,6 +97,7 @@ namespace scigma
       "uniform mat4 deviceToScreenMatrix;\n"
       "uniform vec4 backgroundColor;\n"
       "uniform vec4 foregroundColor;\n"
+      "uniform vec4 ctMinMax;\n";
       "uniform vec3 uniqueID;\n";
 #endif
    
@@ -373,7 +379,8 @@ namespace scigma
 				glGetUniformLocation(program,"screenToDeviceMatrix"),
 				glGetUniformLocation(program,"deviceToScreenMatrix"),
 				glGetUniformLocation(program,"backgroundColor"),
-				glGetUniformLocation(program,"foregroundColor")};
+				glGetUniformLocation(program,"foregroundColor"),
+				glGetUniformLocation(program,"ctMinMax"};
       int count(0);  
       for(std::vector<GLint>::iterator i=position+2,end=position+PROGRAM_DATA_STRIDE;i!=end;++i)
 	*i=uniformLocations[count++];
@@ -443,6 +450,7 @@ namespace scigma
 #endif
       if(uniform==BACKGROUND_COLOR)
 	glClearColor(vector[0],vector[1],vector[2],vector[3]);
+
       GLERR;
     }
 

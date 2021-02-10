@@ -476,8 +476,6 @@ namespace scigma
 	  auto o2(odessaList.end());
 	  auto o3(odessaList.end());
 
-	  std::cerr<<"layer "<<i<<std::endl;
-
 	  //  size_t c(0);
 	  while(o1!=odessaList.end())
 	    {
