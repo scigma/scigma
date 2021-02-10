@@ -116,7 +116,7 @@ def cont(nSteps=1, parameters=None, g=None, path=None,win=None,noThread=False):
     cont['taskID']=taskID
     os.chdir(cwd)
 
-commands['c']=commands['co']=commands['con']=commands['cont']=cont
+commands['co']=commands['con']=commands['cont']=cont
 
 def success(cont,win,args):
     if len(args)==0:
