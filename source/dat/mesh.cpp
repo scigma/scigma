@@ -107,14 +107,10 @@ namespace scigma
       size_t iso1(lastLayer<1?0:initial.max_for_iso_layer(lastLayer-1));
       size_t iso2(initial.max_for_iso_layer(lastLayer));
 
-      std::cerr<<iso0<<", "<<iso1<<", "<<iso2<<std::endl;
-      
       size_t tri0(lastLayer<2?0:initial.max_for_triangle_layer(lastLayer-2));
       size_t tri1(lastLayer<1?0:initial.max_for_triangle_layer(lastLayer-1));
       size_t tri2(initial.max_for_triangle_layer(lastLayer));
 
-      std::cerr<<tri0<<", "<<tri1<<", "<<tri2<<std::endl;
-      
       tthread::lock_guard<tthread::mutex> guard(mutex_);
 
       triangleData_.lock();
@@ -156,16 +152,9 @@ namespace scigma
 	    isoEndPoints_.push_back(0);
 	}
 
-      std::cerr<<"startIndex"<<startIndex<<"middleIndex"<<middleIndex<<"endIndex"<<endIndex<<std::endl;
-      
       for(size_t i(startIndex*nDim_*NVALS_PER_DIM);i<endIndex*nDim_*NVALS_PER_DIM;++i)
-	{
-	  triangleData_.push_back(initial.triangleData_.data()[i]);
-	  if(!(i%NVALS_PER_DIM))
-	    std::cerr<<triangleData_.data()[triangleData_.size()-1]<<", ";
-	}
-      std::cerr<<std::endl;
-
+	triangleData_.push_back(initial.triangleData_.data()[i]);
+      
       initial.triangleData_.unlock();
       initial.triangleIndices_.unlock();
       initial.isoIndices_.unlock();
@@ -197,15 +186,6 @@ namespace scigma
       lastStripTriangleIndicesBegin_=tri1-tri0;
       currentStripTriangleDataBegin_=triangleData_.size();
       currentStripTriangleIndicesBegin_=triangleIndices_.size();
-
-      std::cerr<<"triangleIndices"<<std::endl;
-      for(size_t i(0);i<triangleIndices_.size();++i)
-	std::cerr<<triangleIndices_.data()[i]<<", ";
-      std::cerr<<std::endl;
-      std::cerr<<"triangleData"<<std::endl;
-      for(size_t i(0);i<triangleData_.size();++i)
-	std::cerr<<triangleData_.data()[i]<<", ";
-      std::cerr<<std::endl;
     }
     
     void Mesh::add_strip(const std::vector<double>& positions)
