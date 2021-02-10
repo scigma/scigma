@@ -127,7 +127,8 @@ def fit(identifier=None,win=None):
     """
     win=windowlist.fetch(win)
     axes=win.options['View']['axes'].label
-    visvar={}
+    axbyval={}
+    valbyax={}
     for i in range(gui.N_COORDINATES):
         if gui.VIEW_TYPE[axes]&gui.COORDINATE_FLAG[gui.COORDINATE_NAME[i]]:
             exp=win.options['View'][gui.COORDINATE_NAME[i]]
@@ -136,11 +137,12 @@ def fit(identifier=None,win=None):
                     or exp in win.eqsys.func_names()
                     or exp in win.eqsys.const_names()):
                 raise Exception("cannot fit while "+gui.COORDINATE_NAME[i]+"-axis shows " + exp)
-            visvar[exp]=gui.COORDINATE_NAME[i]
+            valbyax[gui.COORDINATE_NAME[i]]=exp
+            axbyval[exp]=gui.COORDINATE_NAME[i]
 
     try:
         win.glWindow.stall()
-        for symbol in visvar:
+        for symbol in axbyval:
             mi=1e300
             ma=-1e300
             dictionary = win.graphs
@@ -161,7 +163,9 @@ def fit(identifier=None,win=None):
             if mi==ma:
                 mi=mi-1
                 ma=ma+1
-            set_range(visvar[symbol],mi,ma,win)
+            for axis in valbyax:
+                if valbyax[axis] == symbol:
+                    set_range(axis,mi,ma,win)
     finally:
         win.glWindow.flush()
 
