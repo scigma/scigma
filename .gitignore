@@ -4,7 +4,7 @@ source/external/lpng1610/pnglibconf.h
 *~
 -i
 ./build/*
-./stuff
+stuff
 *.pyc
 *.idx
 *.aux
