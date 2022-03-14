@@ -97,7 +97,7 @@ namespace scigma
       "uniform mat4 deviceToScreenMatrix;\n"
       "uniform vec4 backgroundColor;\n"
       "uniform vec4 foregroundColor;\n"
-      "uniform vec4 ctMinMax;\n";
+      "uniform vec4 ctMinMax;\n"
       "uniform vec3 uniqueID;\n";
 #endif
    
@@ -380,7 +380,7 @@ namespace scigma
 				glGetUniformLocation(program,"deviceToScreenMatrix"),
 				glGetUniformLocation(program,"backgroundColor"),
 				glGetUniformLocation(program,"foregroundColor"),
-				glGetUniformLocation(program,"ctMinMax"};
+				glGetUniformLocation(program,"ctMinMax")};
       int count(0);  
       for(std::vector<GLint>::iterator i=position+2,end=position+PROGRAM_DATA_STRIDE;i!=end;++i)
 	*i=uniformLocations[count++];
