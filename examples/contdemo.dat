@@ -1,0 +1,69 @@
+echo on
+note "reduce dsmax step for AUTO to get more evenly distributed points"
+AUTO.dsmax 0.1
+note "set up equations and guess initial fixed point (eigenvalues are incorrect without explicit Jacobian)"
+eq contdemo.py
+x k
+y l
+l = 0.01
+g
+pause
+
+note "start 1 parameter continuation from guessed FP (identifier is always "cont.XX")"
+cont 30 k
+fit
+note "we found a SN bifurcation / limit point (identifier is always lpXX),"
+note "select it and do a continuation in 2 parameters"
+color 1
+select cont01.lp01
+cont 20 k,l
+fit
+pause
+
+note "after each continuation run, scigma will select its end point"
+note "=> to start from the original limit point in the other direction,"
+note "select it again and change the sign of AUTO.ds"
+select cont01.lp01
+AUTO.ds -0.01
+cont 20 k,l
+fit
+pause
+
+note "from the current point (last of the previous continuation),"
+note "start another 1 parameter continuation to find a Hopf bifurcation"
+color 0
+cont 50 l
+fit
+pause
+
+note "select Hopf bifurcation and continue the emanating limit cycle"
+color 3
+select cont04.hb01
+cycle 200 k
+fit
+pause
+
+note "continue the limit cycle in l instead of k from the current position in parameter space"
+cycle 100 l
+fit
+pause
+
+note "select saddle node of periodic orbits and do a 2-parameter continuation"
+color 4
+AUTO.ds -1e-4
+select cycle01.lclp01
+cycle 500 k,l
+note "Continuation of a saddle node of periodic orbit takes a while, and AUTO freezes the UI"
+note "also, for some reason, we need the last cycle command above to generate good restart data for AUTO,"
+note "on the first try it does not seem to work"
+pause
+cycle 500 k,l
+
+note "switch to 3d mode to view both variable and parameter space"
+note "the curves drawn for periodic orbits represent max values of the variables"
+z x
+pause
+3d
+fit
+
+echo off
