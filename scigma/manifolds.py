@@ -90,6 +90,60 @@ def manifold(stable,nSteps,g=None,path=None,win=None,showall=False):
             picking.pertu(nInitial,g,win)
             return two_d_manifold(nSteps,g,path,win)
 
+def manifold_one_sided(stable,nSteps,g=None,path=None,win=None,showall=False):
+    win = windowlist.fetch(win)
+
+    try:
+        nSteps = int(nSteps)
+    except ValueError:
+        raise Exception("error: could not read nSteps (usage: mu/ms <nSteps> [name])")
+
+    if nSteps<0:
+        nSteps=-nSteps
+
+    g=graphs.get(g,win)
+
+    # see if we can use the data in g to create an invariant manifold
+    try:
+        evreal = g['evreal']
+        evimag = g['evimag']
+        evecs = g['evecs']
+    except:
+        raise Exception(g['identifier']+': point has no eigenvalue and/or eigenvector data')
+
+    # check whether we have one stable/unstable direction
+    mode = g['mode']
+    if stable:
+        if mode == 'ode':
+            idx=[i for i in range(len(evreal)) if evreal[i]<0.0]
+        else:
+            idx=[i for i in range(len(evreal)) if evreal[i]**2+evimag[i]**2<1.0]
+    else:
+        if mode == 'ode':
+            idx=[i for i in range(len(evreal)) if evreal[i]>0.0]
+        else:
+            idx=[i for i in range(len(evreal)) if evreal[i]**2+evimag[i]**2>1.0]
+
+    if len(idx)!=1:
+        win.console.write_warning(g['identifier']+' has not exactly 1 '+ ('stable' if stable else 'unstable')+ ' eigenvalue ('+str(len(idx))+'), doing nothing\n')
+        return
+
+    if mode != win.equationPanel.get("mode"):
+        win.console.write_warning('switching mode to '+mode)
+        equations.mode(mode)
+
+    if not path:
+        path=graphs.gen_ID("mf",win)
+         
+    picking.select(g['identifier'],-1,win,True)
+
+    if stable:
+        picking.perts(1,g,win)
+        return one_d_manifold(-nSteps,g,path,win,showall)
+    else:
+        picking.pertu(1,g,win)
+        return one_d_manifold(nSteps,g,path,win,showall)
+
 def munstable(nSteps=1,g=None,path=None,win=None):
     """munstable [nSteps] [origin] [name]                                                                              
                                                                                                                    
@@ -107,20 +161,40 @@ def munstable(nSteps=1,g=None,path=None,win=None):
 
 commands['mu']=commands['mun']=commands['muns']=commands['munst']=commands['munsta']=commands['munstab']=commands['munstabl']=commands['munstable']=munstable
 
+def munstable1(nSteps=1,g=None,path=None,win=None):
+    return manifold_one_sided(False,nSteps,g,path,win,False)
+
+commands['mu1']=commands['mun1']=commands['muns1']=commands['munst1']=commands['munsta1']=commands['munstab1']=commands['munstabl1']=commands['munstable1']=munstable1
+
 def mstable(nSteps=1,g=None,path=None,win=None):
     return manifold(True,nSteps,g,path,win,False)
 
 commands['ms']=commands['mst']=commands['msta']=commands['mstab']=commands['mstabl']=commands['mstable']=mstable
+
+def mstable1(nSteps=1,g=None,path=None,win=None):
+    return manifold_one_sided(True,nSteps,g,path,win,False)
+
+commands['ms1']=commands['mst1']=commands['msta1']=commands['mstab1']=commands['mstabl1']=commands['mstable1']=mstable1
 
 def munstableall(nSteps=1,g=None,path=None,win=None,):
     return manifold(False,nSteps,g,path,win,True)
 
 commands['mu*']=commands['mun*']=commands['muns*']=commands['munst*']=commands['munsta*']=commands['munstab*']=commands['munstabl*']=commands['munstable*']=munstableall
 
+def munstableall1(nSteps=1,g=None,path=None,win=None,):
+    return manifold_one_sided(False,nSteps,g,path,win,True)
+
+commands['mu1*']=commands['mun1*']=commands['muns1*']=commands['munst1*']=commands['munsta1*']=commands['munstab1*']=commands['munstabl1*']=commands['munstable1*']=munstableall1
+
 def mstableall(nSteps=1,g=None,path=None,win=None):
     return manifold(True,nSteps,g,path,win,True)
 
 commands['ms*']=commands['mst*']=commands['msta*']=commands['mstab*']=commands['mstabl*']=commands['mstable*']=mstableall
+
+def mstableall1(nSteps=1,g=None,path=None,win=None):
+    return manifold_one_sided(True,nSteps,g,path,win,True)
+
+commands['ms1*']=commands['mst1*']=commands['msta1*']=commands['mstab1*']=commands['mstabl1*']=commands['mstable1*']=mstableall1
 
 def two_d_manifold(nSteps,g,path,win):
     varying=win.cursor['varying']
