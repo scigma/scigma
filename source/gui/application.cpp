@@ -138,7 +138,8 @@ namespace scigma
     Application::Application():masterWindow_(NULL),log_(NULL),idleIndex_(0),loopIsRunning_(false),sleeping_(false)
     {
       char path[0x1000];
-      getcwd(path,0x1000);
+      if (getcwd(path, 0x1000) == nullptr)
+        perror("getcwd");
       log_=new Log(std::string(path)+"/.scigmaguierrors.log");
     }
     

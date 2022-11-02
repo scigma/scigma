@@ -1818,7 +1818,7 @@ C-----------------------------------------------------------------------
      1  6, 1, 1, ITOL, 0, 0, ZERO,ZERO)
       GO TO 700
  607   CALL XERR ('ODESSA - IOPT (=I1) ILLEGAL',
-     1   7, 1, 1, IOPT, 0, 0, ZERO,ZERO)
+     1   7, 1, 1, IOPT(I), 0, 0, ZERO,ZERO)
       GO TO 700
  608   CALL XERR('ODESSA - MF (=I1) ILLEGAL',
      1   8, 1, 1, MF, 0, 0, ZERO,ZERO)
