@@ -83,7 +83,13 @@ Create a folder for SCIGMA-related work (e.g \T{\$HOME/myodes} and drop the \T{s
 After a few seconds, the SCIGMA graphics window should appear.\\
 If you are using Portable Python in Windows, the fastest way to get things running is to drop the "scigma" folder into the "Portable Python ..." folder, double-click on \T{Python-Portable.exe} and type 
 \C{>>> import scigma}
-in the console that opens.
+in the console that opens.\\
+This process can also be done by creating a \href{https://github.com/scigma/scigma/releases}{runscigma.py} file with at least the content:
+\C{import scigma\\input("Press enter to exit.")\\ print("Exiting.")} 
+and then running the file from the command line:
+\C{python runscigma.py}
+If this installation does not work, please build from source and see section \ref{sec::building} to install missing prerequisites (C++ compiler, Fortran compiler, CMake).\\
+Note: An error message indicating that a .dylib library cannot be opened because the developer cannot be verified may appear. If that is the case, ensure that ``Allow apps downloaded from'' is toggled to ``App Store + idenfitied developers'' the in the Security \& Privacy $>$ General Panel. You may also need to go into the scigma-osx-X/scigma folder and control click on each of the ``.dylib'' files to manually open them. This will whitelist them.
 \subsection{Building SCIGMA from source}
 \label{sec::building}
 \subsubsection{Obtaining the sources}
@@ -131,6 +137,12 @@ and build with
 Now, \T{build} should contain the shared library \T{libscigma.dylib}.
 \C{\$ cp libscigma.dylib ../scigma}
 copies this library into the \T{scigma} subdirectory, which now contains the complete Python package. See section \ref{sec::running} on how to use the package.	
+
+\subsubsection{Running}
+Navigate to scigma-osx folder in terminal and run 
+\C{\$ python3 runscigma.py}
+If that python file is missing, please see section \ref{sec::running} for creating it.
+
 \newpage\section{Overview}
 SCIGMA is a Python package that allows you to
 \begin{itemize}
@@ -158,7 +170,8 @@ The first thing you have to do when working with SCIGMA is to let the program kn
 \begin{itemize}
 \item{\HL{plot}, which plots orbits of maps and trajectories of differential equations,}
 \item{\HL{guess}, which finds stationary states of trajectories and differential equations,}
-\item{and \HL{mstable}/\HL{munstable}, which trace out invariant manifolds.}
+\item{ \HL{mstable}/\HL{munstable}, which trace out invariant manifolds,}
+\item{and  \HL{cont}, which performs single-parameter continuation of a steady state.}
 \end{itemize}
 These commands, together with some more bookkeeping and visual commands are described in section \ref{sec::comm}. Some other commands that you might find useful include
 \begin{itemize}
@@ -179,7 +192,7 @@ In SCIGMA, there are three ways of encoding equations, namely
 \item	as a precompiled shared library (fastest, but less convenient than both of the above).
 \end{itemize}
 The next three sections describe all of these possibilities.\\\\
-Before we dive into the specifics, let us discuss what all three approaches have in common: SCIGMA distinguishes between three types of user defined symbols in equations: \emph{variables, parameters} and \emph{functions}. The number of variables determines the dimension of the phase space for an ODE or a map. Parameters are values that are constant in time and may be used for bifurcation analysis (\emph{... coming soon ...}). Functions are quantities that depend on variables, or parameters, or both, which are not strictly necessary to describe the problem, but might be convenient as auxiliary functions or otherwise interesting. For illustration, look at these equations for an harmonic oscillator:
+Before we dive into the specifics, let us discuss what all three approaches have in common: SCIGMA distinguishes between three types of user defined symbols in equations: \emph{variables, parameters} and \emph{functions}. The number of variables determines the dimension of the phase space for an ODE or a map. Parameters are values that are constant in time and may be used for bifurcation analysis. Functions are quantities that depend on variables, or parameters, or both, which are not strictly necessary to describe the problem, but might be convenient as auxiliary functions or otherwise interesting. For illustration, look at these equations for an harmonic oscillator:
 \begin{eqnarray}
 \dot{x}&=&-y\nonumber\\ 
 \dot{y}&=&\omega^2x\nonumber\\
@@ -382,9 +395,9 @@ The appearance of the resulting trajectory in depends on the current values of \
 prints the eigenvalues of the object specified by \T{name}. If \T{name} is not given, the currently selected object is used.  
 \cmd{evecs}{[name]}\\
 prints the eigenvectors of the object specified by \T{name}. If \T{name} is not given, the currently selected object is used.  
-\cmd{mstable}{[n] [origin] [name] / mstable* [n] [origin] [name]}\\takes a stationary state (the 'origin') previously found with \HL{guess} and plots \T{n} steps of the 1-dimensional unstable manifold of the origin along an unstable eigenvector, which is determined by the value of \HL{evec1}.  \T{name} will be assigned to the manifold as identifier for further reference. If \T{n} is not given, just the initial segment is created. If \T{origin} is not given, the currently selected object is used. If \T{name} is not given, a unique name of the form \T{'mfN'} will be generated. If \HL{mode} is \T{ode}, one step will correspond to an integration of $\pm$\HL{dt}. Otherwise, the manifold for the \HL{nperiod}-th iterate of the map will be constructed, with an arc length step of (roughly) \HL{ds}. The accuracy of the manifold stepping algorithm for maps can be adjusted with \HL{alpha}. The appearance of the manifold depends on the current values of \HL{color}, \HL{marker.style}, \HL{marker.size}, \HL{point.style}, \HL{point.size} and \HL{delay}. This command may be abbreviated by \T{ms / ms*}.
+\cmd{mstable}{[n] [origin] [name] / mstable* [n] [origin] [name]}\\takes a stationary state (the `origin') previously found with \HL{guess} and plots \T{n} steps of the 1-dimensional stable manifold of the origin along an stable eigenvector, which is determined by the value of \HL{evec1}.  \T{name} will be assigned to the manifold as identifier for further reference. If \T{n} is not given, just the initial segment is created. If \T{origin} is not given, the currently selected object is used. If \T{name} is not given, a unique name of the form \T{'mfN'} will be generated. If \HL{mode} is \T{ode}, one step will correspond to an integration of $\pm$\HL{dt}. Otherwise, the manifold for the \HL{nperiod}-th iterate of the map will be constructed, with an arc length step of (roughly) \HL{arc}. The accuracy of the manifold stepping algorithm for maps can be adjusted with \HL{alpha}. The appearance of the manifold depends on the current values of \HL{color}, \HL{marker.style}, \HL{marker.size}, \HL{point.style}, \HL{point.size} and \HL{delay}. This command may be abbreviated by \T{ms / ms*}. Note that both sides (both directions of the eigenvector) of the manifold will be drawn. To draw only one side, please use the commands \T{ms1 / ms1*}, soon to be deprecated, along with the setting \HL{eps} to change directions and distance.
 \cmd{munstable}{[n] [origin] [name] / munstable* [n] [origin] [name]}\\
-works analog to \T{mstable}. This command may be abbreviated by \T{mu / mu*}.
+works analog to \T{mstable}, except on unstable manifolds. This command may be abbreviated by \T{mu / mu*}. To draw just one side of the manifold, use \T{mu1 / mu1*} (soon to be deprecated) along with the setting \HL{eps} to change directions.
 %\cmd{m2unstable}{[n] [origin] [name]}\\
 %This command may be abbreviated by \T{mu}.
 %\cmd{m2stable}{[n] [origin] [name]}\\
@@ -395,6 +408,10 @@ If \T{name} denotes an orbit or stationary state of a stroboscopic map or Poinca
 takes the current position as center and places \T{n} initial conditions equally spaced on the circle with the specified diameter. \T{diameter} is given in units of the currently visible portion of phase space. If \T{n} is not given, 100 is used. This command may be abbreviated by \T{cir}.
 \cmd{fill}{<n>}\\
 inserts \T{n} equally distributed points between consecutive pairs of currently selected points (that means you need to have at least two points selected to use \T{fill}). The resulting set of points becomes the new initial condition. The coordinates of the new points are linear interpolations of the coordinates of the old points.
+\cmd{cont}{<n> <name>}\\
+continues the steady state by changing the parameter indicated by \T{name} for \T{n} steps of the step size setting \T{ds} using pseudo-arclength continuation. Associated settings include \T{a0}, \T{a1}, \T{ds}, \T{dsmin}, \T{dsmax}, \T{epsl}, \T{epsu}, \T{epss}, \T{rl0}, and \T{rl1}; all which parallel the \href{https://depts.washington.edu/bdecon/workshop2012/auto-tutorial/documentation/auto07p\%20manual.pdf}{AUTO} continuation program settings. The advanced setting list is not described here, but can be seen via the AUTO panel. After each continuation run, SCIGMA will auto-select the end point of the run. Specifying two names separated by a ``,'' will conduct 2-parameter continuation.\\
+\cmd{cycle}{<n> <name>}\\
+continues a limit cycle by changing the parameter indicated by \T{name} for \T{n} steps of the step size setting \T{ds} using pseudo-arclength continuation. Reports the maximum of the limit cycle. To use, first select a Hopf bifurcation point.
 \end{description}
 \subsection{View and style}
 \begin{description}
@@ -432,9 +449,25 @@ sets the direction in which crossings of Poincar\'e section are detected. If \T{
 \opt{maxtime}{<value>}\\ 
 determines, until which value of $t$ SCIGMA integrates to find a section of the Poincar\'e plane, before throwing the towel. \T{value} must be a positive real number, the default value is \T{100.0}.
 \opt{eps}{<value>}\\
-sets the distance of the initial segment of invariant manifolds from a stationary state. \T{value} must be a non-zero real number. By changing the sign, you can plot the two parts of one-dimensional manifolds. The default value is \T{0.0001}. 
+sets the distance of the initial segment of invariant manifolds from a stationary state when using the (to be deprecated commands) \HL{mu1}, \HL{ms1}. \T{value} must be a non-zero real number. By changing the sign, you can plot the two parts of one-dimensional manifolds. The default value is \T{0.0001}. 
 \opt{ds}{<value>}\\
-sets the arc length step for invariant manifolds of maps (not used if \HL{mode} is \T{ode}). \T{value} must be a positive real number, the default is \T{0.01}.
+sets the arc length step for invariant manifolds of maps (not used if \HL{mode} is \T{ode}) or for pseudo-arclength continuation. If used for manifolds, \T{value} must be a positive real number; if used with continuation, the direction of computation may be reversed by making \T{ds} negative. The default value is \T{0.01}.
+\opt{dsmin}{<value>}\\
+sets the minimum pseudo-arclength stepsize used in continuation if \T{IADS}, which controls the frequency of adaptation, is set greater than 0 (default is 1). \T{value} must be a positive real number. The default value is \T{1E-06}.
+\opt{dsmax}{<value>}\\
+sets the maximum pseudo-arclength stepsize used in continuation if \T{IADS}, which controls the frequency of adaptation, is set greater than 0 (default is 1). \T{value} must be a positive real number. The default value is \T{1}.
+\opt{arc}{<value>}\\
+sets the approximate distance between points in phase space on a manifold created by the commands \HL{mstable} and \HL{munstable}.
+\opt{rl0}{<value>}\\
+sets the lower bound on the continuation parameter. The default value is \T{-1E300}.
+\opt{rl1}{<value>}\\
+sets the upper bound on the continuation parameter. The default value is \T{1E300}.
+\opt{epsl}{<value>}\\
+sets the relative convergence criterion for parameters in the Newton/Chord equations. The default value is \T{1E-07}.
+\opt{epsu}{<value>}\\
+sets the relative convergence criterion for solution components in the Newton/Chord equations. The default value is \T{1E-07}.
+\opt{epss}{<value>}\\
+sets the relative convergence criterion for the arclength component in the Newton/Chord equations. The default value is \T{1E-06}. It is recommended that this value is 100 to 1000 times greater than \T{epsl}, \T{epsu}.
 \opt{alpha}{<value>}\\
 sets the maximum accepted angle for consecutive line segments on invariant manifolds of maps (not used if \HL{mode} is \T{ode}). \T{value} must be a positive angle in rad. Internally, SCIGMA uses an adapted step size algorithm to approximate invariant manifolds of maps. If two consecutive line segments have an angle of more than \T{alpha}, the internal step size is reduced. The default value is \T{0.3}.
 \opt{evec1}{<value>}\\
@@ -490,7 +523,8 @@ Both in two and three dimensions you can pick more than one point. To do so, pre
 \subsection{Picking objects}
 Whenever the mouse hovers over an object like a trajectory in the graphics window, the object is highlighted. If you now double click, this will select the object under the cursor as current object. The current object is used by commands like \HL{munstable}, if no object is explicitly given as an argument. Also, the coordinates of the object (in case of orbits and trajectories: the last point) are made current.
 \newpage\section{The Python layer}
-\ldots coming soon \ldots
+See \ref{sec::pythoneq}.\\
+\ldots more coming soon \ldots
 \section{The C++ layer}
 \ldots coming soon \ldots
 
