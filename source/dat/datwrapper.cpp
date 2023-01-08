@@ -1,4 +1,5 @@
 #include <vector>
+#include <limits>
 #include "mesh.hpp"
 #include "wave.hpp"
 
