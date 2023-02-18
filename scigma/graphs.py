@@ -127,6 +127,21 @@ def save(g=None,filename='',win=None):
                     f.write(str(varData[i*nVaryings*nParts+j])+'\t')
                 f.write(str(varData[(i+1)*nVaryings*nParts-1])+'\n')
             varWave.unlock()
+        # print time and variables of mesh
+        if 'mesh' in g and nVaryings:
+            ptsnormals = g['mesh'].points_and_normals()
+            nmeshpts = ptsnormals.size()//(nVaryings * 4) #3 extra values per dimension for normals
+            ptsnormals.lock()
+            pnData=ptsnormals.data()
+            f.write('#mesh variable values\n')
+            for i in range(nVaryings - 1):
+                f.write(varying[i%nVaryings]+"\t")
+            f.write(varying[-1]+"\n")
+            for i in range(nmeshpts):
+                for j in range(nVaryings-1):
+                    f.write(str(pnData[(i*nVaryings+j)*4])+'\t')
+                f.write(str(pnData[((i+1)*nVaryings-1)*4])+'\n')            
+            ptsnormals.unlock()
 
 commands['sav']=commands['save']=save
             

@@ -60,7 +60,7 @@ namespace scigma
 	/*!
 	  @return the PythonID of this object
 	*/
-	PythonID get_python_id()
+	PythonID get_python_id() const
 	{
 	  return id_;
 	}
