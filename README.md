@@ -120,7 +120,7 @@ Next, install the compiler using
  apply the changes. Finally, add `mingw/bin` and `mingw/msys/1.0/bin` to the
  system path. !-->
 
- If you do not have CMake, install it via athe command
+ If you do not have CMake, install it via the command
 
     $ pacman -S mingw-w64-ucrt-x86_64-cmake
  <!--http://www.cmake.org/download. !-->
@@ -150,15 +150,15 @@ Next, enter
  `libscigma.dll` will appear in the `build` folder. Copy this file into the
  `scigma` subdirectory with
  
-    $ cp libscigma.dll ../scigma`
+    $ cp libscigma.dll ../scigma
 
-Finally, copy the following 5 dlls from `/ucrt64/bin` in your MSYS2 installation:
+Finally, copy the following 5 dlls from `/ucrt64/bin` in your MSYS2 installation
+(these may have different version numbers than what is shown below):
 * libwinpthread-1.dll
 * libstdc++-6.dll
 * libquadmath-0.dll
 * libgfortran-5.dll
 * libgcc_s_seh-1.dll
-(these may have different version numbers than what is shown above).
 
  The `scigma` folder now contains the complete Python package and can be used
  as described in section 2.3.
