@@ -88,25 +88,47 @@ you might be better served with a full fledged mathematical software suite
  system (if CMake can deal with the compilers). However, the instructions below
  are the recommended way to build things, while other ways are untested.
   
- **3.2 Building under Windows**
+ **3.2 Building under Windows (64-bit)**
 
  You will need both MinGW (with the g++, gfortran and msys packages) and CMake
  to compile SCIGMA. 
 
- If you do not have MinGW, download `mingw-get-setup.exe` from
+ If you do not have MinGW / MSYS, download `msys2-x86_64-20230127.exe` from
 
- http://sourceforge.net/projects/mingw/files 
+ http://www.msys2.org/
 
- and start the installation manager. Mark the packages `mingw32-base`,
+start the installation manager, and complete the install.
+
+Open the terminal by clicking on `MSYS2 UCRT64` from the Start menu, or clicking
+on  
+
+    C:\msys65\ucrt64.exe
+
+If the install was completed correctly, the terminal prompt will say UCRT64
+in magenta. 
+
+Ensure MSYS2 is up to date by typing in the terminal 
+
+
+    $ pacman -Syuu
+ 
+Next, install the compiler using 
+
+    $ pacman -S mingw-64-ucrt-x86_64-toolchain
+ <!-- Mark the packages `mingw32-base`,
  `mingw32-gcc-gfortran`, `mingw32-gcc-g++` and `msys-base` for installation and
  apply the changes. Finally, add `mingw/bin` and `mingw/msys/1.0/bin` to the
- system path.
+ system path. !-->
 
- If you do not have CMake, download and run the installer from
+ If you do not have CMake, install it via athe command
 
- http://www.cmake.org/download. 
+    $ pacman -S mingw-w64-ucrt-x86_64-cmake
+ <!--http://www.cmake.org/download. !-->
 
- Now you are ready to build SCIGMA:  
+ Now you are ready to build SCIGMA: in the same terminal, go into the scigma
+ build folder. For example, use
+
+ <!--
  Start the CMake gui and specify the `source` and `build` subdirectories of the
  toplevel folder as source directory and binary directory, respectively. Push
  the `Configure`-Button. When CMake asks you for the build type, choose
@@ -115,19 +137,28 @@ you might be better served with a full fledged mathematical software suite
  done with CMake. 
  Start the msys terminal (in the MinGW installation folder under
  `msys/1.0/bin/msys.bat`) and change into the build directory (if your build
- directory is `C:\scigma-0.9.1\build`, for example, use
+ directory is `C:\scigma-0.9.1\build`, for example, use !-->
 
     $ cd /c/scigma-0.9.1/build
 
- as command in the msys console). Finally, enter
+Next, enter
 
-    $ make
+    $ cmake ../source
+    $ ninja
  
- to build the package. If everything runs smoothly, the shared library
+ to build and compile the package. If everything runs smoothly, the shared library
  `libscigma.dll` will appear in the `build` folder. Copy this file into the
  `scigma` subdirectory with
  
     $ cp libscigma.dll ../scigma`
+
+Finally, copy the following 5 dlls from `/ucrt64/bin` in your MSYS2 installation:
+* libwinpthread-1.dll
+* libstdc++-6.dll
+* libquadmath-0.dll
+* libgfortran-5.dll
+* libgcc_s_seh-1.dll
+(these may have different version numbers than what is shown above).
 
  The `scigma` folder now contains the complete Python package and can be used
  as described in section 2.3.
