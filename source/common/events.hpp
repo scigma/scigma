@@ -246,7 +246,7 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,0>():processIndex_(0){}
+      EventSourceWithNArguments():processIndex_(0){}
       ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
@@ -279,7 +279,7 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,1>():processIndex_(0){}
+      EventSourceWithNArguments():processIndex_(0){}
       ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
@@ -314,7 +314,7 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,2>():processIndex_(0){}
+      EventSourceWithNArguments():processIndex_(0){}
       ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
@@ -350,7 +350,7 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,3>():processIndex_(0){}
+      EventSourceWithNArguments():processIndex_(0){}
       ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
@@ -387,7 +387,7 @@ namespace scigma
 	}
     }
   public:
-    EventSourceWithNArguments<Event,4>():processIndex_(0){}
+    EventSourceWithNArguments():processIndex_(0){}
     ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
@@ -425,7 +425,7 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,5>():processIndex_(0){}
+      EventSourceWithNArguments():processIndex_(0){}
       ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
