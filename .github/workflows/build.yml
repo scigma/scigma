@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Fortran compiler
+      - name: Install Fortran compiler, OpenGL/X dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gfortran cmake libglu1-mesa-dev xorg-dev
@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install gcc cmake
+          brew install gcc cmake gfortran
 
       - name: Configure
         run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
