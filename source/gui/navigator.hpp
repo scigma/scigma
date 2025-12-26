@@ -19,11 +19,11 @@ namespace scigma
       {
       public:
 	Navigator(int view);
-	~Navigator() override;
+	virtual ~Navigator();
 
-	bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
-	bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld) override;
-	bool process(ScrollEvent event, GLWindow* w, GLfloat xScroll, GLfloat yScroll) override;
+	virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
+	virtual bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld);
+	virtual bool process(ScrollEvent event, GLWindow* w, GLfloat xScroll, GLfloat yScroll);
 
       private:
 	Navigator(const Navigator&);

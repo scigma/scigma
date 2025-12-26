@@ -47,25 +47,25 @@ namespace scigma
 	  SOLID
 	};
 
-      void set_marker_style(Marker::Type marker) override;
+      virtual void set_marker_style(Marker::Type marker);
       Marker::Type marker_style() const;
       
-      void set_marker_size(GLfloat size) override;
+      virtual void set_marker_size(GLfloat size);
       GLfloat marker_size() const;
       
-      void set_point_style(Marker::Type point) override;
+      virtual void set_point_style(Marker::Type point);
       Marker::Type point_style() const;
 
-      void set_point_size(GLfloat size) override;
+      virtual void set_point_size(GLfloat size);
       GLfloat point_size() const;
 
-      void set_color(const GLfloat* color) override;
+      virtual void set_color(const GLfloat* color);
       const GLfloat* color() const;
       
-      void set_delay(GLfloat delay) override;
+      virtual void set_delay(GLfloat delay);
       GLfloat delay() const;
 
-      void set_style(Style style) override;
+      virtual void set_style(Style style);
       GLfloat style() const;
 
       void replay();
