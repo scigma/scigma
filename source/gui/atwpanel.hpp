@@ -122,7 +122,7 @@ namespace scigma
 	void set_param(const char* identifier, const char* parameter, TwParamValueType type, unsigned int count, const void* values);
 	void get_param(const char* identifier, const char* parameter, TwParamValueType type, unsigned int count, void* values);
 	
-	virtual bool process(ResizeEvent event, int x, int y);
+	bool process(ResizeEvent event, int x, int y) override;
 
       private:
 	TwBar* bar_;
