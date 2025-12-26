@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "screentext.hpp"
 #include "glutil.hpp"
 #include "glcontext.hpp"
@@ -286,7 +288,8 @@ namespace scigma
 	  glUniform4f(screenAnchorLocation_,1,1,0,0);;break;
 	case SCREEN_ANCHOR_TOP_LEFT:
 	  glUniform4f(screenAnchorLocation_,-1,1,0,0);break;
-	}
+        default: throw std::runtime_error("unknown screen anchor location");	
+      }
      
       glBindTexture(GL_TEXTURE_2D,font_.textureID);
       glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);

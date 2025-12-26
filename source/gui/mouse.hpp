@@ -22,7 +22,7 @@ namespace scigma
     {
     public:
       Mouse();
-      ~Mouse() override;
+      ~Mouse();
       
       bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
       
