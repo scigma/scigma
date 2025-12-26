@@ -22,9 +22,9 @@ namespace scigma
     {
     public:
       Mouse();
-      virtual ~Mouse();
+      ~Mouse() override;
       
-      virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
+      bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
       
     private:
       Mouse(const Mouse&);

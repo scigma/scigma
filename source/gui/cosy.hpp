@@ -29,18 +29,18 @@ namespace scigma
       {
        public:
 	Cosy(GLWindow* glWindow,int view,bool largeFontsFlag=false);
-	~Cosy();
-	virtual bool process(ScaleEvent event, const ViewingVolume* volume, GLfloat xFactor, GLfloat yFactor, GLfloat zFactor);
-	virtual bool process(ShiftEvent event, const ViewingVolume* volume, GLfloat xShift, GLfloat yShift, GLfloat zShift);
-	virtual bool process(RotateEvent event, const ViewingVolume* volume, GLfloat x, GLfloat y, GLfloat z,GLfloat angle);
-	virtual bool process(RangeEvent event, const ViewingVolume* volume);
-	virtual bool process(ResetEvent event, const ViewingVolume* volume);
-	virtual bool process(AdjustEvent event, const Ruler* ruler, GLfloat min, GLfloat max);
+	~Cosy() override;
+	bool process(ScaleEvent event, const ViewingVolume* volume, GLfloat xFactor, GLfloat yFactor, GLfloat zFactor) override;
+	bool process(ShiftEvent event, const ViewingVolume* volume, GLfloat xShift, GLfloat yShift, GLfloat zShift) override;
+	bool process(RotateEvent event, const ViewingVolume* volume, GLfloat x, GLfloat y, GLfloat z,GLfloat angle) override;
+	bool process(RangeEvent event, const ViewingVolume* volume) override;
+	bool process(ResetEvent event, const ViewingVolume* volume) override;
+	bool process(AdjustEvent event, const Ruler* ruler, GLfloat min, GLfloat max) override;
      
 	void set_view(int view);
 	void set_label(int coordinate,std::string label);
 	
-	void draw(GLContext* glContext);
+	void draw(GLContext* glContext) override;
 
       private:
 	Cosy(const Cosy&);
