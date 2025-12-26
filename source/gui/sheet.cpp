@@ -343,6 +343,7 @@ namespace scigma
 	  draw_isolines();
 	  break;
 	case POINTS:
+        default:
 	  draw_points();
 	  break;
 	}
