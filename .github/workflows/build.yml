@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew upgrade
+          brew install gfortran
 
       - name: Set Fortran compiler for cmake
         run: echo "FC=$(brew --prefix)/bin/gfortran" >> $GITHUB_ENV
