@@ -28,9 +28,9 @@ extern "C"
       python_idle_callback(NULL)
     {}
     virtual ~ScigmaGuiApplicationEventMonitor();
-    virtual bool process(LoopEvent event)
+    virtual bool process(LoopEvent event) override
     {python_loop_callback();return false;}
-    virtual bool process(IdleEvent event,double time)
+    virtual bool process(IdleEvent event,double time) override
     {python_idle_callback();return false;}
 
   };
