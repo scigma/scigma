@@ -68,8 +68,6 @@ jobs:
 
       - name: Disable libpng NEON on ARM
         run: |
-          echo "CFLAGS=-DPNG_ARM_NEON=0" >> $GITHUB_ENV
-          echo "CPPFLAGS=-DPNG_ARM_NEON=0" >> $GITHUB_ENV
           echo "CFLAGS=-DPNG_ARM_NEON_OPT=0" >> $GITHUB_ENV
           echo "CPPFLAGS=-DPNG_ARM_NEON_OPT=0" >> $GITHUB_ENV
 
@@ -78,3 +76,31 @@ jobs:
 
       - name: Build
         run: cmake --build build
+
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        install: >
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-gfortran
+          mingw-w64-x86_64-cmake
+
+    - name: Configure
+      shell: msys2 {0}
+      run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      shell: msys2 {0}
+      run: cmake --build build
+
+
+
