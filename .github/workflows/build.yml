@@ -1,4 +1,4 @@
-name: Build (Linux)
+name: Build
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   build-linux:
+    name: Build (Linux)
     runs-on: ubuntu-latest
 
     steps:
@@ -16,6 +17,25 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gfortran cmake libglu1-mesa-dev xorg-dev
+
+      - name: Configure
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+        
+  build-macos-intel:
+    name: Build (macOS Intel)
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install gcc cmake
 
       - name: Configure
         run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
