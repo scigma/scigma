@@ -38,8 +38,8 @@ namespace scigma
 
 	  void draw(GLContext* context);
 
-	  virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
-	  virtual bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld);
+	  bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
+	  bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld) override;
 
 	private:
 	  void prepare_attributes();

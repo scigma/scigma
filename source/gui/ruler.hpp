@@ -38,11 +38,11 @@ namespace scigma
       Ruler(GLWindow* glWindow,Font::Type labelFont, Font::Type tickFont);
       ~Ruler();
 
-      virtual bool process(RotateEvent event, const ViewingVolume* volume, GLfloat ax,GLfloat ay, GLfloat az, GLfloat angle);
-      virtual bool process(ResetEvent event, const ViewingVolume* volume);
-      virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
-      virtual bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld);
-      virtual bool process(ScrollEvent event, GLWindow* w, GLfloat xScroll, GLfloat yScroll);
+      bool process(RotateEvent event, const ViewingVolume* volume, GLfloat ax,GLfloat ay, GLfloat az, GLfloat angle) override;
+      bool process(ResetEvent event, const ViewingVolume* volume) override;
+      bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
+      bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld) override;
+      bool process(ScrollEvent event, GLWindow* w, GLfloat xScroll, GLfloat yScroll) override;
 
       void set_label(std::string label);
       void set_end_points(const GLfloat* p1, const GLfloat* p2);
