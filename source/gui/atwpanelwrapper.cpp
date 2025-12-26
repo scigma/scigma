@@ -26,9 +26,9 @@ extern "C"
       python_callback_(python_callback)
     {}
     virtual ~ScigmaGuiATWPanelEventMonitor();
-    virtual bool process(EntryChangeEvent event, const char* id, const void* ptr)
+    bool process(EntryChangeEvent event, const char* id, const void* ptr) override
     {python_callback_(id,ptr);return true;}
-    virtual bool process(ButtonEvent event, const char* id)
+    bool process(ButtonEvent event, const char* id) override
     {python_callback_(id,NULL);return true;}
   };
   ScigmaGuiATWPanelEventMonitor::~ScigmaGuiATWPanelEventMonitor(){}
