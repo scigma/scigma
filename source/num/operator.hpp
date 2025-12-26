@@ -1,6 +1,7 @@
 #ifndef __SCIGMA_NUM_OPERATOR_H__
 #define __SCIGMA_NUM_OPERATOR_H__
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
