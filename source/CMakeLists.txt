@@ -1,4 +1,4 @@
-Cmake_minimum_required(VERSION 3.0)
+Cmake_minimum_required(VERSION 3.10)
 project(scigma)
 
 enable_language(Fortran)
