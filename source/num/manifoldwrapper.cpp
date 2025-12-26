@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "../common/log.hpp"
 #include "../common/blob.hpp"
 #include "../dat/wave.hpp"
@@ -90,6 +92,8 @@ extern "C"
 	    innerStepperList[i] =new PoincareStepper(*eqsys,dt,maxtime,secvar,secdir,secval,nTol,stiff,aTol,rTol, size_t(maxIter));
 	  }
 	break;
+	default:
+		  throw std::runtime_error("unknown value for mode");
       }
 
     varyingWave->lock();
