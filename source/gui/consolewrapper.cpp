@@ -25,7 +25,7 @@ extern "C"
   public:
     ScigmaGuiConsoleEventMonitor(void (*python_callback)(const char*)):python_callback_(python_callback){}
     virtual ~ScigmaGuiConsoleEventMonitor();
-    virtual bool process(InputEvent event,std::string input)
+    bool process(InputEvent event,std::string input) override
     {python_callback_(input.c_str());return true;}
     };
     ScigmaGuiConsoleEventMonitor::~ScigmaGuiConsoleEventMonitor(){}
