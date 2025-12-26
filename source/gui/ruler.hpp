@@ -36,13 +36,13 @@ namespace scigma
     {
     public:
       Ruler(GLWindow* glWindow,Font::Type labelFont, Font::Type tickFont);
-      ~Ruler();
+      ~Ruler() override;
 
-      virtual bool process(RotateEvent event, const ViewingVolume* volume, GLfloat ax,GLfloat ay, GLfloat az, GLfloat angle);
-      virtual bool process(ResetEvent event, const ViewingVolume* volume);
-      virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
-      virtual bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld);
-      virtual bool process(ScrollEvent event, GLWindow* w, GLfloat xScroll, GLfloat yScroll);
+      bool process(RotateEvent event, const ViewingVolume* volume, GLfloat ax,GLfloat ay, GLfloat az, GLfloat angle) override;
+      bool process(ResetEvent event, const ViewingVolume* volume) override;
+      bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
+      bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld) override;
+      bool process(ScrollEvent event, GLWindow* w, GLfloat xScroll, GLfloat yScroll) override;
 
       void set_label(std::string label);
       void set_end_points(const GLfloat* p1, const GLfloat* p2);
@@ -51,15 +51,15 @@ namespace scigma
       static void on_gl_context_creation(GLContext* context);
       static void on_gl_context_destruction(GLContext* context);
       
-      void on_addition(GLContext* context);
-      void on_removal(GLContext* context);
+      void on_addition(GLContext* context) override;
+      void on_removal(GLContext* context) override;
 
-      void on_hover_begin(GLContext* context);
-      void on_hover_end(GLContext* context);
+      void on_hover_begin(GLContext* context) override;
+      void on_hover_end(GLContext* context) override;
                   
       static void before_batch_draw(GLContext* context);
 
-      void draw(GLContext* context);
+      void draw(GLContext* context) override;
 
       void update_geometry(const ViewingVolume* volume);
       

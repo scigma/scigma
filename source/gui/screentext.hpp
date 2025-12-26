@@ -18,7 +18,7 @@ namespace scigma
     {
     public:
       ScreenText(Font::Type type);
-      ~ScreenText(); 
+      ~ScreenText() override; 
       
       void set_text(const std::vector<std::string>& text,
 		    const std::vector<GLfloat>& x,
@@ -40,7 +40,7 @@ namespace scigma
 
       static void before_batch_draw(GLContext* glContext);
 
-      void draw(GLContext* glContext);
+      void draw(GLContext* glContext) override;
 
       void set_offset(GLfloat xOffset, GLfloat yOffset);
 

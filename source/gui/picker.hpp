@@ -29,17 +29,17 @@ namespace scigma
 	{
 	public:
 	  Picker(int view);
-	  ~Picker();
+	  ~Picker() override;
 
 	  static void on_gl_context_creation(GLContext* context);
 	  static void on_gl_context_destruction(GLContext* context);
 
 	  static void before_batch_draw(GLContext* context);
 
-	  void draw(GLContext* context);
+	  void draw(GLContext* context) override;
 
-	  virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
-	  virtual bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld);
+	  bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
+	  bool process(MouseMotionEvent event, GLWindow* w, GLfloat x, GLfloat y, GLfloat xOld, GLfloat yOld) override;
 
 	private:
 	  void prepare_attributes();
