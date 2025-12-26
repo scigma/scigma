@@ -66,6 +66,11 @@ jobs:
           echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
           echo "FC=gfortran" >> $GITHUB_ENV
 
+      - name: Disable libpng NEON on ARM
+        run: |
+          echo "CFLAGS=-DPNG_ARM_NEON=0" >> $GITHUB_ENV
+          echo "CPPFLAGS=-DPNG_ARM_NEON=0" >> $GITHUB_ENV
+
       - name: Configure
         run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-error=poison-system-directories -Wno-covered-switch-default"
 
