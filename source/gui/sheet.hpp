@@ -47,14 +47,15 @@ namespace scigma
       void on_hover_end(GLContext* glContext);
       
       // virtual methods inherited from Graph
-      virtual void finalize();
+      void finalize() override;
 
-      virtual void set_attributes_for_view(const std::vector<int>& indices);
+      void set_attributes_for_view(const std::vector<int>& indices) override;
 
-      virtual void adjust_shaders_for_view(const VecS& independentVariables,
+      void adjust_shaders_for_view(const VecS& independentVariables,
 					   const VecS& expressions,
-					   double timeStamp);
-      virtual void set_style(Style style);
+					   double timeStamp) override;
+      void set_style(Style style) override;
+
       void set_light_direction(const GLfloat* direction);
       void set_light_parameters(const GLfloat* parameters);
 
