@@ -47,3 +47,27 @@ jobs:
 
       - name: Build
         run: cmake --build build
+
+  build-macos-arm:
+    name: Build (macOS ARM)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install gfortran
+          
+      - name: Expose Homebrew Fortran compiler
+        run: |
+          echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
+          echo "FC=gfortran" >> $GITHUB_ENV
+
+      - name: Configure
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-error=poison-system-directories -Wno-covered-switch-default"
+
+      - name: Build
+        run: cmake --build build
