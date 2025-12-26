@@ -24,54 +24,54 @@ namespace scigma
     public:
       InternalEquationSystem();
 
-      virtual uint64_t time_stamp() const;
-      virtual std::string parse(std::string expression);
+      uint64_t time_stamp() const override;
+      std::string parse(std::string expression) override;
 
-      virtual void stall();
+      void stall() override;
       void request_rebuild(bool lean=false);
-      virtual void flush();
+      void flush() override;
 
       void clear();
 
-      virtual void set(const std::string& name, double value);
-      virtual double get(const std::string& name);
+      void set(const std::string& name, double value) override;
+      double get(const std::string& name) override;
       
-      virtual size_t n_variables() const;
-      virtual size_t n_parameters() const;
-      virtual size_t n_functions() const;
-      virtual size_t n_constants() const;
+      size_t n_variables() const override;
+      size_t n_parameters() const override;
+      size_t n_functions() const override;
+      size_t n_constants() const override;
 
-      virtual const double& time() const;
-      virtual const double* variable_values() const;
-      virtual const double* parameter_values() const;
-      virtual const double* function_values();
-      virtual const double* constant_values();
+      const double& time() const override;
+      const double* variable_values() const override;
+      const double* parameter_values() const override;
+      const double* function_values() override;
+      const double* constant_values() override;
 
-      virtual const std::string* variable_names() const;
-      virtual const std::string* parameter_names() const;
-      virtual const std::string* function_names() const;
-      virtual const std::string* constant_names() const;
+      const std::string* variable_names() const override;
+      const std::string* parameter_names() const override;
+      const std::string* function_names() const override;
+      const std::string* constant_names() const override;
 
-      virtual const std::string* variable_definitions() const;
-      virtual const std::string* function_definitions() const;
-      virtual const std::string* constant_definitions() const;
+      const std::string* variable_definitions() const override;
+      const std::string* function_definitions() const override;
+      const std::string* constant_definitions() const override;
 
-      virtual bool is_autonomous() const;
+      bool is_autonomous() const override;
 
-      virtual F f() const;
-      virtual F dfdx() const;
-      virtual F func() const;
-      virtual F_p f_p() const;
-      virtual F_p dfdx_p() const;
-      virtual F_p dfdp_p() const;
-      virtual F_p func_p() const;
-      virtual F_t f_t() const;
-      virtual F_t dfdx_t() const;
-      virtual F_t func_t() const;
-      virtual F_pt f_pt() const;
-      virtual F_pt dfdx_pt() const;
-      virtual F_pt dfdp_pt() const;
-      virtual F_pt func_pt() const;
+      F f() const override;
+      F dfdx() const override;
+      F func() const override;
+      F_p f_p() const override;
+      F_p dfdx_p() const override;
+      F_p dfdp_p() const override;
+      F_p func_p() const override;
+      F_t f_t() const override;
+      F_t dfdx_t() const override;
+      F_t func_t() const override;
+      F_pt f_pt() const override;
+      F_pt dfdx_pt() const override;
+      F_pt dfdp_pt() const override;
+      F_pt func_pt() const override;
 
     private:
       std::string trim(std::string s) const;
