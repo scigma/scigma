@@ -36,9 +36,14 @@ jobs:
         run: |
           brew update
           brew install gfortran
-        
+          
+      - name: Expose Homebrew Fortran compiler
+        run: |
+          echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
+          echo "FC=gfortran" >> $GITHUB_ENV
+
       - name: Configure
-        run: cmake -B build -S source -DCMAKE_Fortran_COMPILER=$(brew --prefix)/bin/gfortran
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build
