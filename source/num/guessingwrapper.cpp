@@ -265,6 +265,7 @@ extern "C"
 	  PoincareStepper* poincareStepper(new PoincareStepper(*eqsys,dt,maxtime,secidx,secdir,secval,nTol,stiff,aTol,rTol, size_t(maxIter),true));
 	  task=create_guessing_task(identifier,log,poincareStepper,varyingWave,evWave,nTol,size_t(nPeriod),showAllIterates?1:0,long(secidx));
 	}
+		  break;
 	default:
       throw std::runtime_error("unexpected value of mode");
       }
