@@ -186,7 +186,7 @@ namespace scigma
 	case Z_COORDINATE:
 	  rotate(currentRotationMatrix_[8],currentRotationMatrix_[9],currentRotationMatrix_[10],angle);
           return;
-        case default:
+        default:
           throw std::runtime_error("unknown rotation axis");
 	}
     }
