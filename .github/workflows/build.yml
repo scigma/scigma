@@ -91,7 +91,7 @@ jobs:
         msystem: MINGW64
         install: >
           mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-gfortran
+          mingw-w64-x86_64-gcc-fortran
           mingw-w64-x86_64-cmake
 
     - name: Configure
