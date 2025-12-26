@@ -43,7 +43,7 @@ jobs:
           echo "FC=gfortran" >> $GITHUB_ENV
 
       - name: Configure
-        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-error=poison-system-directories"
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-error=poison-system-directories -Wno-covered-switch-default"
 
       - name: Build
         run: cmake --build build
