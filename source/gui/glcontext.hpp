@@ -247,7 +247,7 @@ namespace scigma
       template<class TypeList> void draw(size_t objectIndexBase)
 	{
 	  GLfloat color[3];
-	  const unsigned char typeIndex(((int)Loki::TL::Length<DrawableTypes>::value-(int)Loki::TL::Length<TypeList>::value));
+	  const unsigned char typeIndex((static_cast<int>(Loki::TL::Length<DrawableTypes>::value)-static_cast<int>(Loki::TL::Length<TypeList>::value)));
 	  size_t nType(drawables[typeIndex].size());
 	  if(0!=nType)
 	    {
@@ -276,7 +276,7 @@ namespace scigma
 
       template<class TypeList> void begin_hover(size_t hoverIndexBase)
 	{
-	  const size_t typeIndex(((int)Loki::TL::Length<DrawableTypes>::value-(int)Loki::TL::Length<TypeList>::value));
+	  const size_t typeIndex((static_cast<int>(Loki::TL::Length<DrawableTypes>::value)-static_cast<int>(Loki::TL::Length<TypeList>::value)));
 	  size_t nType(drawables[typeIndex].size());
 	  if(hoverIndex_<hoverIndexBase+nType)
 	    (reinterpret_cast<typename TypeList::Head*>(drawables[typeIndex][hoverIndex_-hoverIndexBase]))->on_hover_begin(this);
@@ -286,7 +286,7 @@ namespace scigma
       
       template<class TypeList> void hover(size_t hoverIndexBase, GLint x, GLint y)
 	{
-	  const size_t typeIndex(((int)Loki::TL::Length<DrawableTypes>::value-(int)Loki::TL::Length<TypeList>::value));
+	  const size_t typeIndex((static_cast<int>(Loki::TL::Length<DrawableTypes>::value)-static_cast<int>(Loki::TL::Length<TypeList>::value)));
 	  size_t nType(drawables[typeIndex].size());
 	  if(hoverIndex_<hoverIndexBase+nType)
 	    {
@@ -321,7 +321,7 @@ namespace scigma
       
       template<class TypeList> void end_hover(size_t hoverIndexBase)
 	{
-	  const size_t typeIndex(((int)Loki::TL::Length<DrawableTypes>::value-(int)Loki::TL::Length<TypeList>::value));
+	  const size_t typeIndex((static_cast<int>(Loki::TL::Length<DrawableTypes>::value)-static_cast<int>(Loki::TL::Length<TypeList>::value)));
 	  size_t nType(drawables[typeIndex].size());
 	  if(hoverIndex_<hoverIndexBase+nType)
 	    (reinterpret_cast<typename TypeList::Head*>(drawables[typeIndex][hoverIndex_-hoverIndexBase]))->on_hover_end(this);
