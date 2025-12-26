@@ -1,6 +1,7 @@
 #ifndef SCIGMA_NUM_EQUATIONSYSTEM_HPP
 #define SCIGMA_NUM_EQUATIONSYSTEM_HPP
 
+#include <cstdint>
 #include <string>
 #include <functional>
 #include "../common/pythonobject.hpp"
