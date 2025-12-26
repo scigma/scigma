@@ -32,7 +32,7 @@ namespace scigma
 	  };
 	
 	Console(GLContext* context,bool largeFontsFlag=false);
-	~Console() override;
+	~Console();
 	bool process(CharEvent event, GLWindow* window, unsigned int unicode) override;
 	bool process(KeyEvent event, GLWindow* window, int key,int scancode,int action,int mods) override;
 	void set_displayed_screen_lines(unsigned int number);
