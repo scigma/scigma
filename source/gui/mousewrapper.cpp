@@ -18,7 +18,7 @@ class ScigmaGuiRightClickEventMonitor:
   public:
     ScigmaGuiRightClickEventMonitor(void (*python_callback)()):python_callback_(python_callback){}
     virtual ~ScigmaGuiRightClickEventMonitor();
-    virtual bool process(RightClickEvent /*event*/)
+    bool process(RightClickEvent /*event*/) override
     {python_callback_();return true;}
   };
   ScigmaGuiRightClickEventMonitor::~ScigmaGuiRightClickEventMonitor()

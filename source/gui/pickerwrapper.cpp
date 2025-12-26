@@ -22,7 +22,7 @@ extern "C"
   public:
     ScigmaGuiPickerEventMonitor(void (*python_callback)(bool,GLfloat,GLfloat,GLfloat)):python_callback_(python_callback){}
     virtual ~ScigmaGuiPickerEventMonitor();
-    virtual bool process(PickEvent event,bool ctrl,GLfloat x, GLfloat y, GLfloat z)
+    bool process(PickEvent event,bool ctrl,GLfloat x, GLfloat y, GLfloat z) override
     {python_callback_(ctrl,x,y,z);return true;}
     };
     ScigmaGuiPickerEventMonitor::~ScigmaGuiPickerEventMonitor(){}
