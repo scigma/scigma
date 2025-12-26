@@ -2,7 +2,7 @@ name: Build (Linux)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ gh-actions-builds ]
 
 jobs:
   build-linux:
