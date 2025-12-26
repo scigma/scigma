@@ -43,7 +43,7 @@ jobs:
           echo "FC=gfortran" >> $GITHUB_ENV
 
       - name: Configure
-        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-isystem $(brew --prefix)/include"
 
       - name: Build
         run: cmake --build build
