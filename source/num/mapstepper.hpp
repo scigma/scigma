@@ -17,16 +17,16 @@ namespace scigma
     public:
       MapStepper(const EquationSystem& eqsys, bool forward=true);
       
-      virtual double t() const;
-      virtual const double* x() const;
-      virtual const double* func() const;
-      virtual const double* jac() const;
+      double t() const override;
+      const double* x() const override;
+      const double* func() const override;
+      const double* jac() const override;
 
-      virtual void reset(double t,const double *x);
-      virtual void advance(size_t n=1);
+      void reset(double t,const double *x) override;
+      void advance(size_t n=1) override;
 
-      virtual size_t n_variables() const;
-      virtual size_t n_functions() const;
+      size_t n_variables() const override;
+      size_t n_functions() const override;
 
     private:
       MapStepper();
