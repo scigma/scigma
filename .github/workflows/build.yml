@@ -35,6 +35,16 @@ jobs:
  
           patchelf --set-rpath '$ORIGIN' scigma/libscigma.so
 
+      - name: Show scigma contents
+        run: |
+          ls -l scigma
+
+      - name: Upload scigma package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scigma-${{ runner.os }}-${{ runner.arch }}
+          path: scigma/
+
   build-macos-intel:
     name: Build (macOS Intel)
     runs-on: macos-15-intel
@@ -77,6 +87,16 @@ jobs:
             install_name_tool -change "$(otool -L scigma/libscigma.dylib | grep $(basename "$lib") | awk '{print $1}')" \
             "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
           done
+
+      - name: Show scigma contents
+        run: |
+          ls -l scigma
+
+      - name: Upload scigma package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scigma-${{ runner.os }}-${{ runner.arch }}
+          path: scigma/
 
   build-macos-arm:
     name: Build (macOS ARM)
@@ -126,6 +146,16 @@ jobs:
             "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
           done
 
+      - name: Show scigma contents
+        run: |
+          ls -l scigma
+
+      - name: Upload scigma package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scigma-${{ runner.os }}-${{ runner.arch }}
+          path: scigma/
+
   build-windows:
     name: Build (Windows)
     runs-on: windows-latest
@@ -161,3 +191,15 @@ jobs:
         | awk '{print $3}' \
         | grep -viE '^(kernel32|user32|gdi32|opengl32|shell32|advapi32|msvcrt)\.dll$' \
         | xargs -I{} cp /mingw64/bin/{} scigma/
+
+    - name: Show scigma contents
+      shell: msys2 {0}
+      run: |
+        ls -l scigma
+
+    - name: Upload scigma package
+      uses: actions/upload-artifact@v4
+      with:
+        name: scigma-${{ runner.os }}-${{ runner.arch }}
+        path: scigma/
+
