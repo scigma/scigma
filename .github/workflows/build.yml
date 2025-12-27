@@ -75,6 +75,8 @@ jobs:
         run: |
           cp build/libscigma.dylib scigma/
 
+          otool -L build/libscgima.dylib | echo
+
           otool -L build/libscigma.dylib \
           | tail -n +2 \
           | awk '{print $1}' \
