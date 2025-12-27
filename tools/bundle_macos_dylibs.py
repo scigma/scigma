@@ -41,7 +41,6 @@ def bundle(bundle_dir):
 
     while dylibs:
         lib = dylibs.pop()
-        print("processing lib: " + str(lib))
         if lib in processed:
             print("already processed")
             continue
@@ -49,23 +48,27 @@ def bundle(bundle_dir):
 
         for dep in otool_deps(str(lib)):
             if is_system_lib(dep):
-                print(str(dep) + " is system lib, continue")
                 continue
 
             dep_path = resolve_real_path(dep)
             if dep_path is None:
-                print("cannot resolve path for "+str(dep)+", continue")
                 continue
 
             target = bundle_dir / dep_path.name
-            print("copying to target" + str(target))
             if not target.exists():
                 print(f"Copying {dep_path} → {target}")
                 shutil.copy(dep_path, target)
                 target.chmod(0o755)
                 dylibs.add(target)
 
-            # Rewrite dependency to local loader path
+    for lib in bundle_dir.glob("*.dylib"):
+        # Rewrite dependencies to local loader path
+        for dep in otool_deps(str(lib)):
+            if is_system_lib(dep):
+                continue
+            dep_path = resolve_real_path(dep)
+            if dep_path is None:
+                continue
             subprocess.run([
                 "install_name_tool",
                 "-change",
@@ -74,8 +77,7 @@ def bundle(bundle_dir):
                 str(lib)
             ], check=True)
 
-    # Fix install IDs
-    for lib in bundle_dir.glob("*.dylib"):
+        # Fix install IDs
         subprocess.run([
             "install_name_tool",
             "-id",
@@ -83,8 +85,7 @@ def bundle(bundle_dir):
             str(lib)
         ], check=True)
 
-    # Ad-hoc codesign (required for dlopen)
-    for lib in bundle_dir.glob("*.dylib"):
+        # Ad-hoc codesign (required for dlopen)
         subprocess.run([
             "codesign",
             "--force",
