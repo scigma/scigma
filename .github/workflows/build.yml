@@ -74,24 +74,7 @@ jobs:
       - name: Bundle macOS dependencies
         run: |
           cp build/libscigma.dylib scigma/
-
-          otool -L build/libscigma.dylib
-
-          otool -L build/libscigma.dylib \
-          | tail -n +2 \
-          | awk '{print $1}' \
-          | grep -v '^/usr/lib/' \
-          | grep -v '^/System/' \
-          | xargs -I{} cp {} scigma/
-
-          install_name_tool -add_rpath @loader_path scigma/libscigma.dylib
-
-          for lib in scigma/*.dylib; do
-            install_name_tool -id "@loader_path/$(basename "$lib")" "$lib"
-            install_name_tool -change "$(otool -L scigma/libscigma.dylib | grep $(basename "$lib") | awk '{print $1}')" \
-            "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
-          done
-
+          python tools/bundle_macos_dylibs.py scigma
           chmod -R u+w scigma/
 
       - name: Show scigma contents
@@ -140,22 +123,7 @@ jobs:
       - name: Bundle macOS dependencies
         run: |
           cp build/libscigma.dylib scigma/
-
-          otool -L build/libscigma.dylib \
-          | tail -n +2 \
-          | awk '{print $1}' \
-          | grep -v '^/usr/lib/' \
-          | grep -v '^/System/' \
-          | xargs -I{} cp {} scigma/
-
-          install_name_tool -add_rpath @loader_path scigma/libscigma.dylib
-
-          for lib in scigma/*.dylib; do
-            install_name_tool -id "@loader_path/$(basename "$lib")" "$lib"
-            install_name_tool -change "$(otool -L scigma/libscigma.dylib | grep $(basename "$lib") | awk '{print $1}')" \
-            "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
-          done
-
+          python tools/bundle_macos_dylibs.py scigma
           chmod -R u+w scigma/
 
       - name: Show scigma contents
