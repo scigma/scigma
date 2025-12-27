@@ -24,14 +24,32 @@ def otool_deps(dylib):
 def is_system_lib(path):
     return any(path.startswith(p) for p in SYSTEM_PREFIXES)
 
-def resolve_real_path(dep):
-    # @rpath or relative: resolve via otool -L search path is opaque,
-    # but Homebrew deps are always absolute by the time otool prints them.
-    if dep.startswith("@"):
-        return None
+def rpaths(dylib):
+    out = run(["otool", "-l", dylib])
+    paths = []
+    lines = out.splitlines()
+    for i, line in enumerate(lines):
+        if "cmd LC_RPATH" in line:
+            # path is two lines below
+            path_line = lines[i + 2].strip()
+            if path_line.startswith("path "):
+                paths.append(path_line.split("path ")[1].split(" (")[0])
+    return paths
+
+def resolve_real_path(dep, owner_dylib):
+    # Absolute path
     p = Path(dep)
-    if p.exists():
+    if p.is_absolute() and p.exists():
         return p.resolve()
+
+    # @rpath resolution
+    if dep.startswith("@rpath/"):
+        name = dep.split("/", 1)[1]
+        for rp in rpaths(owner_dylib):
+            candidate = Path(rp) / name
+            if candidate.exists():
+                return candidate.resolve()
+
     return None
 
 def bundle(bundle_dir):
@@ -52,7 +70,7 @@ def bundle(bundle_dir):
                 print(str(dep)+ " is system lib")
                 continue
 
-            dep_path = resolve_real_path(dep)
+            dep_path = resolve_real_path(dep, str(lib))
             if dep_path is None:
                 print(str(dep)+ " cannot resolve")
                 continue
@@ -88,7 +106,7 @@ def bundle(bundle_dir):
             str(lib)
         ], check=True)
 
-        # Ad-hoc codesign (required for dlopen)
+'''     # Ad-hoc codesign (required for dlopen)
         subprocess.run([
             "codesign",
             "--force",
@@ -97,6 +115,7 @@ def bundle(bundle_dir):
             "-",
             str(lib)
         ], check=True)
+'''
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
