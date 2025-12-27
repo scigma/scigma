@@ -23,7 +23,18 @@ jobs:
 
       - name: Build
         run: cmake --build build
-        
+
+      - name: Bundle Linux dependencies
+        run: |
+          cp build/libscigma.so scigma/
+
+          ldd build/libscigma.so \
+          | awk '/=>/ { print $3 }' \
+          | grep -vE 'libc\.so|libm\.so|ld-linux' \
+          | xargs -I{} cp {} scigma/
+ 
+          patchelf --set-rpath '$ORIGIN' scigma/libscigma.so
+
   build-macos-intel:
     name: Build (macOS Intel)
     runs-on: macos-15-intel
@@ -47,6 +58,25 @@ jobs:
 
       - name: Build
         run: cmake --build build
+
+      - name: Bundle macOS dependencies
+        run: |
+          cp build/libscigma.dylib scigma/
+
+          otool -L build/libscigma.dylib \
+          | tail -n +2 \
+          | awk '{print $1}' \
+          | grep -v '^/usr/lib/' \
+          | grep -v '^/System/' \
+          | xargs -I{} cp {} scigma/
+
+          install_name_tool -add_rpath @loader_path scigma/libscigma.dylib
+
+          for lib in scigma/*.dylib; do
+            install_name_tool -id "@loader_path/$(basename "$lib")" "$lib"
+            install_name_tool -change "$(otool -L scigma/libscigma.dylib | grep $(basename "$lib") | awk '{print $1}')" \
+            "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
+          done
 
   build-macos-arm:
     name: Build (macOS ARM)
@@ -77,6 +107,25 @@ jobs:
       - name: Build
         run: cmake --build build
 
+      - name: Bundle macOS dependencies
+        run: |
+          cp build/libscigma.dylib scigma/
+
+          otool -L build/libscigma.dylib \
+          | tail -n +2 \
+          | awk '{print $1}' \
+          | grep -v '^/usr/lib/' \
+          | grep -v '^/System/' \
+          | xargs -I{} cp {} scigma/
+
+          install_name_tool -add_rpath @loader_path scigma/libscigma.dylib
+
+          for lib in scigma/*.dylib; do
+            install_name_tool -id "@loader_path/$(basename "$lib")" "$lib"
+            install_name_tool -change "$(otool -L scigma/libscigma.dylib | grep $(basename "$lib") | awk '{print $1}')" \
+            "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
+          done
+
   build-windows:
     name: Build (Windows)
     runs-on: windows-latest
@@ -101,6 +150,14 @@ jobs:
     - name: Build
       shell: msys2 {0}
       run: cmake --build build
+      
+    - name: Bundle Windows dependencies
+      shell: msys2 {0}
+      run: |
+        cp build/yourmodule.dll scigma/
 
-
-
+        objdump -p build/libscigma.dll \
+        | grep "DLL Name" \
+        | awk '{print $3}' \
+        | grep -viE 'kernel32|user32|advapi32|msvcrt' \
+        | xargs -I{} cp /mingw64/bin/{} scigma/
