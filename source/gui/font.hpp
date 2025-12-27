@@ -50,6 +50,7 @@ namespace scigma
       
     private:
       Font();
+      Font(GLfloat fontHeight, const unsigned char* metricsData, unsigned char * pngData); 
 
       void set_metrics(const unsigned char* metricsData);
       void set_texture(unsigned char* pngData);
