@@ -41,6 +41,7 @@ def bundle(bundle_dir):
 
     while dylibs:
         lib = dylibs.pop()
+        print("processing " + str(lib))
         if lib in processed:
             print("already processed")
             continue
@@ -48,10 +49,12 @@ def bundle(bundle_dir):
 
         for dep in otool_deps(str(lib)):
             if is_system_lib(dep):
+                print(str(dep)+ " is system lib")
                 continue
 
             dep_path = resolve_real_path(dep)
             if dep_path is None:
+                print(str(dep)+ " cannot resolve")
                 continue
 
             target = bundle_dir / dep_path.name
