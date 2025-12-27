@@ -92,6 +92,10 @@ jobs:
         run: |
           ls -l scigma
 
+      - name: Codesign macOS binaries
+        run: |
+          codesign --force --deep --sign - scigma/*.dylib
+
       - name: Upload scigma package
         uses: actions/upload-artifact@v4
         with:
@@ -149,7 +153,11 @@ jobs:
       - name: Show scigma contents
         run: |
           ls -l scigma
-
+          
+      - name: Codesign macOS binaries
+        run: |
+          codesign --force --deep --sign - scigma/*.dylib
+          
       - name: Upload scigma package
         uses: actions/upload-artifact@v4
         with:
