@@ -35,6 +35,8 @@ jobs:
  
           patchelf --set-rpath '$ORIGIN' scigma/libscigma.so
 
+          chmod -R u+w scigma/
+
       - name: Show scigma contents
         run: |
           ls -l scigma
@@ -87,6 +89,8 @@ jobs:
             install_name_tool -change "$(otool -L scigma/libscigma.dylib | grep $(basename "$lib") | awk '{print $1}')" \
             "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
           done
+
+          chmod -R u+w scigma/
 
       - name: Show scigma contents
         run: |
@@ -150,6 +154,8 @@ jobs:
             "@loader_path/$(basename "$lib")" scigma/libscigma.dylib || true
           done
 
+          chmod -R u+w scigma/
+
       - name: Show scigma contents
         run: |
           ls -l scigma
@@ -199,6 +205,8 @@ jobs:
         | awk '{print $3}' \
         | grep -viE '^(kernel32|user32|gdi32|opengl32|shell32|advapi32|msvcrt)\.dll$' \
         | xargs -I{} cp /mingw64/bin/{} scigma/
+
+        chmod -R u+w scigma/
 
     - name: Show scigma contents
       shell: msys2 {0}
