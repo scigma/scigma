@@ -49,12 +49,12 @@ def bundle(bundle_dir):
 
         for dep in otool_deps(str(lib)):
             if is_system_lib(dep):
-                print(str(lib) + " is system lib, continue")
+                print(str(dep) + " is system lib, continue")
                 continue
 
             dep_path = resolve_real_path(dep)
             if dep_path is None:
-                print("cannot resolve path for "+str(lib)+", continue")
+                print("cannot resolve path for "+str(dep)+", continue")
                 continue
 
             target = bundle_dir / dep_path.name
