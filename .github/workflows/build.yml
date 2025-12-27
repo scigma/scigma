@@ -154,7 +154,7 @@ jobs:
     - name: Bundle Windows dependencies
       shell: msys2 {0}
       run: |
-        cp build/yourmodule.dll scigma/
+        cp build/libscigma.dll scigma/
 
         objdump -p build/libscigma.dll \
         | grep "DLL Name" \
