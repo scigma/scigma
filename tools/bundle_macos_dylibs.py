@@ -41,19 +41,24 @@ def bundle(bundle_dir):
 
     while dylibs:
         lib = dylibs.pop()
+        print("processing lib: " + str(lib))
         if lib in processed:
+            print("already processed")
             continue
         processed.add(lib)
 
         for dep in otool_deps(str(lib)):
             if is_system_lib(dep):
+                print("is system lib, continue")
                 continue
 
             dep_path = resolve_real_path(dep)
             if dep_path is None:
+                print("cannot resolve path, continue")
                 continue
 
             target = bundle_dir / dep_path.name
+            print("copying to target" + str(target))
             if not target.exists():
                 print(f"Copying {dep_path} → {target}")
                 shutil.copy(dep_path, target)
