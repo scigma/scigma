@@ -159,5 +159,5 @@ jobs:
         objdump -p build/libscigma.dll \
         | grep "DLL Name" \
         | awk '{print $3}' \
-        | grep -viE 'kernel32|user32|advapi32|msvcrt' \
+        | grep -viE '^(kernel32|user32|gdi32|opengl32|shell32|advapi32|msvcrt)\.dll$' \
         | xargs -I{} cp /mingw64/bin/{} scigma/
