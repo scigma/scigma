@@ -44,7 +44,7 @@ jobs:
           # Copy non-system runtime deps (libgfortran, libquadmath, etc.)
           ldd build/libscigma.so \
           | awk '/=>/ { print $3 }' \
-          | grep -vE 'libc\.so|libm\.so|ld-linux|libpthread|librt|libdl|libGL|libGLX|libEGL|libX11|libXrandr|libXcursor|libXi|libXinerama'
+          | grep -vE 'libc\.so|libm\.so|ld-linux|libpthread|librt|libdl|libGL|libGLX|libEGL|libX11|libXrandr|libXcursor|libXi|libXinerama' \
           | xargs -I{} cp -v {} scigma/
 
           # Make all libs writable
