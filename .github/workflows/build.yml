@@ -22,6 +22,7 @@ jobs:
           gcc gcc-c++ gcc-gfortran \
           cmake \
           mesa-libGL-devel \
+          mesa-libGLU-devel \
           libX11-devel \
           libXrandr-devel \
           libXcursor-devel \
