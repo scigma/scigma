@@ -5,47 +5,65 @@ on:
     branches: [ gh-actions-builds ]
 
 jobs:
-  build-linux:
-    name: Build (Linux)
-    runs-on: ubuntu-latest
+ build-linux:
+  name: Build (Linux, manylinux)
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  container:
+    image: quay.io/pypa/manylinux_2_28_x86_64
 
-      - name: Install Fortran compiler, OpenGL/X dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gfortran cmake libglu1-mesa-dev xorg-dev
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Configure
-        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
+    - name: Install build dependencies
+      run: |
+        yum install -y \
+          gcc gcc-c++ gcc-gfortran \
+          cmake \
+          mesa-libGL-devel \
+          libX11-devel \
+          libXrandr-devel \
+          libXcursor-devel \
+          libXinerama-devel \
+          libXi-devel
 
-      - name: Build
-        run: cmake --build build
+    - name: Configure
+      run: |
+        cmake -B build -S source \
+          -DCMAKE_BUILD_TYPE=Release
 
-      - name: Bundle Linux dependencies
-        run: |
-          cp build/libscigma.so scigma/
+    - name: Build
+      run: |
+        cmake --build build
 
-          ldd build/libscigma.so \
-          | awk '/=>/ { print $3 }' \
-          | grep -vE 'libc\.so|libm\.so|ld-linux' \
-          | xargs -I{} cp {} scigma/
- 
-          patchelf --set-rpath '$ORIGIN' scigma/libscigma.so
+    - name: Bundle Linux dependencies
+      run: |
+        mkdir -p scigma
+        cp build/libscigma.so scigma/
 
-          chmod -R u+w scigma/
+        # Copy non-system runtime deps (libgfortran, libquadmath, etc.)
+        ldd build/libscigma.so \
+        | awk '/=>/ { print $3 }' \
+        | grep -vE 'libc\.so|libm\.so|ld-linux|libpthread|librt|libdl' \
+        | xargs -I{} cp -v {} scigma/
 
-      - name: Show scigma contents
-        run: |
-          ls -l scigma
+        # Make all libs writable
+        chmod -R u+w scigma/
 
-      - name: Upload scigma package
-        uses: actions/upload-artifact@v4
-        with:
-          name: scigma-${{ runner.os }}-${{ runner.arch }}
-          path: scigma/
+        # Ensure relative runtime lookup
+        patchelf --set-rpath '$ORIGIN' scigma/libscigma.so
+
+    - name: Show scigma contents
+      run: |
+        ls -l scigma
+        ldd scigma/libscigma.so || true
+
+    - name: Upload scigma package
+      uses: actions/upload-artifact@v4
+      with:
+        name: scigma-linux-x86_64
+        path: scigma/
 
   build-macos-intel:
     name: Build (macOS Intel)
