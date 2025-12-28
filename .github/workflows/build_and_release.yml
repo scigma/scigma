@@ -248,8 +248,7 @@ jobs:
       - name: Repackage release artifacts
         run: |
           set -e
-
-          mkdir release
+          mkdir release_zipped
 
           for artifact in artifacts/*; do
             name=$(basename "$artifact")
@@ -261,9 +260,12 @@ jobs:
 
             # 2) copy bundled library folder as "scigma"
             cp -r "$artifact"/* "$pkg/scigma/"
+
+            # Zip the folder
+            zip -r "release_zipped/$name.zip" "$pkg"
           done
 
-          ls -R release
+          ls -l release_zipped
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -271,4 +273,5 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           generate_release_notes: true
-          files: release/**/*
+          files: release_zipped/*.zip
+
