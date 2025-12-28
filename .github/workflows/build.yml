@@ -191,6 +191,7 @@ jobs:
         cp build/libscigma.dll scigma/
 
         #Recursive function to copy DLLs
+        shopt -s nocasematch  # make =~ regex matching ignore case
         copy_dlls() {
             local dll="$1"
             local dest="$2"
