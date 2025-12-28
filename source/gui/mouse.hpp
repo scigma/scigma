@@ -24,7 +24,7 @@ namespace scigma
       Mouse();
       virtual ~Mouse();
       
-      virtual bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
+      bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
       
     private:
       Mouse(const Mouse&);

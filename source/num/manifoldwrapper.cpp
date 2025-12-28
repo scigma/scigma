@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "../common/log.hpp"
 #include "../common/blob.hpp"
 #include "../dat/wave.hpp"
@@ -90,6 +92,8 @@ extern "C"
 	    innerStepperList[i] =new PoincareStepper(*eqsys,dt,maxtime,secvar,secdir,secval,nTol,stiff,aTol,rTol, size_t(maxIter));
 	  }
 	break;
+	default:
+		  throw std::runtime_error("unknown value for mode");
       }
 
     varyingWave->lock();
@@ -146,6 +150,9 @@ extern "C"
 	break;
       case POINCARE:
 	log->push<LOG_ERROR>("calling ode manifold in POINCARE mode\n");
+	break;
+	default:
+		  throw std::runtime_error("unknown value for mode");
       }
     Task* task(create_iteration_task(identifier,log,size_t(nSteps), size_t(nRays),0,
 				     stepperList,varyingWave,1,0,2,1));

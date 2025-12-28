@@ -439,7 +439,7 @@
       * <fp.h> if possible.
       */
 #    if !defined(__MATH_H__) && !defined(__MATH_H) && !defined(__cmath__)
-#      include <fp.h>
+#      include <math.h>  // was <fp.h>, breaks on newer macos builds
 #    endif
 #  else
 #    include <math.h>
@@ -1938,3 +1938,4 @@ PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_neon,
 
 #endif /* PNG_VERSION_INFO_ONLY */
 #endif /* PNGPRIV_H */
+

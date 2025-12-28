@@ -21,6 +21,14 @@ namespace scigma
     
     Font::Font()
     {}
+
+    Font::Font(GLfloat const fontHeight, const unsigned char * metricsData, unsigned char * pngData)
+    {
+        charHeight=fontHeight;
+        set_metrics(metricsData);
+        textureID=get_texture_from_png_data(pngData,NULL,NULL);
+    }
+
     
     void Font::initialize()
     {
@@ -88,12 +96,7 @@ namespace scigma
     
     void Font::add_font(GLfloat fontHeight, const unsigned char* metricsData, unsigned char* pngData)
     {
-      fonts.push_back(Font());
-      Font& f=fonts.back();
-      
-      f.charHeight=fontHeight;
-      f.set_metrics(metricsData);
-      f.textureID=get_texture_from_png_data(pngData,NULL,NULL);
+      fonts.push_back(Font(fontHeight, metricsData, pngData));
     }
     
   } /* end namespace gui */

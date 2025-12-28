@@ -36,8 +36,8 @@ namespace scigma
 	size_t size() const;
 	GLuint buffer_ID() const;
 
-	virtual bool process(WaveInvalidateEvent event, size_t size);
-	virtual bool process(IdleEvent event, double time);
+	bool process(WaveInvalidateEvent event, size_t size) override;
+	bool process(IdleEvent event, double time) override;
 
 	void begin_transfer();
 	void end_transfer();

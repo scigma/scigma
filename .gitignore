@@ -19,3 +19,5 @@ stuff
 *.a
 *.gz
 *.DS_STORE
+./source/CMakeFiles/*
+./source/CMakeCache.txt

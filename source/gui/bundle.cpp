@@ -332,6 +332,7 @@ namespace scigma
 	  break;
 	case SOLID:
 	case WIREFRAME:
+        default:
 	  draw_points(availablePoints);
 	  break;
 	}

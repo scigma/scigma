@@ -1,5 +1,6 @@
 #include <cfloat>
 #include <cmath>
+#include <stdexcept>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -184,6 +185,9 @@ namespace scigma
 	  return;
 	case Z_COORDINATE:
 	  rotate(currentRotationMatrix_[8],currentRotationMatrix_[9],currentRotationMatrix_[10],angle);
+          return;
+        default:
+          throw std::runtime_error("unknown rotation axis");
 	}
     }
     

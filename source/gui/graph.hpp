@@ -81,8 +81,8 @@ namespace scigma
       static void set_light_direction(GLContext* glContext, const GLfloat* direction);
       static GLfloat* light_direction(GLContext* glContext);
 
-      bool process(LoopEvent Event);
-      bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods);
+      bool process(LoopEvent Event) override;
+      bool process(MouseButtonEvent event, GLWindow* w, int button , int action, int mods) override;
       
     protected:
       Graph(GLWindow* glWindow); 

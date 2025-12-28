@@ -33,33 +33,34 @@ namespace scigma
     public:
       Sheet(GLWindow* glWindow, 
 	    const Mesh* mesh, GLsizei nVars, const Wave* constants);
-      ~Sheet();
+      ~Sheet() override;
 
       // methods from the Drawable interface 
       static void on_gl_context_creation(GLContext* glContext);
       static void on_gl_context_destruction(GLContext* glContext);
       static void before_batch_draw(GLContext* glContext);
-      void on_addition(GLContext* context);
-      void on_removal(GLContext* context);
-      void draw(GLContext* glContext);
-      void on_hover_begin(GLContext* glContext);
-      void on_hover(GLContext* glContext, GLuint value);
-      void on_hover_end(GLContext* glContext);
+      void on_addition(GLContext* context) override;
+      void on_removal(GLContext* context) override;
+      void draw(GLContext* glContext) override;
+      void on_hover_begin(GLContext* glContext) override;
+      void on_hover(GLContext* glContext, GLuint value) override;
+      void on_hover_end(GLContext* glContext) override;
       
       // virtual methods inherited from Graph
-      virtual void finalize();
+      void finalize() override;
 
-      virtual void set_attributes_for_view(const std::vector<int>& indices);
+      void set_attributes_for_view(const std::vector<int>& indices) override;
 
-      virtual void adjust_shaders_for_view(const VecS& independentVariables,
+      void adjust_shaders_for_view(const VecS& independentVariables,
 					   const VecS& expressions,
-					   double timeStamp);
-      virtual void set_style(Style style);
+					   double timeStamp) override;
+      void set_style(Style style) override;
+
       void set_light_direction(const GLfloat* direction);
       void set_light_parameters(const GLfloat* parameters);
 
       using Graph::process;
-      bool process(GLBufferInvalidateEvent e);
+      bool process(GLBufferInvalidateEvent e) override;
       
     private:
       void prepare_varying_attributes();

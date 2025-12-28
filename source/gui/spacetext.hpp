@@ -18,7 +18,7 @@ namespace scigma
     {
     public:
       SpaceText(Font::Type type);
-      ~SpaceText(); 
+      ~SpaceText() override; 
       
       void set_text(const std::vector<std::string>& text,
 		    const std::vector<GLfloat>& x,
@@ -41,7 +41,7 @@ namespace scigma
 
       static void before_batch_draw(GLContext* glContext);
 
-      void draw(GLContext* glContext);
+      void draw(GLContext* glContext) override;
 
     private:
       SpaceText(const SpaceText&);

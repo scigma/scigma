@@ -193,6 +193,9 @@ extern "C"
 	      stepperList[i]=new PoincareStepper(*eqsys,dt,maxtime,secidx,secdir,secval,nTol,stiff,aTol,rTol, size_t(maxIter));
 	    }
 	}
+		  break;
+    default:
+		  throw std::runtime_error("unknown value for mode");
       }
     Task* task(create_iteration_task(identifier,log,size_t(nSteps), size_t(nRays),nConst,
 				     stepperList,varyingWave,size_t(nPeriod),showAllIterates?1:0));

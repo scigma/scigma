@@ -1,0 +1,239 @@
+name: Build
+
+on:
+  push:
+    branches: [ gh-actions-builds ]
+
+jobs:
+  build-linux:
+    name: Build (Linux, manylinux)
+    runs-on: ubuntu-latest
+
+    container:
+      image: quay.io/pypa/manylinux_2_28_x86_64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          yum install -y \
+          gcc gcc-c++ gcc-gfortran \
+          cmake \
+          mesa-libGL-devel \
+          mesa-libGLU-devel \
+          libX11-devel \
+          libXrandr-devel \
+          libXcursor-devel \
+          libXinerama-devel \
+          libXi-devel
+
+      - name: Configure
+        run: |
+          cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build
+
+      - name: Bundle Linux dependencies
+        run: |
+          cp build/libscigma.so scigma/
+
+          # Copy non-system runtime deps (libgfortran, libquadmath, etc.)
+          ldd build/libscigma.so \
+          | awk '/=>/ { print $3 }' \
+          | grep -vE 'libc\.so|libm\.so|ld-linux|libpthread|librt|libdl|libGL|libGLX|libEGL|libX|libx|libstdc++' \
+          | xargs -I{} cp -v {} scigma/
+
+          # Make all libs writable
+          chmod -R u+w scigma/
+
+          # Ensure relative runtime lookup
+          patchelf --set-rpath '$ORIGIN' scigma/libscigma.so
+
+      - name: Show scigma contents
+        run: |
+          ls -l scigma
+          ldd scigma/libscigma.so || true
+
+      - name: Upload scigma package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scigma-linux-x86_64
+          path: scigma/
+
+  build-macos-intel:
+    name: Build (macOS Intel)
+    runs-on: macos-15-intel
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install gfortran
+          
+      - name: Expose Homebrew Fortran compiler
+        run: |
+          echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
+          echo "FC=gfortran" >> $GITHUB_ENV
+
+      - name: Configure
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-error=poison-system-directories -Wno-covered-switch-default"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Bundle macOS dependencies
+        run: |
+          cp build/libscigma.dylib scigma/
+          python tools/bundle_macos_dylibs.py scigma
+          chmod -R u+w scigma/
+
+      - name: Show scigma contents
+        run: |
+          ls -l scigma
+
+      - name: Codesign macOS binaries
+        run: |
+          codesign --force --deep --sign - scigma/*.dylib
+
+      - name: Upload scigma package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scigma-${{ runner.os }}-${{ runner.arch }}
+          path: scigma/
+
+  build-macos-arm:
+    name: Build (macOS ARM)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install gfortran
+          
+      - name: Expose Homebrew Fortran compiler
+        run: |
+          echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
+          echo "FC=gfortran" >> $GITHUB_ENV
+
+      - name: Disable libpng NEON on ARM
+        run: |
+          echo "CFLAGS=-DPNG_ARM_NEON_OPT=0" >> $GITHUB_ENV
+          echo "CPPFLAGS=-DPNG_ARM_NEON_OPT=0" >> $GITHUB_ENV
+
+      - name: Configure
+        run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-error=poison-system-directories -Wno-covered-switch-default"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Bundle macOS dependencies
+        run: |
+          cp build/libscigma.dylib scigma/
+          python tools/bundle_macos_dylibs.py scigma
+          chmod -R u+w scigma/
+
+      - name: Show scigma contents
+        run: |
+          ls -l scigma
+          
+      - name: Codesign macOS binaries
+        run: |
+          codesign --force --deep --sign - scigma/*.dylib
+          
+      - name: Upload scigma package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scigma-${{ runner.os }}-${{ runner.arch }}
+          path: scigma/
+
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2 (UCRT)
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        install: >
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-ucrt-x86_64-gcc-fortran
+          mingw-w64-ucrt-x86_64-cmake
+
+    - name: Configure
+      shell: msys2 {0}
+      run: cmake -B build -S source -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      shell: msys2 {0}
+      run: cmake --build build
+      
+    - name: Bundle Windows dependencies
+      shell: msys2 {0}
+      run: |
+        set -e
+
+        # Copy the plugin DLL itself
+        cp build/libscigma.dll scigma/
+
+        #Recursive function to copy DLLs
+
+        copy_dlls() {
+            local dll="$1"
+            local dest="$2"
+
+            for dep in $(objdump -p "$dll" | grep "DLL Name" | awk '{print $3}'); do
+                # lowercase for consistent matching
+                dep_lower=$(echo "$dep" | tr '[:upper:]' '[:lower:]')
+
+                # skip system DLLs and API-set DLLs
+                if [[ "$dep_lower" =~ ^(kernel32|user32|gdi32|opengl32|shell32|advapi32|msvcrt|msvcp|ucrtbase|api-ms-win-crt-|ext-ms-win-).+\.dll$ ]]; then
+                    continue
+                fi
+
+                # skip already copied DLLs
+                if [[ -f "$dest/$dep" ]]; then
+                    continue
+                fi
+
+                # copy DLL only if it exists
+                if [[ -f "/ucrt64/bin/$dep" ]]; then
+                    cp "/ucrt64/bin/$dep" "$dest/"
+                    # recurse
+                    copy_dlls "/ucrt64/bin/$dep" "$dest"
+                fi
+            done
+        }
+
+
+        # Invoke recursive copying
+        copy_dlls build/libscigma.dll scigma/
+
+        # Make all bundled DLLs writable
+        chmod -R u+w scigma/
+
+    - name: Show scigma contents
+      shell: msys2 {0}
+      run: |
+        ls -l scigma
+
+    - name: Upload scigma package
+      uses: actions/upload-artifact@v4
+      with:
+        name: scigma-${{ runner.os }}-${{ runner.arch }}
+        path: scigma/
+

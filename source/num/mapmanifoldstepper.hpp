@@ -15,7 +15,7 @@ namespace scigma
 
     public:
       MapManifoldStepper(Stepper* mapStepper, double const * steadyState, double const * firstSegment, double dsmax, double dsmin, double alpha, double dalpha, size_t nPeriod);
-      ~MapManifoldStepper();
+      ~MapManifoldStepper() override;
 
       double t() const override;
       const double* x() const override;

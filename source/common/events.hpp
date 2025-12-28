@@ -86,7 +86,7 @@ namespace scigma
       mutable std::vector<const typename EventSource<Event>::Type*> sources_;
     public:
       virtual bool process(Event event)=0;
-      ~EventSinkWithNArguments<Event,0>()
+      ~EventSinkWithNArguments()
       {
 	std::vector<const typename EventSource<Event>::Type*> sources(sources_);
 	typename std::vector<const typename EventSource<Event>::Type*>::iterator iSource = sources.begin();
@@ -109,7 +109,7 @@ namespace scigma
     public:
       virtual bool process(Event event,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,0>::Result arg1)=0;
-      ~EventSinkWithNArguments<Event,1>()
+      ~EventSinkWithNArguments()
       {
 	std::vector<const typename EventSource<Event>::Type*> sources(sources_);
 	typename std::vector<const typename EventSource<Event>::Type*>::iterator iSource = sources.begin();
@@ -133,7 +133,7 @@ namespace scigma
       virtual bool process(Event event,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,0>::Result arg1,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg2)=0;
-      ~EventSinkWithNArguments<Event,2>()
+      ~EventSinkWithNArguments()
       {
 	std::vector<const typename EventSource<Event>::Type*> sources(sources_);
 	typename std::vector<const typename EventSource<Event>::Type*>::iterator iSource = sources.begin();
@@ -158,7 +158,7 @@ namespace scigma
 			   typename Loki::TL::TypeAt<typename Event::Arguments,0>::Result arg1,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg2,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,2>::Result arg3)=0;
-      ~EventSinkWithNArguments<Event,3>()
+      ~EventSinkWithNArguments()
       {
 	std::vector<const typename EventSource<Event>::Type*> sources(sources_);
 	typename std::vector<const typename EventSource<Event>::Type*>::iterator iSource = sources.begin();
@@ -184,7 +184,7 @@ namespace scigma
 			   typename Loki::TL::TypeAt<typename Event::Arguments,1>::Result arg2,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,2>::Result arg3,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,3>::Result arg4)=0;
-      ~EventSinkWithNArguments<Event,4>()
+      ~EventSinkWithNArguments()
       {
 	std::vector<const typename EventSource<Event>::Type*> sources(sources_);
 	typename std::vector<const typename EventSource<Event>::Type*>::iterator iSource = sources.begin();
@@ -211,7 +211,7 @@ namespace scigma
 			   typename Loki::TL::TypeAt<typename Event::Arguments,2>::Result arg3,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,3>::Result arg4,
 			   typename Loki::TL::TypeAt<typename Event::Arguments,4>::Result arg5)=0;
-      ~EventSinkWithNArguments<Event,5>()
+      ~EventSinkWithNArguments()
       {
 	std::vector<const typename EventSource<Event>::Type*> sources(sources_);
 	typename std::vector<const typename EventSource<Event>::Type*>::iterator iSource = sources.begin();
@@ -246,8 +246,8 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,0>():processIndex_(0){}
-      ~EventSourceWithNArguments<Event,0>()
+      EventSourceWithNArguments():processIndex_(0){}
+      ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
 	typename std::vector<typename EventSink<Event>::Type*>::iterator iSink = sinks.begin();
@@ -279,8 +279,8 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,1>():processIndex_(0){}
-      ~EventSourceWithNArguments<Event,1>()
+      EventSourceWithNArguments():processIndex_(0){}
+      ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
 	typename std::vector<typename EventSink<Event>::Type*>::iterator iSink = sinks.begin();
@@ -314,8 +314,8 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,2>():processIndex_(0){}
-      ~EventSourceWithNArguments<Event,2>()
+      EventSourceWithNArguments():processIndex_(0){}
+      ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
 	typename std::vector<typename EventSink<Event>::Type*>::iterator iSink = sinks.begin();
@@ -350,8 +350,8 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,3>():processIndex_(0){}
-      ~EventSourceWithNArguments<Event,3>()
+      EventSourceWithNArguments():processIndex_(0){}
+      ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
 	typename std::vector<typename EventSink<Event>::Type*>::iterator iSink = sinks.begin();
@@ -387,8 +387,8 @@ namespace scigma
 	}
     }
   public:
-    EventSourceWithNArguments<Event,4>():processIndex_(0){}
-    ~EventSourceWithNArguments<Event,4>()
+    EventSourceWithNArguments():processIndex_(0){}
+    ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
 	typename std::vector<typename EventSink<Event>::Type*>::iterator iSink = sinks.begin();
@@ -425,8 +425,8 @@ namespace scigma
 	  }
       }
     public:
-      EventSourceWithNArguments<Event,5>():processIndex_(0){}
-      ~EventSourceWithNArguments<Event,5>()
+      EventSourceWithNArguments():processIndex_(0){}
+      ~EventSourceWithNArguments()
       {
 	std::vector<typename EventSink<Event>::Type*> sinks(sinks_);
 	typename std::vector<typename EventSink<Event>::Type*>::iterator iSink = sinks.begin();

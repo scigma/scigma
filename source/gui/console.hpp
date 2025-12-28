@@ -33,8 +33,8 @@ namespace scigma
 	
 	Console(GLContext* context,bool largeFontsFlag=false);
 	virtual ~Console();
-	virtual bool process(CharEvent event, GLWindow* window, unsigned int unicode);
-	virtual bool process(KeyEvent event, GLWindow* window, int key,int scancode,int action,int mods);
+	bool process(CharEvent event, GLWindow* window, unsigned int unicode) override;
+	bool process(KeyEvent event, GLWindow* window, int key,int scancode,int action,int mods) override;
 	void set_displayed_screen_lines(unsigned int number);
 	void set_history_fadeout(bool yesNo);
 	void set_theme(Theme theme);
