@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ gh-actions-builds ]
+    branches: [ main ]
 
 jobs:
   build-linux:
@@ -56,12 +56,11 @@ jobs:
       - name: Show scigma contents
         run: |
           ls -l scigma
-          ldd scigma/libscigma.so || true
 
       - name: Upload scigma package
         uses: actions/upload-artifact@v4
         with:
-          name: scigma-linux-x86_64
+          name: scigma-${{ runner.os }}-${{ runner.arch }}
           path: scigma/
 
   build-macos-intel:
