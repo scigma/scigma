@@ -165,14 +165,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup MSYS2
+    - name: Setup MSYS2 (UCRT)
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: UCRT64
         install: >
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-gcc-fortran
-          mingw-w64-x86_64-cmake
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-ucrt-x86_64-gcc-fortran
+          mingw-w64-ucrt-x86_64-cmake
 
     - name: Configure
       shell: msys2 {0}
@@ -209,10 +209,10 @@ jobs:
                 fi
 
                 # Copy the DLL from mingw64/bin
-                cp "/mingw64/bin/$dep" "$dest/"
+                cp "/ucrt64/bin/$dep" "$dest/"
 
                 # Recurse on this DLL
-                copy_dlls "/mingw64/bin/$dep" "$dest"
+                copy_dlls "/ucrt64/bin/$dep" "$dest"
             done
         }
 
