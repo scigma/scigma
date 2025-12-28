@@ -199,7 +199,7 @@ jobs:
             # List all DLLs imported by this DLL
             for dep in $(objdump -p "$dll" | grep "DLL Name" | awk '{print $3}'); do
                 # Skip Windows system DLLs
-                if [[ "$dep" =~ ^(kernel32|user32|gdi32|opengl32|shell32|advapi32|msvcrt|msvcp|ucrtbase|api-ms-win-crt-|ext-ms-win-).+\.dll$ ]]; then
+                if [[ "$dep" =~ ^(KERNEL32|USER32|GDI32|OPENGL32|SHELL32|ADVAPI32|MSVCRT|MSVCP|UCRTBASE|api-ms-win-crt-|ext-ms-win-).+\.dll$ ]]; then
                     continue
                 fi
 
