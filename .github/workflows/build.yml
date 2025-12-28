@@ -191,30 +191,34 @@ jobs:
         cp build/libscigma.dll scigma/
 
         #Recursive function to copy DLLs
-        shopt -s nocasematch  # make =~ regex matching ignore case
+
         copy_dlls() {
             local dll="$1"
             local dest="$2"
 
-            # List all DLLs imported by this DLL
             for dep in $(objdump -p "$dll" | grep "DLL Name" | awk '{print $3}'); do
-                # Skip Windows system DLLs
-                if [[ "$dep" =~ ^(KERNEL32|USER32|GDI32|OPENGL32|SHELL32|ADVAPI32|MSVCRT|MSVCP|UCRTBASE|api-ms-win-crt-|ext-ms-win-).+\.dll$ ]]; then
+                # lowercase for consistent matching
+                dep_lower=$(echo "$dep" | tr '[:upper:]' '[:lower:]')
+
+                # skip system DLLs and API-set DLLs
+                if [[ "$dep_lower" =~ ^(kernel32|user32|gdi32|opengl32|shell32|advapi32|msvcrt|msvcp|ucrtbase|api-ms-win-crt-|ext-ms-win-).+\.dll$ ]]; then
                     continue
                 fi
 
-                # Skip if already copied
-                    if [[ -f "$dest/$dep" ]]; then
-                        continue
+                # skip already copied DLLs
+                if [[ -f "$dest/$dep" ]]; then
+                    continue
                 fi
 
-                # Copy the DLL from mingw64/bin
-                cp "/ucrt64/bin/$dep" "$dest/"
-
-                # Recurse on this DLL
-                copy_dlls "/ucrt64/bin/$dep" "$dest"
+                # copy DLL only if it exists
+                if [[ -f "/ucrt64/bin/$dep" ]]; then
+                    cp "/ucrt64/bin/$dep" "$dest/"
+                    # recurse
+                    copy_dlls "/ucrt64/bin/$dep" "$dest"
+                fi
             done
         }
+
 
         # Invoke recursive copying
         copy_dlls build/libscigma.dll scigma/
